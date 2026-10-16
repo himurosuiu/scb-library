@@ -4,6 +4,21 @@
   "comment": "Only explicitly approved public supplementary content. No invented biography or relationships.",
   "characters": {
     "tsukisa-yuru": {
+      "relationships": [
+        {
+          "characterId": "shirasaki-maina",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ],
+      "species": "ホワイトドラゴン",
+      "height": "150cm(ドラゴン形態：5m)",
+      "likes": "お姉様、デザート",
+      "dislikes": "金銭感覚",
+      "firstPerson": "わたし",
+      "secondPerson": "あなた",
+      "about": "学園の裏庭に迷い込んできた、白きドラゴンの末裔。\n淡い銀糸のような髪と氷を溶かす瞳を持ち、月の光の下で読書にふける姿は、まるで絵本から抜け出した幻想の少女。\nいつも静かで、どこか遠くを見つめているような儚さが印象的だが、話すとふわりと微笑み、柔らかな声で相手の心の奥をそっと撫でるような言葉を紡ぐ。\n\n文学部では幻想文学を中心に詩作や評論に取り組み、部誌「夢見草（ゆめみぐさ）」の編集を任されている。",
       "outfits": [
         {
           "id": "outfit-1",
@@ -12,18 +27,11 @@
             "assets/uploads/tsukisa-yuru/a835eef7-8b91-4479-abc1-95e2154299a2.webp"
           ]
         }
-      ],
-      "relationships": [
-        {
-          "characterId": "shirasaki-maina",
-          "kind": "sister",
-          "label": "お姉様",
-          "approved": true
-        }
       ]
     },
     "viola": {
-      "firstPerson": "私"
+      "firstPerson": "私",
+      "about": "学園に仕える神父、ビオラ神父。\n頭に掲げられた“信仰の象徴”は、救いではなく、問いかけのしるし。\n神に仕えるはずのその姿は、どこか人ならざるものを思わせるが、\nその冷たい瞳の奥には、決して揺るがぬ優しさが宿っている。\n\n祈りの声を受け止めはするが、安易な救済は与えない。\n本当の救いは、自分の中から見つけ出すものだから――。"
     },
     "usagida-roru": {
       "relationships": [
@@ -53,7 +61,12 @@
           "label": "妹",
           "approved": true
         }
-      ]
+      ],
+      "species": "猫又",
+      "height": "145㎝",
+      "likes": "和菓子",
+      "dislikes": "辛いもの",
+      "firstPerson": "わたし"
     },
     "fujimiya-iori": {
       "relationships": [

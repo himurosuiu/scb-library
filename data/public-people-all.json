@@ -183,7 +183,7 @@
       "id": "shirasaki-maina",
       "name": "白咲 舞菜",
       "nameKana": "しらさき まいな",
-      "romaji": "MAINA",
+      "romaji": "SHIRASAKI MAINA",
       "kind": "student",
       "grade": "3年",
       "club": "生徒会",
@@ -192,7 +192,7 @@
       "group": "3年生 生徒会",
       "image": "assets/portraits/shirasaki-maina.jpg",
       "portrait": "assets/portraits/shirasaki-maina.jpg",
-      "fullBody": null,
+      "fullBody": "assets/uploads/shirasaki-maina/aa76adf0-5d92-44d9-b62b-2a927a83b9f2.webp",
       "gallery": []
     },
     {
