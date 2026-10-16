@@ -47,3 +47,18 @@ h2{position:absolute;left:70px;top:110px;font-size:40px;letter-spacing:.3em;colo
 /* photo caption */
 .photo-box.with-cap{height:1200px}
 .caption{position:absolute;left:70px;top:1330px;width:788px;height:90px;font-size:32px;line-height:1.4;text-align:center;color:#5d4a52;overflow:hidden}
+
+/* relation graph (BONDS): centre person, related people on an ellipse, coloured lines */
+.gsvg{position:absolute;left:0;top:0}
+.gcenter,.gnode{position:absolute;transform:translate(-50%,-50%);text-align:center}
+.gcenter img,.gcenter .noimg{width:240px;height:240px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:7px solid var(--accent);background:#f0e6df;display:block;margin:0 auto}
+.gcname{font-size:42px;font-weight:700;margin-top:12px;white-space:nowrap;display:inline-block;background:#fbf6f1;border-radius:24px;padding:0 18px}
+.gnode img,.gnode .noimg{width:144px;height:144px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:5px solid var(--accent);background:#f0e6df;display:block;margin:0 auto}
+.gname{font-size:30px;font-weight:700;margin-top:8px;max-width:230px;line-height:1.25;display:inline-block;background:#fbf6f1;border-radius:18px;padding:0 12px}
+.pill{position:absolute;transform:translate(-50%,-50%);background:#fffaf6;border:3px solid;border-radius:26px;padding:3px 14px;font-size:24px;font-weight:700;line-height:1.2;text-align:center;max-width:190px}
+.legend{position:absolute;left:70px;bottom:48px;display:flex;flex-wrap:wrap;gap:6px 26px;font-size:24px;color:#6a5a52}
+.lg i{display:inline-block;width:34px;height:8px;border-radius:4px;margin-right:8px;vertical-align:middle}
+
+.noimg{position:relative}
+.noimg::after{content:"桜";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-size:56px;color:#d9b9b1}
+.gcenter .noimg::after{font-size:110px}

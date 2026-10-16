@@ -35,6 +35,18 @@ SLOTS = ROOT / 'tools' / 'scb_publish' / 'slots.json'
 TEMPLATES = HERE / 'templates'
 
 ATLAS = 2048
+MAX_SINGLE, MAX_GRAPH = 6, 14                             # nodes on one page / on a whole spread
+KIND_JP = {'sister': '姉妹', 'blood': '血縁', 'friend': '友人', 'acquaintance': '知人', 'clan': '同族', 'rival': 'ライバル',
+           'kusareen': '腐れ縁', 'gizagiza': 'ギザギザ', 'other': 'その他', 'one_sided': '片想い', 'tsuntsun': 'ツンツン',
+           'honmei': '本命', 'oshi': '推し', 'amayakashi': '甘やかし', 'amae': '甘え', 'izon': '依存', 'kininaru': '気になる'}
+KIND_STYLE = {                                            # kind -> (colour, dash)
+    'sister': ('#c04a58', ''), 'blood': ('#c04a58', '14 10'), 'clan': ('#a8566a', ''),
+    'one_sided': ('#d86a9a', ''), 'honmei': ('#d86a9a', ''), 'oshi': ('#e0508a', ''), 'kininaru': ('#e58aa8', '4 8'),
+    'amae': ('#d9879a', ''), 'amayakashi': ('#d9879a', ''), 'izon': ('#a04a7a', ''),
+    'friend': ('#5f9a70', ''), 'kusareen': ('#6a8a5a', '14 10'), 'tsuntsun': ('#7aa05a', ''),
+    'acquaintance': ('#9a8478', '14 10'), 'rival': ('#4a6a9a', ''), 'gizagiza': ('#6a5a9a', '14 10'), 'other': ('#9a8478', ''),
+}
+DIRECTED = ('one_sided', 'tsuntsun', 'honmei', 'oshi', 'amayakashi', 'amae', 'izon', 'kininaru')
 PAGE_W, PAGE_H = 928, 1528                                # render size of one page
 # atlas rectangles (spec 9.8, x right / y down). Both are fully painted with paper first, so no base art leaks.
 LEFT_RECT = (29, 32, 957, 1561)                           # p.even
@@ -75,11 +87,24 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     pages.append({'role': 'title', 'name': p['name'], 'kana': p['nameKana'], 'roleLine': role_line(p),
                   'portrait': portrait, 'color': color})
     pages.append({'role': 'profile', 'name': p['name'], 'rows': profile_rows(p, extra), 'color': color})
+    graph = None
+    if bonds:
+        if len(bonds) > MAX_GRAPH:
+            rep.warn(f'{p["id"]}: {len(bonds)} relations; only the first {MAX_GRAPH} fit in the graph')
+            bonds = bonds[:MAX_GRAPH]
+        center = {'name': p['name'], 'portrait': portrait}
+        if len(bonds) > MAX_SINGLE:               # a whole spread: canvas right half = p.(odd), left half = p.(even)
+            graph = [{'role': 'graph', 'span': 2, 'half': 'R', 'bonds': bonds, 'center': center, 'color': color},
+                     {'role': 'graph', 'span': 2, 'half': 'L', 'bonds': bonds, 'center': center, 'color': color}]
+        else:
+            graph = [{'role': 'graph', 'span': 1, 'half': 'S', 'bonds': bonds, 'center': center, 'color': color}]
     secs = [(k, extra[key]) for k, key in (('好きなもの', 'likes'), ('苦手なもの', 'dislikes'), ('人物紹介', 'about')) if extra.get(key)]
+    if graph and len(graph) == 2:                 # right after the profile (p.3 / p.4), so the two halves face each other
+        pages += graph
     if secs:
         pages.append({'role': 'about', 'sections': secs, 'color': color})
-    if bonds:
-        pages.append({'role': 'bonds', 'bonds': bonds[:8], 'color': color})
+    if graph and len(graph) == 1:
+        pages += graph
     photos = []                                            # (image, caption)
     for bp in extra.get('bookPages') or []:
         photos.append((bp.get('image'), bp.get('caption', '')))
@@ -113,8 +138,9 @@ def bonds_of(pid, relations, people, fe: Path):
             continue
         label = r.get('forA' if pid == r['a'] else 'forB') or r.get('label') or '関係者'
         port = other.get('portrait') or other.get('image')
+        direction = ('out' if pid == r['a'] else 'in') if r['kind'] in DIRECTED else 'none'
         out.append({'name': other['name'], 'label': label, 'portrait': port if port and (fe / port).exists() else None,
-                    'kind': r['kind']})
+                    'kind': r['kind'], 'dir': direction})
     order = {'sister': 0, 'blood': 1, 'clan': 2}
     return sorted(out, key=lambda b: (order.get(b['kind'], 3), b['name']))
 
@@ -135,6 +161,61 @@ def profile_rows(p, extra=None):
 # ---------------------------------------------------------------- page HTML (template-driven)
 def esc(s):
     return (str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;'))
+
+
+def graph_body(pg, fe: Path):
+    """Centre person + related people on an ellipse, lines coloured by kind (arrow = direction), label on each line.
+    span 1: one page (928 wide). span 2: a whole spread (1856 wide); the page keeps only its half (cropped when screenshotting)."""
+    import math
+    span = pg['span']
+    W = 928 * span
+    cx, cy = W / 2, 800
+    rx, ry = (310, 500) if span == 1 else (720, 490)
+    bonds = pg['bonds']
+    n = len(bonds)
+    if span == 1:
+        cx, cy, rx, ry, R_C, R_N = 464, 790, 345, 520, 105, 66
+    else:
+        R_C, R_N = 120, 72
+    pos = []
+    for i in range(n):
+        # span 2: keep the nodes off the spine (x = centre) by turning the ring half a step when n is even
+        ang = -math.pi / 2 + 2 * math.pi * i / max(n, 1) + (math.pi / max(n, 1) if span == 2 and n % 2 == 0 else 0)
+        pos.append((cx + rx * math.cos(ang), cy + ry * math.sin(ang)))
+    svg, pills, nodes = '', '', ''
+    for (x, y), b in zip(pos, bonds):
+        color, dash = KIND_STYLE.get(b['kind'], ('#9a8478', ''))
+        dx, dy = x - cx, y - cy
+        dist = math.hypot(dx, dy) or 1
+        ux, uy = dx / dist, dy / dist
+        x1, y1 = cx + ux * (R_C + 4), cy + uy * (R_C + 4)
+        x2, y2 = x - ux * (R_N + 8), y - uy * (R_N + 8)
+        dd = f' stroke-dasharray="{dash}"' if dash else ''
+        svg += f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{color}" stroke-width="7" stroke-linecap="round"{dd}/>'
+        if b['kind'] in DIRECTED and b.get('dir') in ('out', 'in'):
+            if b['dir'] == 'out':
+                tx, ty, vx, vy = x2, y2, ux, uy
+            else:
+                tx, ty, vx, vy = x1, y1, -ux, -uy
+            ax, ay = tx - vx * 26, ty - vy * 26
+            px, py = -vy, vx
+            svg += (f'<polygon points="{tx:.1f},{ty:.1f} {ax + px * 15:.1f},{ay + py * 15:.1f} {ax - px * 15:.1f},{ay - py * 15:.1f}" fill="{color}"/>')
+        mx, my = cx + dx * 0.5, cy + dy * 0.5
+        pills += (f'<div class="pill" style="left:{mx:.1f}px;top:{my:.1f}px;border-color:{color};color:{color}">{esc(b["label"])}</div>')
+        sz = f'width:{2 * R_N}px;height:{2 * R_N}px'
+        im = f'<img style="{sz}" src="{(fe / b["portrait"]).as_uri()}">' if b.get('portrait') else f'<span class="noimg" style="{sz}"></span>'
+        nodes += (f'<div class="gnode" style="left:{x:.1f}px;top:{y:.1f}px">{im}<div class="gname">{esc(b["name"])}</div></div>')
+    csz = f'width:{2 * R_C}px;height:{2 * R_C}px'
+    cim = f'<img style="{csz}" src="{(fe / pg["center"]["portrait"]).as_uri()}">' if pg['center'].get('portrait') else f'<span class="noimg" style="{csz}"></span>'
+    centre = f'<div class="gcenter" style="left:{cx:.1f}px;top:{cy:.1f}px">{cim}<div class="gcname">{esc(pg["center"]["name"])}</div></div>'
+    kinds = []
+    for b in bonds:
+        if b['kind'] not in kinds:
+            kinds.append(b['kind'])
+    legend = ''.join(f'<span class="lg"><i style="background:{KIND_STYLE.get(k, ("#9a8478", ""))[0]}"></i>{esc(KIND_JP.get(k, k))}</span>' for k in kinds)
+    arrow_note = '<span class="lg">矢印＝向き</span>' if any(b['kind'] in DIRECTED for b in bonds) else ''
+    return (f'<h2>BONDS</h2><svg class="gsvg" width="{W}" height="{PAGE_H}" viewBox="0 0 {W} {PAGE_H}">{svg}</svg>{pills}{nodes}{centre}'
+            f'<div class="legend" style="width:{W - 140}px">{legend}{arrow_note}</div>')
 
 
 def page_html(pg, tpl, fe: Path, number: int):
@@ -160,19 +241,16 @@ def page_html(pg, tpl, fe: Path, number: int):
     elif role == 'about':
         secs = ''.join(f'<div class="sec"><h3>{esc(k)}</h3><p>{esc(v).replace(chr(10), "<br>")}</p></div>' for k, v in pg['sections'])
         body = f'<h2>ABOUT</h2><div class="secs">{secs}</div>'
-    elif role == 'bonds':
-        items = ''
-        for b in pg['bonds']:
-            im = f'<img src="{(fe / b["portrait"]).as_uri()}">' if b.get('portrait') else '<span class="noimg"></span>'
-            items += f'<div class="bond">{im}<div class="bt"><div class="bn">{esc(b["name"])}</div><div class="bl">{esc(b["label"])}</div></div></div>'
-        body = f'<h2>BONDS</h2><div class="bonds">{items}</div>'
+    elif role == 'graph':
+        body = graph_body(pg, fe)
     elif role == 'photo':
         cap = f'<div class="caption">{esc(pg["caption"])}</div>' if pg.get('caption') else ''
         body = f'<div class="photo-box{" with-cap" if cap else ""}"><img src="{(fe / pg["image"]).as_uri()}"></div>{cap}'
     else:
         body = '<div class="blank-note">&nbsp;</div>'
-    num = '' if role == 'blank' else f'<div class="pno">{number}</div>'
-    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}</style>'
+    num = '' if role in ('blank', 'graph') else f'<div class="pno">{number}</div>'
+    wide = f'html,body,.page{{width:{928 * pg["span"]}px}}' if role == 'graph' else ''
+    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{wide}</style>'
             f'<body class="role-{role}" style="--accent:{esc(color)}"><div class="page">{body}{num}</div></body>')
 
 
@@ -188,7 +266,7 @@ FIT_JS = """() => {
 }"""
 
 
-def render_page(browser_page, html, rep: Report, label):
+def render_page(browser_page, html, rep: Report, label, width=PAGE_W, crop_x=0):
     # file:// page so local fonts and portraits are allowed to load (set_content pages are blocked from file URLs)
     with tempfile.NamedTemporaryFile('w', suffix='.html', encoding='utf-8', delete=False) as f:
         f.write(html)
@@ -197,10 +275,14 @@ def render_page(browser_page, html, rep: Report, label):
     finally:
         Path(f.name).unlink(missing_ok=True)
     browser_page.evaluate("document.fonts.ready")
+    if width != PAGE_W:
+        browser_page.set_viewport_size({'width': width, 'height': PAGE_H})
     overflow = browser_page.evaluate(FIT_JS)
+    if width != PAGE_W:
+        browser_page.wait_for_timeout(100)
     for o in overflow:
         rep.warn(f'{label}: text still overflows at minimum size ({o})')
-    png = browser_page.screenshot(clip={'x': 0, 'y': 0, 'width': PAGE_W, 'height': PAGE_H})
+    png = browser_page.screenshot(clip={'x': crop_x, 'y': 0, 'width': PAGE_W, 'height': PAGE_H})
     return Image.open(io.BytesIO(png)).convert('RGB')
 
 
@@ -276,7 +358,8 @@ def main():
         if not 1 <= spreads <= 6:
             rep.error(f'{slot}: person books support 1..6 spreads'); continue
         pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe))
-        imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
+        imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'),
+                                                      *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
         h = input_hash(pages, tpl, base_hash, imgs)
         jobs.append((slot, spreads, pages, h))
 
@@ -308,7 +391,11 @@ def main():
             outdir.mkdir(parents=True, exist_ok=True)
             rendered = []
             for i, pg in enumerate(pages, start=1):
-                rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}'))
+                if pg['role'] == 'graph' and pg['span'] == 2:           # right half of the wide canvas is the odd (right-hand) page
+                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}', width=1856, crop_x=928 if pg['half'] == 'R' else 0))
+                    bp.set_viewport_size({'width': PAGE_W, 'height': PAGE_H})
+                else:
+                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}'))
             for j in range(spreads):
                 right, left = rendered[2 * j], rendered[2 * j + 1]       # right-bound: p.(2j+1) right, p.(2j+2) left
                 atlas = compose(base, left, right, paper)
