@@ -2,5 +2,190 @@
   "schemaVersion": 1,
   "demo": false,
   "comment": "Only explicitly approved public supplementary content. No invented biography or relationships.",
-  "characters": {}
+  "characters": {
+    "tsukisa-yuru": {
+      "outfits": [
+        {
+          "id": "outfit-1",
+          "label": "白竜の姿",
+          "images": [
+            "assets/uploads/tsukisa-yuru/a835eef7-8b91-4479-abc1-95e2154299a2.webp"
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "characterId": "shirasaki-maina",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "viola": {
+      "firstPerson": "私"
+    },
+    "usagida-roru": {
+      "relationships": [
+        {
+          "characterId": "suzugamori-kaede",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "kasugaya-shion": {
+      "relationships": [
+        {
+          "characterId": "hokosaki-suzune",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "shirasaki-maina": {
+      "relationships": [
+        {
+          "characterId": "tsukisa-yuru",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "fujimiya-iori": {
+      "relationships": [
+        {
+          "characterId": "senga-yura",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "yuuzuki-miori": {
+      "relationships": [
+        {
+          "characterId": "abe-ginka",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "abe-ginka": {
+      "relationships": [
+        {
+          "characterId": "yuuzuki-miori",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "konoe-wakana": {
+      "relationships": [
+        {
+          "characterId": "tokisuzu-peruru",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "suzugamori-kaede": {
+      "relationships": [
+        {
+          "characterId": "amane-shiina",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        },
+        {
+          "characterId": "usagida-roru",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "houin-sumika": {
+      "relationships": [
+        {
+          "characterId": "inumachi-rin",
+          "kind": "sister",
+          "label": "妹",
+          "approved": true
+        }
+      ]
+    },
+    "amane-shiina": {
+      "relationships": [
+        {
+          "characterId": "suzugamori-kaede",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "senga-yura": {
+      "relationships": [
+        {
+          "characterId": "fujimiya-iori",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "tokisuzu-peruru": {
+      "relationships": [
+        {
+          "characterId": "konoe-wakana",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "hokosaki-suzune": {
+      "relationships": [
+        {
+          "characterId": "hokosaki-rinne",
+          "kind": "blood",
+          "label": "血縁",
+          "approved": true
+        },
+        {
+          "characterId": "kasugaya-shion",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "inumachi-rin": {
+      "relationships": [
+        {
+          "characterId": "houin-sumika",
+          "kind": "sister",
+          "label": "お姉様",
+          "approved": true
+        }
+      ]
+    },
+    "hokosaki-rinne": {
+      "relationships": [
+        {
+          "characterId": "hokosaki-suzune",
+          "kind": "blood",
+          "label": "血縁",
+          "approved": true
+        }
+      ]
+    }
+  }
 }

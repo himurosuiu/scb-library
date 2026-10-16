@@ -5,7 +5,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const $ = id => document.getElementById(id);
 const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
-const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', outfits: 'ギャラリー（衣装別）' };
+const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', outfits: 'ギャラリー（衣装別）', bookPages: '個人ブックのページ' };
 const ORDER = Object.keys(LABELS);
 const VALUE_WORDS = { student: '生徒', teacher: '教員', active: '在籍中', graduated: '卒業' };
 const SAFE_IMG = /^assets\/[A-Za-z0-9_./-]+$/;
@@ -37,6 +37,13 @@ function valueCell(key, v, cls) {
       for (const path of (o && Array.isArray(o.images) ? o.images : [])) { const t = thumbFor(path); if (t) row.append(t); }
       td.append(row);
     }
+    return td;
+  }
+  if (key === 'bookPages' && Array.isArray(v)) {
+    v.forEach((b, i) => {
+      td.append(el('div', '', `ページ ${i + 1}${b && b.caption ? '：' + b.caption : ''}`));
+      const t = b ? thumbFor(b.image) : null; if (t) td.append(t);
+    });
     return td;
   }
   if (Array.isArray(v)) { td.textContent = v.join('\n'); td.style.whiteSpace = 'pre-line'; return td; }
@@ -84,6 +91,32 @@ async function load() {
   $('count').textContent = list.length ? `${list.length} 件の草稿` : '';
 }
 
+const KIND_WORDS = { sister: '姉妹（お姉様と妹）', blood: '血縁', friend: '友人', acquaintance: '知人', other: 'その他' };
+async function loadRelations() {
+  const list = need(await api.rpc('scb_admin_relation_queue'));
+  const box = $('relQueue'); box.replaceChildren();
+  for (const r of list) {
+    const removal = r.status === 'approved' && r.removal_requested;
+    const row = el('div', 'cloud-box');
+    const elder = (r.kind === 'sister' || r.kind === 'blood') ? `（年長者：${r.a_name}）` : '';
+    row.append(el('h3', '', `${removal ? '【削除申請】' : ''}${r.a_name} ⇔ ${r.b_name}`));
+    row.append(el('div', 'sub', `${KIND_WORDS[r.kind] || r.kind}${elder}${r.label ? ' ／ 表示名：' + r.label : ''}${r.note ? ' ／ メモ：' + r.note : ''}`));
+    row.append(el('div', 'sub', `提案：${r.proposer_name || '（名前なし）'}${r.counterpart_name ? ' ／ 相手側の確認：' + r.counterpart_name : ''} ／ ${fmt(r.created_at)}`));
+    const yes = el('button', '', removal ? '削除を承認' : '承認（公開対象にする）'); yes.type = 'button';
+    const no = el('button', 'danger', removal ? '削除しない' : '却下'); no.type = 'button';
+    const decide = async approve => {
+      let reason = null;
+      if (!removal && !approve) { reason = prompt('却下の理由（任意・200字まで）', ''); if (reason === null) return; }
+      yes.disabled = no.disabled = true;
+      try { need(await api.rpc('scb_admin_decide_relation', { rid: r.id, approve, reason: reason && reason.trim() || null })); await loadRelations(); say('処理しました。', 'ok'); }
+      catch (e) { say('失敗しました: ' + e.message, 'err'); yes.disabled = no.disabled = false; }
+    };
+    yes.onclick = () => decide(true); no.onclick = () => decide(false);
+    row.append(yes, no); box.append(row);
+  }
+  $('relNone').hidden = list.length > 0;
+}
+
 async function commit(d, approve, reject) {
   const who = (d.display_name && d.display_name.trim()) || '編集者';
   if (!confirm(`${d.character_name || d.character_id} への ${who} の草稿を承認し、データベースに反映しますか？\n（公開サイトと World は、公開コマンドを実行するまで変わりません）`)) return;
@@ -124,6 +157,7 @@ async function start() {
     if (!admin) return;
     $('panel').hidden = false;
     await load();
+    await loadRelations();
   } catch (e) { $('who').textContent = '初期化に失敗しました: ' + e.message; $('who').className = 'err'; }
 }
 
@@ -136,6 +170,6 @@ else {
     if (error) say(error.message, 'err');
   };
   $('logout').onclick = async () => { await api.auth.signOut(); location.reload(); };
-  $('reload').onclick = async () => { try { await load(); say(''); } catch (e) { say('更新に失敗しました: ' + e.message, 'err'); } };
+  $('reload').onclick = async () => { try { await load(); await loadRelations(); say(''); } catch (e) { say('更新に失敗しました: ' + e.message, 'err'); } };
   start();
 }
