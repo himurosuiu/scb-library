@@ -1,0 +1,75 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>管理センター | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1100px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.3rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem;margin:.8rem 0}
+.card{display:block;background:#fff;border:1px solid #d9c7b6;border-radius:12px;padding:.9rem 1rem;text-decoration:none;color:inherit}
+.card:hover{border-color:#b98a7a;box-shadow:0 2px 10px rgba(120,70,60,.12)}
+.card strong{display:block;font-size:1.05rem;margin-bottom:.2rem}.card span{font-size:.88rem;color:#7b6b5e}
+.card.soon{opacity:.55;pointer-events:none}
+.badge{display:inline-block;padding:.05rem .6rem;border-radius:999px;font-size:.8rem;margin-left:.4rem;border:1px solid #c9b8a6;background:#fff}.badge.hot{border-color:#c77;background:#fdeeee;color:#a0343a}.badge.ok{border-color:#7ab08a;background:#eef8f0;color:#2d6a4f}.badge.bad{border-color:#c77;background:#fdeeee;color:#a0343a}
+.muted{color:#8a7a6b}.err{color:#a0343a}.stat{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center}.stat div{min-width:120px}.stat b{font-size:1.6rem;display:block}
+h2{margin:.2rem 0 .6rem}h3{margin:1.2rem 0 .2rem;color:#7a5a4a;font-size:1rem;letter-spacing:.05em}
+ul.runs{list-style:none;padding:0;margin:.4rem 0}ul.runs li{padding:.25rem 0;border-bottom:1px dashed #e2d6c8;font-size:.92rem}
+</style></head><body>
+<div class="prototype-ribbon">SCB ADMIN HUB ・ ここから全ての編集ツールに入れます</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · HUB</p>
+<h1>管理センター</h1>
+<p class="muted">編集・審査・公開・説明書の入口をまとめたページです。ログインすると、あなたの権限に合わせた内容が表示されます。</p>
+
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+
+<div id="adminPanel" hidden>
+ <div class="cloud-box"><h2>いま対応が必要なこと</h2>
+  <div class="stat">
+   <div><b id="nDrafts">–</b><a href="review.html">審査待ちの草稿</a></div>
+   <div><b id="nRels">–</b><a href="review.html#relSection">審査待ちの関係</a></div>
+   <div><b id="nEditors">–</b><a href="roles.html">編集者の割り当て</a></div>
+  </div>
+  <p class="muted" id="adminNote"></p>
+ </div>
+ <div class="cloud-box"><h2>公開（自動発布）の状況</h2>
+  <p>承認した内容は最大 15 分で自動的にサイトと World の書籍画像に反映されます。<span id="pubBadge" class="badge">確認中</span></p>
+  <ul class="runs" id="runs"></ul>
+  <p><a class="card" style="display:inline-block" href="https://github.com/himurosuiu/scb-library/actions/workflows/publish.yml" target="_blank" rel="noopener"><strong>今すぐ公開する（Run workflow）</strong><span>GitHub の Actions 画面で「Run workflow」を押します。「force_render」にチェックすると全書籍と看板を描き直します。</span></a></p>
+ </div>
+</div>
+
+<div id="memberPanel" hidden>
+ <div class="cloud-box"><h2>あなたが担当する人物</h2><div class="cards" id="myChars"></div><p class="muted" id="myNote"></p></div>
+</div>
+
+<div id="dir" hidden>
+ <div class="cloud-box"><h2>ディレクトリ</h2>
+  <h3>編集（メンバー）</h3>
+  <div class="cards">
+   <a class="card" href="./"><strong>人物の編集</strong><span>プロフィール・画像・衣装・個人ブックのページ・関係の提案</span></a>
+   <a class="card" href="guide.html"><strong>使い方ガイド</strong><span>メンバー向けの手順書（日本語）</span></a>
+  </div>
+  <h3>管理（管理者）</h3>
+  <div class="cards" id="adminCards">
+   <a class="card" href="review.html"><strong>草稿・関係の審査</strong><span>承認／却下。承認後に自動公開されます</span></a>
+   <a class="card" href="roles.html"><strong>編集者の割り当て</strong><span>誰がどの人物を編集できるか</span></a>
+   <a class="card soon" href="#"><strong>書位・書名の編集</strong><span>近日追加（フェーズ2）</span></a>
+   <a class="card soon" href="#"><strong>人物の追加・削除</strong><span>近日追加（フェーズ3）</span></a>
+   <a class="card soon" href="#"><strong>サイト内容の設定</strong><span>近日追加（フェーズ4）</span></a>
+   <a class="card soon" href="#"><strong>学年ごとの見た目</strong><span>近日追加（フェーズ5）</span></a>
+  </div>
+  <h3>公開サイト・成果物</h3>
+  <div class="cards">
+   <a class="card" href="../" target="_blank"><strong>サイト トップ</strong><span>公開されているホーム</span></a>
+   <a class="card" href="../characters/" target="_blank"><strong>人物アーカイブ</strong><span>人物一覧と詳細</span></a>
+   <a class="card" href="../relationships/" target="_blank"><strong>関係図</strong><span>承認済みの関係</span></a>
+   <a class="card" href="../board/tile-1.jpg" target="_blank"><strong>相関図ボード（左）</strong><span>World の 5:2 看板の画像</span></a>
+   <a class="card" href="../board/tile-2.jpg" target="_blank"><strong>相関図ボード（右）</strong><span>World の 5:2 看板の画像</span></a>
+   <a class="card" href="../books/index.json" target="_blank"><strong>書籍マニフェスト</strong><span>World が読む books/index.json</span></a>
+  </div>
+  <h3>外部サービス（管理者）</h3>
+  <div class="cards">
+   <a class="card" href="https://github.com/himurosuiu/scb-library" target="_blank" rel="noopener"><strong>GitHub リポジトリ</strong><span>サイトと書籍画像のソース</span></a>
+   <a class="card" href="https://github.com/himurosuiu/scb-library/actions" target="_blank" rel="noopener"><strong>GitHub Actions</strong><span>自動公開の実行履歴</span></a>
+   <a class="card" id="sbLink" href="https://supabase.com/dashboard" target="_blank" rel="noopener"><strong>Supabase ダッシュボード</strong><span>データベース・SQL Editor・認証設定</span></a>
+  </div>
+ </div>
+</div>
+</main>
+<script src="config.js"></script><script type="module" src="hub.js"></script></body></html>
