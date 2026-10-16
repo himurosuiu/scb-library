@@ -18,48 +18,6 @@
       "featured": true
     },
     {
-      "id": "arisugawa-nagi",
-      "name": "有栖川 夏葵",
-      "nameKana": "ありすがわ なぎ",
-      "romaji": "NAGI",
-      "kind": "student",
-      "grade": "3年",
-      "club": "生徒会/吹奏楽部",
-      "color": "#00AAFF",
-      "status": "active",
-      "group": "3年生 生徒会/吹奏楽部",
-      "image": "assets/portraits/arisugawa-nagi.jpg",
-      "featured": true
-    },
-    {
-      "id": "houin-sumika",
-      "name": "鳳院 澄桂",
-      "nameKana": "ほういん すみか",
-      "romaji": "SUMIKA",
-      "kind": "student",
-      "grade": "2年",
-      "club": "吹奏楽部",
-      "color": "#7058a3",
-      "status": "active",
-      "group": "2年生 吹奏楽部",
-      "image": "assets/portraits/houin-sumika.jpg",
-      "featured": true
-    },
-    {
-      "id": "konoe-wakana",
-      "name": "近衛 和香奈",
-      "nameKana": "このえ わかな",
-      "romaji": "WAKANA",
-      "kind": "student",
-      "grade": "2年",
-      "club": "弓道部",
-      "color": "#e82e85",
-      "status": "active",
-      "group": "2年生 弓道部",
-      "image": "assets/portraits/konoe-wakana.jpg",
-      "featured": true
-    },
-    {
       "id": "tsukisa-yuru",
       "name": "月冴 ゆる",
       "nameKana": "つきさ ゆる",
@@ -88,49 +46,6 @@
       "featured": true
     },
     {
-      "id": "tachibana-amaha",
-      "name": "立花 天葉",
-      "nameKana": "たちばな あまは",
-      "romaji": "AMAHA",
-      "kind": "student",
-      "grade": "2年",
-      "club": "図書委員",
-      "color": "#e4ccf6",
-      "status": "active",
-      "group": "2年生 図書委員",
-      "image": "assets/portraits/tachibana-amaha.jpg",
-      "featured": true
-    },
-    {
-      "id": "tadenomiya-karen",
-      "name": "蓼乃宮 花憐",
-      "nameKana": "たでのみや かれん",
-      "romaji": "KAREN",
-      "kind": "student",
-      "grade": "1年",
-      "club": "園芸委員",
-      "color": "#F3BEC3",
-      "status": "active",
-      "group": "1年生 園芸委員",
-      "image": "assets/portraits/tadenomiya-karen.jpg",
-      "featured": true
-    },
-    {
-      "id": "inumachi-rin",
-      "name": "犬町 りん",
-      "nameKana": "",
-      "romaji": "RIN",
-      "kind": "student",
-      "grade": "1年",
-      "club": "オカルト研究会",
-      "color": null,
-      "status": "graduated",
-      "group": "1年生 オカルト研究会",
-      "image": "assets/portraits/inumachi-rin.jpg",
-      "featured": false,
-      "note": "graduated: 首頁精選請替換這個位置的人物與照片"
-    },
-    {
       "id": "amane-shiina",
       "name": "天音 しいな",
       "nameKana": "あまね しいな",
@@ -142,6 +57,90 @@
       "status": "active",
       "group": "1年生 写真部",
       "image": "assets/portraits/amane-shiina.jpg",
+      "featured": true
+    },
+    {
+      "id": "usagida-roru",
+      "name": "兎田 ろる",
+      "nameKana": "うさぎだ ろる",
+      "romaji": "RORU",
+      "kind": "student",
+      "grade": "3年",
+      "club": "帰宅部",
+      "color": "#D8A7A7",
+      "status": "active",
+      "group": "3年生 帰宅部",
+      "image": "assets/portraits/usagida-roru.jpg",
+      "featured": true
+    },
+    {
+      "id": "abe-ginka",
+      "name": "安倍 銀華",
+      "nameKana": "あべ ぎんか",
+      "romaji": "GINKA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "陸上部",
+      "color": "#d3d3d3",
+      "status": "active",
+      "group": "2年生 陸上部",
+      "image": "assets/portraits/abe-ginka.jpg",
+      "featured": true
+    },
+    {
+      "id": "amagi-sayaka",
+      "name": "天城 沙耶華",
+      "nameKana": "あまぎ さやか",
+      "romaji": "SAYAKA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "茶道部",
+      "color": "#E08166",
+      "status": "active",
+      "group": "2年生 茶道部",
+      "image": "assets/portraits/amagi-sayaka.jpg",
+      "featured": true
+    },
+    {
+      "id": "hokosaki-suzune",
+      "name": "鉾先 鈴音",
+      "nameKana": "ほこさき すずね",
+      "romaji": "SUZUNE",
+      "kind": "student",
+      "grade": "1年",
+      "club": "茶道部",
+      "color": "#ed6d35",
+      "status": "active",
+      "group": "1年生 茶道部",
+      "image": "assets/portraits/hokosaki-suzune.jpg",
+      "featured": true
+    },
+    {
+      "id": "joumae-ena",
+      "name": "錠前 咲凪",
+      "nameKana": "じょうまえ えな",
+      "romaji": "ENA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "ダンス部",
+      "color": "#841617",
+      "status": "active",
+      "group": "2年生 ダンス部",
+      "image": "assets/portraits/joumae-ena.jpg",
+      "featured": true
+    },
+    {
+      "id": "joumae-ren",
+      "name": "錠前 蓮",
+      "nameKana": "じょうまえ れん",
+      "romaji": "REN",
+      "kind": "student",
+      "grade": "2年",
+      "club": "手芸部",
+      "color": "#1f2e55",
+      "status": "active",
+      "group": "2年生 手芸部",
+      "image": "assets/portraits/joumae-ren.jpg",
       "featured": true
     }
   ],
@@ -167,5 +166,8 @@
       "description": "学園の世界観と、ここにある物語の入口。",
       "image": "assets/archive-3.jpg"
     }
-  ]
+  ],
+  "texts": {
+    "feature1Title": "サロン係アーカイブ"
+  }
 }
