@@ -1,0 +1,546 @@
+#!/usr/bin/env python3
+"""SCB publish pipeline: Supabase `character_records` -> public JSON for the website and the VRChat world.
+
+Reads ONLY public data through the public (publishable) key, validates it, and produces:
+  1. data/public-people-all.json         (website: people list/detail/graph)
+  2. data/public-demo.json  (characters)  (website: home page featured cards; works are kept as is)
+  3. books/index.json                    (VRChat world: cover texts per book slot)
+
+Default mode is a DRY RUN: it prints a diff and writes nothing.
+  --apply        write the files (existing files are backed up first)
+It never runs git and never publishes anything by itself.
+
+Standard library only. Run:  python publish_from_db.py            (dry run)
+                              python publish_from_db.py --apply
+"""
+import argparse, datetime, json, re, shutil, sys, urllib.request, urllib.error
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]                                   # .../SCB
+DEFAULT_FE = ROOT / 'WEBPage' / 'SCB_Library_Home_Prototype'
+DEFAULT_REPO = ROOT / 'scb-library-repo'
+UNITY_EXTRA = Path(r'D:\VRCHAT相關保存\project file\SCB Library\SCB Library\Assets\Enchanted_tim\memoria book\animation\scb\Fonts\extra-chars.txt')
+
+PERSON_KEYS = ['id', 'name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group',
+               'image', 'portrait', 'fullBody', 'gallery']
+# profile fields editable by members; they go to data/character-content.json (the character page), not to public-people-all.json
+TEXT_LIMITS = {'species': 60, 'height': 50, 'likes': 250, 'dislikes': 250, 'firstPerson': 80, 'secondPerson': 80, 'about': 2000}
+EXTRA_KEYS = list(TEXT_LIMITS) + ['outfits', 'bookPages']
+IMG_EXT_RE = re.compile(r'\.(jpe?g|png|webp)$', re.I)
+UPLOAD_RE = re.compile(r'^assets/uploads/([a-z0-9][a-z0-9-]{0,79})/([0-9a-f-]{36}\.(?:jpg|png|webp))$')
+ID_RE = re.compile(r'^[a-z0-9][a-z0-9-]{0,79}$')
+COLOR_RE = re.compile(r'^#[0-9a-fA-F]{6}$')
+PATH_RE = re.compile(r'^assets/[A-Za-z0-9_./-]+$')
+SLOT_RE = re.compile(r'^(person|story)-\d{3}$')
+TIER = {'3年': 'y3', '2年': 'y2', '1年': 'y1'}
+DEFAULT_COLOR = '#d9c3cf'
+
+
+class Report:
+    def __init__(self):
+        self.errors, self.warnings = [], []
+
+    def error(self, msg): self.errors.append(msg)
+    def warn(self, msg): self.warnings.append(msg)
+
+
+def load_config(fe: Path):
+    """The Supabase URL and PUBLISHABLE key live in studio/config.js (public identifiers)."""
+    text = (fe / 'studio' / 'config.js').read_text(encoding='utf-8')
+    url = re.search(r"url:\s*'([^']+)'", text)
+    key = re.search(r"anonKey:\s*'([^']+)'", text)
+    if not url or not key:
+        sys.exit('studio/config.js has no Supabase url/anonKey')
+    key = key.group(1)
+    if key.startswith('sb_secret_') or key.count('.') == 2 and 'service_role' in _jwt_role(key):
+        sys.exit('REFUSING: config.js contains a secret/service_role key. Use the publishable key only.')
+    return url.group(1).rstrip('/'), key
+
+
+def _jwt_role(token):
+    import base64
+    try:
+        payload = token.split('.')[1]
+        payload += '=' * (-len(payload) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload)).get('role', '')
+    except Exception:
+        return ''
+
+
+def fetch_records(url, key):
+    req = urllib.request.Request(f'{url}/rest/v1/character_records?select=id,data,revision&order=id&limit=1000',
+                                 headers={'apikey': key, 'Authorization': f'Bearer {key}'})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        sys.exit(f'Supabase request failed: HTTP {e.code} {e.read()[:200]!r}')
+    except urllib.error.URLError as e:
+        sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
+def valid_path(v):
+    return v is None or (isinstance(v, str) and bool(PATH_RE.match(v)) and '..' not in v)
+
+
+def clean_person(rec, rep: Report):
+    """Whitelist + validate one DB record. Returns a clean dict or None (and logs errors)."""
+    pid, d = rec['id'], rec.get('data')
+    if not ID_RE.match(pid):
+        rep.error(f'{pid}: invalid id'); return None
+    if not isinstance(d, dict):
+        rep.error(f'{pid}: data is not an object'); return None
+    if d.get('id') != pid:
+        rep.error(f'{pid}: data.id ({d.get("id")!r}) does not match the record id'); return None
+    extra = sorted(set(d) - set(PERSON_KEYS) - set(EXTRA_KEYS))
+    if extra:
+        rep.warn(f'{pid}: dropped unknown fields {extra}')
+    out = {k: d.get(k) for k in PERSON_KEYS}
+    limits = {'name': 100, 'nameKana': 130, 'romaji': 130, 'grade': 30, 'club': 130, 'group': 150}
+    ok = True
+    for k, n in limits.items():
+        v = out[k] if out[k] is not None else ''
+        if not isinstance(v, str) or len(v) > n:
+            rep.error(f'{pid}: {k} must be a string up to {n} chars'); ok = False
+        out[k] = v
+    if not out['name'].strip():
+        rep.error(f'{pid}: name is empty'); ok = False
+    if out['kind'] not in ('student', 'teacher'):
+        rep.error(f'{pid}: kind must be student/teacher, got {out["kind"]!r}'); ok = False
+    if out['status'] not in ('active', 'graduated'):
+        rep.error(f'{pid}: status must be active/graduated, got {out["status"]!r}'); ok = False
+    if out['color'] is not None and not (isinstance(out['color'], str) and COLOR_RE.match(out['color'])):
+        rep.error(f'{pid}: color must be #RRGGBB or null, got {out["color"]!r}'); ok = False
+    for k in ('image', 'portrait', 'fullBody'):
+        if not valid_path(out[k]):
+            rep.error(f'{pid}: {k} path is not allowed: {out[k]!r}'); ok = False
+    g = out['gallery'] if out['gallery'] is not None else []
+    if not isinstance(g, list) or len(g) > 10 or not all(isinstance(x, str) and valid_path(x) for x in g):
+        rep.error(f'{pid}: gallery must be up to 10 valid asset paths'); ok = False
+    out['gallery'] = g
+    # keep image and portrait consistent (the site reads portrait || image)
+    if out['portrait'] and not out['image']:
+        out['image'] = out['portrait']
+    return out if ok else None
+
+
+def clean_content(rec, rep: Report):
+    """Member-editable profile fields -> the entry for data/character-content.json (only non-empty values). None on error."""
+    pid, d = rec['id'], rec['data']
+    out, ok = {}, True
+    for k, n in TEXT_LIMITS.items():
+        v = d.get(k, '')
+        if v is None:
+            v = ''
+        if not isinstance(v, str) or len(v) > n or re.search(r'[<>\x00-\x08\x0b-\x1f\x7f]', v):
+            rep.error(f'{pid}: {k} must be plain text up to {n} chars'); ok = False; continue
+        if v.strip():
+            out[k] = v.strip()
+    outfits = d.get('outfits') or []
+    if not isinstance(outfits, list) or len(outfits) > 8:
+        rep.error(f'{pid}: outfits must be a list of at most 8'); return None
+    clean = []
+    for i, o in enumerate(outfits, 1):
+        imgs = o.get('images') if isinstance(o, dict) else None
+        label = o.get('label') if isinstance(o, dict) else None
+        if not (isinstance(label, str) and 1 <= len(label.strip()) <= 40 and not re.search(r'[<>\x00-\x1f\x7f]', label)
+                and isinstance(imgs, list) and len(imgs) <= 10
+                and all(isinstance(x, str) and PATH_RE.match(x) and '..' not in x and '//' not in x and IMG_EXT_RE.search(x) for x in imgs)):
+            rep.error(f'{pid}: outfit #{i} is invalid (label 1..40 chars, up to 10 assets/ image paths)'); ok = False; continue
+        clean.append({'id': f'outfit-{i}', 'label': label.strip(), 'images': imgs})
+    if clean:
+        out['outfits'] = clean
+    pages = d.get('bookPages') or []
+    if not isinstance(pages, list) or len(pages) > 8:
+        rep.error(f'{pid}: bookPages must be a list of at most 8'); return None
+    book = []
+    for i, bp in enumerate(pages, 1):
+        img = bp.get('image') if isinstance(bp, dict) else None
+        cap = bp.get('caption', '') if isinstance(bp, dict) else None
+        if not (isinstance(img, str) and PATH_RE.match(img) and '..' not in img and '//' not in img and IMG_EXT_RE.search(img)
+                and isinstance(cap, str) and len(cap) <= 60 and not re.search(r'[<>\x00-\x1f\x7f]', cap)):
+            rep.error(f'{pid}: book page #{i} is invalid (assets/ image path, caption up to 60 chars)'); ok = False; continue
+        book.append({'image': img, 'caption': cap.strip()})
+    if book:
+        out['bookPages'] = book
+    return out if ok else None
+
+
+REL_KINDS = ('sister', 'blood', 'friend', 'acquaintance', 'other')
+REL_DEFAULT = {'blood': '血縁', 'friend': '友人', 'acquaintance': '知人', 'other': '関係者'}
+
+
+def fetch_relations(url, key):
+    req = urllib.request.Request(f'{url}/rest/v1/character_relations_public?select=a_id,b_id,kind,label,note&limit=2000',
+                                 headers={'apikey': key, 'Authorization': f'Bearer {key}'})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        body = e.read()[:300]
+        if e.code == 404 and b'PGRST205' in body:
+            print('NOTE: the relations view does not exist yet (07_relations.sql not applied); relations are left as they are.')
+            return None
+        sys.exit(f'Supabase relations request failed: HTTP {e.code} {body!r}')
+    except urllib.error.URLError as e:
+        sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
+def clean_relations(rows, ids, rep: Report):
+    """Approved relations from the public view -> sorted clean list. sister/blood: a = the elder."""
+    out, seen = [], set()
+    for r in rows:
+        a, b, k = r.get('a_id'), r.get('b_id'), r.get('kind')
+        label, note = (r.get('label') or '').strip(), (r.get('note') or '').strip()
+        if a not in ids or b not in ids or a == b or k not in REL_KINDS or len(label) > 40 or len(note) > 200                 or re.search(r'[<>\x00-\x08\x0b-\x1f\x7f]', label + note):
+            rep.error(f'relation {a!r} - {b!r} ({k}) is invalid or points to an unknown person'); continue
+        key = (min(a, b), max(a, b), k)
+        if key in seen:
+            rep.warn(f'relation {a} - {b} ({k}) appears twice; second one ignored'); continue
+        seen.add(key)
+        out.append({'a': a, 'b': b, 'kind': k, 'label': label, 'note': note})
+    return sorted(out, key=lambda x: (x['kind'], x['a'], x['b']))
+
+
+def bonds_for(pid, relations):
+    """character page entries ('絆') for one person."""
+    res = []
+    for r in relations:
+        if pid not in (r['a'], r['b']):
+            continue
+        other = r['b'] if pid == r['a'] else r['a']
+        label = r['label'] or ('妹' if (r['kind'] == 'sister' and pid == r['a']) else 'お姉様' if r['kind'] == 'sister' else REL_DEFAULT[r['kind']])
+        res.append({'characterId': other, 'kind': r['kind'], 'label': label, 'approved': True})
+    return sorted(res, key=lambda x: (x['kind'], x['characterId']))
+
+
+def image_paths(person, content):
+    paths = [person['portrait'], person['fullBody'], *person['gallery']]
+    for o in (content or {}).get('outfits', []):
+        paths += o['images']
+    paths += [b['image'] for b in (content or {}).get('bookPages', [])]
+    return [p for p in paths if p]
+
+
+def fetch_upload(url, rel, dest: Path):
+    """Copy an approved member upload from the public Storage bucket into the site's assets/ folder."""
+    req = urllib.request.Request(f'{url}/storage/v1/object/public/scb-uploads/{rel}')
+    with urllib.request.urlopen(req, timeout=60) as r:
+        data = r.read()
+    if len(data) > 5 * 1024 * 1024 or not (data[:3] == b'\xff\xd8\xff' or data[:8] == b'\x89PNG\r\n\x1a\n' or (data[:4] == b'RIFF' and data[8:12] == b'WEBP')):
+        raise ValueError('not a jpeg/png/webp image or larger than 5 MB')
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(data)
+
+
+def diff_content(old, new):
+    lines = []
+    short = lambda v: (repr(v) if not isinstance(v, str) or len(v) < 40 else repr(v[:37] + '...')) if not isinstance(v, list) else f'{len(v)} item(s)'
+    for pid in sorted(set(old) | set(new)):
+        for k in EXTRA_KEYS + ['relationships']:
+            ov, nv = (old.get(pid) or {}).get(k), (new.get(pid) or {}).get(k)
+            if ov != nv:
+                lines.append(f'  ~ {pid}.{k}: {short(ov)} -> {short(nv)}')
+    return lines
+
+
+def order_people(people, existing_ids):
+    pos = {pid: i for i, pid in enumerate(existing_ids)}
+    return sorted(people, key=lambda p: (pos.get(p['id'], 10 ** 6), p['id']))
+
+
+def club_text(club):
+    parts = [c for c in re.split(r'[/・]', club) if c]
+    return '・'.join(parts)
+
+
+def build_manifest(people_by_id, slots, rep: Report, failed=()):
+    books = []
+    seen = set()
+    for s in slots:
+        slot = s.get('slot', '')
+        if not SLOT_RE.match(slot):
+            rep.error(f'slots.json: invalid slot {slot!r}'); continue
+        if slot in seen:
+            rep.error(f'slots.json: duplicate slot {slot}'); continue
+        seen.add(slot)
+        p = people_by_id.get(s.get('person'))
+        if p is None:
+            if s.get('person') not in failed:
+                rep.error(f'{slot}: person {s.get("person")!r} is not in the database')
+            continue
+        if s.get('type', 'person') != 'person':
+            rep.warn(f'{slot}: only person books are generated for now; skipped'); continue
+        if p['kind'] == 'teacher':
+            tier = 'teacher'
+            top = ''
+            name = s.get('coverName') or p['name']
+            if not s.get('coverName') and not (name.endswith('神父') or name.startswith('シスター') or 'シスター' in name):
+                rep.warn(f'{slot}: teacher cover name {name!r} has no 神父/シスター; set "coverName" in slots.json')
+        else:
+            tier = TIER.get(p['grade'])
+            if tier is None:
+                rep.warn(f'{slot}: unknown grade {p["grade"]!r}; using y1'); tier = 'y1'
+            grade = p['grade'].replace('年', '年生') if p['grade'] else ''
+            c = club_text(p['club'])
+            top = (f'{c}所属　{grade}' if c else grade)
+            name = s.get('coverName') or p['name']
+        color = p['color'] or DEFAULT_COLOR
+        spreads = int(s.get('spreads', 6))
+        if not 1 <= spreads <= 12:
+            rep.error(f'{slot}: spreads must be 1..12'); continue
+        books.append({'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
+                      'coverTop': top, 'coverName': name, 'spreads': spreads})
+    return books
+
+
+def font_gaps(strings, rep: Report):
+    """Warn about characters the Unity static cover font might not contain (read-only check)."""
+    have = set()
+    extra_file = UNITY_EXTRA if UNITY_EXTRA.exists() else HERE / 'extra-chars.txt'   # CI uses the committed copy
+    if extra_file.exists():
+        for line in extra_file.read_text(encoding='utf-8').splitlines():
+            if not line.startswith('#'):
+                have.update(line)
+    else:
+        rep.warn('Unity extra-chars.txt not found; skipped the cover-font check')
+        return
+    fixed = set(chr(c) for c in range(0x20, 0x7F)) | set(chr(c) for c in range(0x3041, 0x3097)) \
+        | set(chr(c) for c in range(0x30A1, 0x30FB)) | set('ー・、。「」『』（）！？～…　所属年生シスター神父読み込み中')
+    missing = sorted({c for s in strings for c in s if not c.isspace() or c == '　'} - have - fixed)
+    if missing:
+        rep.warn('cover characters NOT in the Unity static font atlas (run SCB/Rebuild Cover Font Atlas after adding to '
+                 'extra-chars.txt): ' + ''.join(missing))
+
+
+def diff_people(old, new, skip=()):
+    o = {p['id']: p for p in old}
+    n = {p['id']: p for p in new}
+    lines = []
+    for pid in n:
+        if pid not in o:
+            lines.append(f'  + new person {pid}')
+        else:
+            for k in PERSON_KEYS:
+                if o[pid].get(k) != n[pid].get(k):
+                    lines.append(f'  ~ {pid}.{k}: {o[pid].get(k)!r} -> {n[pid].get(k)!r}')
+    for pid in o:
+        if pid not in n and pid not in skip:
+            lines.append(f'  - removed {pid} (kept out of the new file)')
+    if [p['id'] for p in old if p['id'] in n] != [p['id'] for p in new if p['id'] in o]:
+        lines.append('  ~ order changed')
+    return lines
+
+
+def diff_books(old, new):
+    o = {b['slot']: b for b in old}
+    n = {b['slot']: b for b in new}
+    lines = []
+    for s in n:
+        if s not in o:
+            lines.append(f'  + new slot {s}: {n[s]["coverName"]}')
+        else:
+            for k in n[s]:
+                if o[s].get(k) != n[s].get(k):
+                    lines.append(f'  ~ {s}.{k}: {o[s].get(k)!r} -> {n[s].get(k)!r}')
+    for s in o:
+        if s not in n:
+            lines.append(f'  - slot {s} removed -> the world will HIDE that book')
+    return lines
+
+
+def write_json(path: Path, obj):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--apply', action='store_true', help='write files (default: dry run)')
+    ap.add_argument('--no-backup', action='store_true', help='do not copy the old files to backups/ (used by the automatic publisher; git keeps the history)')
+    ap.add_argument('--fe', type=Path, default=DEFAULT_FE, help='frontend project folder')
+    ap.add_argument('--repo', type=Path, default=DEFAULT_REPO, help='GitHub Pages repo folder (books/index.json)')
+    ap.add_argument('--slots', type=Path, default=HERE / 'slots.json')
+    ap.add_argument('--source-json', type=Path, help='use a local JSON file of records instead of Supabase (testing)')
+    ap.add_argument('--relations-json', type=Path, help='with --source-json: a local JSON list of approved relations (a_id,b_id,kind,label,note)')
+    a = ap.parse_args()
+
+    rep = Report()
+    url = key = None
+    if a.source_json:
+        records = json.loads(a.source_json.read_text(encoding='utf-8'))
+        print(f'[source] local file {a.source_json} ({len(records)} records)')
+    else:
+        url, key = load_config(a.fe)
+        records = fetch_records(url, key)
+        print(f'[source] Supabase {url} ({len(records)} records)')
+
+    people_file = a.fe / 'data' / 'public-people-all.json'
+    old_people_doc = json.loads(people_file.read_text(encoding='utf-8')) if people_file.exists() else {'people': []}
+    old_people = old_people_doc.get('people', [])
+
+    cleaned = [c for c in (clean_person(r, rep) for r in records) if c]
+    failed_ids = {r['id'] for r in records} - {c['id'] for c in cleaned}
+    if len(cleaned) != len(records):
+        rep.error(f'{len(records) - len(cleaned)} record(s) failed validation (see errors); nothing will be written')
+    new_people = order_people(cleaned, [p['id'] for p in old_people])
+    by_id = {p['id']: p for p in new_people}
+
+    # member-editable profile fields -> data/character-content.json (merged with what is already there)
+    content_file = a.fe / 'data' / 'character-content.json'
+    old_content_doc = json.loads(content_file.read_text(encoding='utf-8')) if content_file.exists() else {'schemaVersion': 1, 'demo': False, 'characters': {}}
+    old_chars = old_content_doc.get('characters') or {}
+    new_chars = {pid: dict(v) for pid, v in old_chars.items()}
+    contents = {}
+    for r in records:
+        if r['id'] not in by_id:
+            continue
+        c = clean_content(r, rep)
+        if c is None:
+            failed_ids.add(r['id']); continue
+        contents[r['id']] = c
+        entry = {k: v for k, v in new_chars.get(r['id'], {}).items() if k not in EXTRA_KEYS}
+        entry.update(c)
+        if entry:
+            new_chars[r['id']] = entry
+        else:
+            new_chars.pop(r['id'], None)
+    # approved relations -> data/relations.json (graph, board, book) and the "bonds" of each character page
+    rel_file = a.fe / 'data' / 'relations.json'
+    old_rel_doc = json.loads(rel_file.read_text(encoding='utf-8')) if rel_file.exists() else {'schemaVersion': 1, 'relations': []}
+    rel_rows = None
+    if a.source_json:
+        if a.relations_json:
+            rel_rows = json.loads(a.relations_json.read_text(encoding='utf-8'))
+    else:
+        rel_rows = fetch_relations(url, key)
+    relations = clean_relations(rel_rows, set(by_id), rep) if rel_rows is not None else old_rel_doc.get('relations', [])
+    if rel_rows is not None:
+        for pid in by_id:
+            bonds = bonds_for(pid, relations)
+            entry = dict(new_chars.get(pid, {}))
+            if bonds:
+                entry['relationships'] = bonds
+            else:
+                entry.pop('relationships', None)
+            if entry:
+                new_chars[pid] = entry
+            else:
+                new_chars.pop(pid, None)
+    rel_doc = {'schemaVersion': 1, 'comment': 'Approved relations (public). kind sister/blood: a = the elder. Generated by publish_from_db.py.', 'relations': relations}
+    rd = []
+    if rel_doc['relations'] != old_rel_doc.get('relations', []):
+        oldk = {(r['a'], r['b'], r['kind']): r for r in old_rel_doc.get('relations', [])}
+        newk = {(r['a'], r['b'], r['kind']): r for r in relations}
+        rd += [f"  + {k[2]}: {k[0]} - {k[1]}" for k in newk if k not in oldk]
+        rd += [f"  - {k[2]}: {k[0]} - {k[1]}" for k in oldk if k not in newk]
+        rd += [f"  ~ {k[2]}: {k[0]} - {k[1]} (label/note)" for k in newk if k in oldk and newk[k] != oldk[k]]
+    content_doc = dict(old_content_doc)
+    content_doc['characters'] = new_chars
+    cd = diff_content(old_chars, new_chars)
+
+    # image files referenced must exist in the frontend project; approved member uploads are fetched from Storage
+    to_fetch = []
+    for p in new_people:
+        for path in image_paths(p, contents.get(p['id'])):
+            if (a.fe / path).exists():
+                continue
+            m = UPLOAD_RE.match(path)
+            if m and m.group(1) == p['id'] and url:
+                to_fetch.append((path, f'{m.group(1)}/{m.group(2)}'))
+            else:
+                rep.warn(f'{p["id"]}: referenced image is missing in the frontend: {path}')
+
+    people_doc = dict(old_people_doc)
+    people_doc.update({'schemaVersion': 2, 'demo': False, 'people': new_people,
+                       'comment': 'Generated by tools/scb_publish/publish_from_db.py from Supabase character_records (public fields only).'})
+
+    # home page featured cards
+    demo_file = a.fe / 'data' / 'public-demo.json'
+    demo_doc = json.loads(demo_file.read_text(encoding='utf-8')) if demo_file.exists() else None
+    new_demo = None
+    if demo_doc:
+        new_demo = json.loads(json.dumps(demo_doc))
+        for c in new_demo.get('characters', []):
+            p = by_id.get(c.get('id'))
+            if p is None:
+                if c.get('id') not in failed_ids:
+                    rep.warn(f'public-demo.json: character {c.get("id")!r} is not in the database')
+                continue
+            for k in ('name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group'):
+                c[k] = p[k]
+            c['image'] = p['portrait'] or p['image']
+            c['featured'] = c.get('featured', True) and p['status'] == 'active'
+
+    # world manifest
+    slots = json.loads(a.slots.read_text(encoding='utf-8')) if a.slots.exists() else []
+    books = build_manifest(by_id, slots, rep, failed_ids)
+    idx_file = a.repo / 'books' / 'index.json'
+    old_idx = json.loads(idx_file.read_text(encoding='utf-8')) if idx_file.exists() else {'books': [], 'updated': ''}
+    new_idx = {'version': 1, 'updated': old_idx.get('updated') or datetime.date.today().isoformat(), 'books': books}
+    changed_books = diff_books(old_idx.get('books', []), books) if not failed_ids else []
+    if changed_books:
+        new_idx['updated'] = datetime.date.today().isoformat()
+    font_gaps([s for b in books for s in (b['coverTop'], b['coverName'])], rep)
+
+    # ---------- report ----------
+    pd = diff_people(old_people, new_people, failed_ids)
+    print('\n== website: public-people-all.json ==')
+    print('\n'.join(pd) if pd else '  (no changes)')
+    dd = []
+    if new_demo:
+        for oc, nc in zip(demo_doc.get('characters', []), new_demo.get('characters', [])):
+            for k in nc:
+                if oc.get(k) != nc.get(k):
+                    dd.append(f'  ~ home {nc["id"]}.{k}: {oc.get(k)!r} -> {nc.get(k)!r}')
+    print('\n== website: public-demo.json (home featured) ==')
+    print('\n'.join(dd) if dd else '  (no changes)')
+    print('\n== website: character-content.json (profile text, outfits) ==')
+    print('\n'.join(cd) if cd else '  (no changes)')
+    print('\n== relations.json (approved relations: graph, board, book) ==')
+    print('\n'.join(rd) if rd else '  (no changes)')
+    print('\n== member uploads to copy from Storage into assets/ ==')
+    print('\n'.join(f'  + {p}' for p, _ in to_fetch) if to_fetch else '  (none)')
+    print('\n== world: books/index.json ==')
+    print('\n'.join(changed_books) if changed_books else '  (no changes)')
+    for w in rep.warnings:
+        print('WARNING:', w)
+    for e in rep.errors:
+        print('ERROR:', e)
+
+    if rep.errors:
+        print('\nResult: FAILED. Nothing written.'); sys.exit(2)
+    if not (pd or dd or changed_books or cd or to_fetch or rd):
+        print('\nResult: already up to date.'); return
+    if not a.apply:
+        print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
+
+    stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+    bdir = HERE / 'backups' / stamp
+    targets = [(people_file, people_doc, bool(pd))]
+    if new_demo:
+        targets.append((demo_file, new_demo, bool(dd)))
+    targets.append((idx_file, new_idx, bool(changed_books)))
+    targets.append((content_file, content_doc, bool(cd)))
+    targets.append((rel_file, rel_doc, bool(rd)))
+    for path, rel in to_fetch:                       # approved member uploads: Storage -> site assets (and the Pages repo copy)
+        try:
+            fetch_upload(url, rel, a.fe / path)
+            fetch_upload(url, rel, a.repo / path)
+            print('downloaded:', path)
+        except Exception as e:
+            print(f'ERROR: could not fetch {path}: {e}'); sys.exit(2)
+    for path, obj, changed in targets:
+        if not changed:
+            continue
+        if path.exists() and not a.no_backup:
+            bdir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, bdir / path.name)
+        write_json(path, obj)
+        print('written:', path)
+    print(f'\nResult: APPLIED. Backups in {bdir}. Review, then commit/push the GitHub Pages repo yourself.')
+
+
+if __name__ == '__main__':
+    main()

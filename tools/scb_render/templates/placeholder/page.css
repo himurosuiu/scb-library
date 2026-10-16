@@ -1,0 +1,49 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:928px;height:1528px;overflow:hidden;background:#fbf6f1}
+body{font-family:'NotoJP',sans-serif;color:#3a2f33}
+.page{position:relative;width:928px;height:1528px;background:#fbf6f1;border:2px solid #e6d6cc}
+/* safe area: 70px sides, 90px top, 110px bottom */
+.page::before{content:"";position:absolute;left:0;top:0;width:100%;height:14px;background:var(--accent);opacity:.75}
+.pno{position:absolute;bottom:56px;width:100%;text-align:center;font-size:26px;color:#a59388}
+.role-blank .page{background:#fdfaf6}
+
+/* title page */
+.kana{position:absolute;left:70px;top:110px;width:788px;height:44px;font-size:30px;color:#8a7468;white-space:nowrap;overflow:hidden}
+.name{position:absolute;left:70px;top:156px;width:788px;height:120px;font-size:84px;font-weight:700;line-height:120px;white-space:nowrap;overflow:hidden}
+.roleline{position:absolute;left:70px;top:284px;width:788px;height:56px;font-size:38px;color:#5d4a52;line-height:50px;white-space:nowrap;overflow:hidden;border-bottom:3px solid var(--accent)}
+.portrait-box{position:absolute;left:134px;top:400px;width:660px;height:900px;border:4px solid var(--accent);border-radius:330px 330px 24px 24px;overflow:hidden;background:#f0e6df}
+.portrait{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.portrait.empty{display:flex;align-items:center;justify-content:center;color:#b8a89c;font-size:44px;letter-spacing:.2em}
+
+/* profile page */
+h2{position:absolute;left:70px;top:110px;font-size:40px;letter-spacing:.3em;color:#8a7468;font-weight:400}
+.rows{position:absolute;left:70px;top:200px;width:788px}
+.row{display:flex;align-items:baseline;border-bottom:1px solid #e6d6cc;padding:22px 0}
+.k{flex:0 0 190px;font-size:28px;color:#8a7468}
+.v{flex:1 1 auto;font-size:40px;line-height:1.3;min-width:0;white-space:nowrap;overflow:hidden;height:52px}
+.swatch{position:absolute;left:70px;bottom:130px;width:788px;height:30px;background:var(--accent);border-radius:15px}
+
+/* photo page */
+.photo-box{position:absolute;left:70px;top:110px;width:788px;height:1310px;border:4px solid var(--accent);border-radius:12px;overflow:hidden;background:#f0e6df}
+.photo-box img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* profile with many rows */
+.rows.dense .row{padding:12px 0}
+.rows.dense .v{font-size:34px;height:44px}
+
+/* introduction page */
+.secs{position:absolute;left:70px;top:200px;width:788px;height:1200px;overflow:hidden}
+.sec{margin-bottom:34px}
+.sec h3{font-size:28px;font-weight:400;color:#8a7468;border-bottom:1px solid #e6d6cc;padding-bottom:8px;margin-bottom:12px}
+.sec p{font-size:32px;line-height:1.7;overflow-wrap:anywhere}
+
+/* relations page */
+.bonds{position:absolute;left:70px;top:200px;width:788px}
+.bond{display:flex;align-items:center;gap:28px;padding:14px 0;border-bottom:1px solid #e6d6cc}
+.bond img,.bond .noimg{width:120px;height:120px;border-radius:60px;object-fit:cover;border:4px solid var(--accent);background:#f0e6df;flex:0 0 120px}
+.bn{font-size:40px;font-weight:700;line-height:1.3}
+.bl{font-size:28px;color:#8a7468;margin-top:4px}
+
+/* photo caption */
+.photo-box.with-cap{height:1200px}
+.caption{position:absolute;left:70px;top:1330px;width:788px;height:90px;font-size:32px;line-height:1.4;text-align:center;color:#5d4a52;overflow:hidden}

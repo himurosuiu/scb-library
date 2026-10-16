@@ -1,0 +1,6 @@
+# Extra characters to always include in the Static cover font (SCB/Rebuild Cover Font Atlas).
+# Add rare characters here (any line not starting with #). Lines starting with # are ignored.
+# Seeded with every kanji used by the 38 character names / clubs in SCB_キャラシート_図書館用.xlsx (2026-10-16),
+# so that books not yet in index.json keep their glyphs when the atlas is rebuilt.
+上世中乃乙九仁会保健優先兎写冴凛凪前劇千原吉名吹和咲員図園城塚夏夜天奈奏女委姫字学宅安宮家寿小属岸崎川師帰年幽庭弓徒心憐所手教文日春時書月有朝木未杏条栖桂森楓楽水汐沙活演潮澄澪父牙犬猫理瑠璃生田町白真知神科立紀紗緒織羊美羽耶舞色花芸苗茉茶菜華葉葵蓮蓼藤蛍術衛詩誕読谷軽込近透遊道部鈴鉾銀錠鏡院陸陽雀雅雛雨音風香鳥鳳黒
+倍研究

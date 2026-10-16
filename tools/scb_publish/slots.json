@@ -1,0 +1,246 @@
+[
+ {
+  "slot": "person-001",
+  "person": "tsukisa-yuru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-002",
+  "person": "shirasaki-maina",
+  "spreads": 6
+ },
+ {
+  "slot": "person-003",
+  "person": "asanagi-ushio",
+  "spreads": 6
+ },
+ {
+  "slot": "person-004",
+  "person": "viola",
+  "spreads": 6,
+  "coverName": "ビオラ神父"
+ },
+ {
+  "slot": "person-005",
+  "person": "yoshimizu-kyouka",
+  "spreads": 6
+ },
+ {
+  "slot": "person-006",
+  "person": "hanagishi-momo",
+  "spreads": 6
+ },
+ {
+  "slot": "person-007",
+  "person": "amamiya-shiori",
+  "spreads": 6
+ },
+ {
+  "slot": "person-008",
+  "person": "nekozuka-anju",
+  "spreads": 6
+ },
+ {
+  "slot": "person-009",
+  "person": "kuroha-ria",
+  "spreads": 6
+ },
+ {
+  "slot": "person-010",
+  "person": "arisugawa-nagi",
+  "spreads": 6
+ },
+ {
+  "slot": "person-011",
+  "person": "usagida-roru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-012",
+  "person": "kasugaya-shion",
+  "spreads": 6
+ },
+ {
+  "slot": "person-013",
+  "person": "kujou-rize",
+  "spreads": 6
+ },
+ {
+  "slot": "person-014",
+  "person": "saotome-ruri",
+  "spreads": 6
+ },
+ {
+  "slot": "person-015",
+  "person": "sayosaki-tooru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-016",
+  "person": "takanashi-himari",
+  "spreads": 6
+ },
+ {
+  "slot": "person-017",
+  "person": "nishina-machi",
+  "spreads": 6
+ },
+ {
+  "slot": "person-018",
+  "person": "fujimiya-iori",
+  "spreads": 6
+ },
+ {
+  "slot": "person-019",
+  "person": "yuuzuki-miori",
+  "spreads": 6
+ },
+ {
+  "slot": "person-020",
+  "person": "abe-ginka",
+  "spreads": 6
+ },
+ {
+  "slot": "person-021",
+  "person": "amagi-sayaka",
+  "spreads": 6
+ },
+ {
+  "slot": "person-022",
+  "person": "konoe-wakana",
+  "spreads": 6
+ },
+ {
+  "slot": "person-023",
+  "person": "shigure-kei",
+  "spreads": 6
+ },
+ {
+  "slot": "person-024",
+  "person": "joumae-ena",
+  "spreads": 6
+ },
+ {
+  "slot": "person-025",
+  "person": "joumae-ren",
+  "spreads": 6
+ },
+ {
+  "slot": "person-026",
+  "person": "suzugamori-kaede",
+  "spreads": 6
+ },
+ {
+  "slot": "person-027",
+  "person": "tachibana-amaha",
+  "spreads": 6
+ },
+ {
+  "slot": "person-028",
+  "person": "fujishiro-mahiru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-029",
+  "person": "fujiwara-tetora",
+  "spreads": 6
+ },
+ {
+  "slot": "person-030",
+  "person": "houin-sumika",
+  "spreads": 6
+ },
+ {
+  "slot": "person-031",
+  "person": "amane-shiina",
+  "spreads": 6
+ },
+ {
+  "slot": "person-032",
+  "person": "ohitsuji-rami",
+  "spreads": 6
+ },
+ {
+  "slot": "person-033",
+  "person": "jinga-ru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-034",
+  "person": "senga-yura",
+  "spreads": 6
+ },
+ {
+  "slot": "person-035",
+  "person": "tadenomiya-karen",
+  "spreads": 6
+ },
+ {
+  "slot": "person-036",
+  "person": "tokisuzu-peruru",
+  "spreads": 6
+ },
+ {
+  "slot": "person-037",
+  "person": "hinagi-koharu",
+  "spreads": 6
+ },
+ {
+  "slot": "person-038",
+  "person": "himemiya-miyu",
+  "spreads": 6
+ },
+ {
+  "slot": "person-039",
+  "person": "hokosaki-suzune",
+  "spreads": 6
+ },
+ {
+  "slot": "person-040",
+  "person": "inumachi-rin",
+  "spreads": 6
+ },
+ {
+  "slot": "person-041",
+  "person": "seraphina",
+  "spreads": 6
+ },
+ {
+  "slot": "person-042",
+  "person": "luminous",
+  "spreads": 6,
+  "coverName": "unknown Luminous シスター"
+ },
+ {
+  "slot": "person-043",
+  "person": "claude",
+  "spreads": 6
+ },
+ {
+  "slot": "person-044",
+  "person": "hokosaki-rinne",
+  "spreads": 6,
+  "coverName": "鉾先 凛音シスター"
+ },
+ {
+  "slot": "person-045",
+  "person": "ange",
+  "spreads": 6
+ },
+ {
+  "slot": "person-046",
+  "person": "laplace",
+  "spreads": 6
+ },
+ {
+  "slot": "person-047",
+  "person": "william",
+  "spreads": 6,
+  "coverName": "William Kirk 神父"
+ },
+ {
+  "slot": "person-048",
+  "person": "hedera",
+  "spreads": 6
+ }
+]

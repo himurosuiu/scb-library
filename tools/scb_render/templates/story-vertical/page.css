@@ -1,0 +1,23 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:928px;height:1528px;overflow:hidden;background:#fbf6f1}
+body{font-family:'NotoJP',sans-serif;color:#3a2f33}
+.page{position:relative;width:928px;height:1528px;background:#fbf6f1;border:2px solid #e6d6cc}
+.page::before{content:"";position:absolute;left:0;top:0;width:100%;height:14px;background:var(--accent);opacity:.75}
+.pno{position:absolute;bottom:56px;font-size:26px;color:#a59388;line-height:1}
+.pno.odd{right:70px}.pno.even{left:70px}
+
+/* body text: vertical, lines run right to left, top to bottom */
+#box{position:absolute;left:90px;top:120px;width:748px;height:1250px;overflow:hidden;
+  writing-mode:vertical-rl;text-orientation:mixed;font-size:32px;line-height:1.85;
+  line-break:strict;word-break:normal;overflow-wrap:break-word;font-feature-settings:"vert" 1,"vrt2" 1;font-weight:400}
+#box p{text-indent:1em;text-combine-upright:digits 2}
+#box p.cont,#box p.talk{text-indent:0}
+
+/* chapter title page */
+.t-title{position:absolute;right:300px;top:260px;height:900px;writing-mode:vertical-rl;font-size:84px;font-weight:700;letter-spacing:.12em}
+.t-author{position:absolute;right:190px;top:760px;height:500px;writing-mode:vertical-rl;font-size:36px;color:#5d4a52;letter-spacing:.2em}
+.t-rule{position:absolute;right:250px;top:260px;width:3px;height:900px;background:var(--accent)}
+
+/* decorations (see render_story.py) */
+#box .up{text-orientation:upright}
+#box .dash{display:inline-block;width:1em;vertical-align:top;background:linear-gradient(currentColor,currentColor) 50% 0/1.6px 100% no-repeat}

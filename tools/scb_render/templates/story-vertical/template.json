@@ -1,0 +1,10 @@
+{
+  "id": "story-vertical",
+  "version": 1,
+  "binding": "right",
+  "writingMode": "vertical",
+  "pageSize": { "w": 928, "h": 1528 },
+  "paper": "#fbf6f1",
+  "body": { "x": 90, "y": 120, "w": 748, "h": 1250, "fontSize": 32, "lineHeight": 1.85 },
+  "note": "Plain stand-in for the vertical story template. Body box is the area the paginator fills."
+}

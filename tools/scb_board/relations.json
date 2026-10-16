@@ -1,0 +1,14 @@
+{
+  "_note": "Draft edges for the 5:2 board, derived from the 姉妹関係 column of SCB_キャラシート_図書館用.xlsx (formal sisters and blood relatives only; friends/acquaintances are NOT drawn). Both parties must confirm before this is published. 'from' is the older sister (お姉様), 'to' the younger (妹). Person ids follow the public database (安倍 銀華 = abe-ginka).",
+  "edges": [
+    {"type": "sister", "from": "usagida-roru",     "to": "suzugamori-kaede",  "source": "兎田 ろる: 楓のお姉様"},
+    {"type": "sister", "from": "suzugamori-kaede", "to": "amane-shiina",      "source": "雀ヶ森 楓: しいなのお姉様 / 天音 しいな: 楓の妹"},
+    {"type": "sister", "from": "kasugaya-shion",   "to": "hokosaki-suzune",   "source": "春日谷 汐音: 鈴音のお姉様 / 鉾先 鈴音: 汐音の妹"},
+    {"type": "sister", "from": "shirasaki-maina",  "to": "tsukisa-yuru",      "source": "白咲 舞菜: ゆるのお姉様 / 月冴 ゆる: 舞菜の妹"},
+    {"type": "sister", "from": "fujimiya-iori",    "to": "senga-yura",        "source": "藤宮 ヰオリ: ゆらのお姉様 / 千雅 ゆら: ヰオリの妹"},
+    {"type": "sister", "from": "yuuzuki-miori",    "to": "abe-ginka",         "source": "安部 銀華: 澪璃の妹"},
+    {"type": "sister", "from": "konoe-wakana",     "to": "tokisuzu-peruru",   "source": "近衛 和香奈: ぺるるのお姉様 / 時鈴 ぺるる: 和香奈の妹"},
+    {"type": "sister", "from": "houin-sumika",     "to": "inumachi-rin",      "source": "鳳院 澄桂: りんのお姉様"},
+    {"type": "blood",  "from": "hokosaki-rinne",   "to": "hokosaki-suzune",   "source": "鉾先 凛音: 鈴音の実姉"}
+  ]
+}

@@ -1,0 +1,74 @@
+name: publish
+
+# Publishes what the administrator has approved in the database:
+#   1. data/*.json, approved member uploads (assets/uploads), books/index.json
+#   2. the personal book page images (only the books whose inputs changed)
+#   3. the 5:2 relationship board (only when people / relations changed)
+# It only reads PUBLIC data (publishable key in studio/config.js). No secret is needed or stored.
+# Runs every 15 minutes and on demand (Actions tab -> publish -> Run workflow).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_render:
+        description: 'Redraw every book page image and the board even if nothing changed'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Write approved changes
+        run: python -X utf8 tools/scb_publish/publish_from_db.py --apply --no-backup --fe . --repo . --slots tools/scb_publish/slots.json
+
+      - name: Commit data changes (so the page images below start from the published data)
+        run: |
+          git config user.name "scb-publish-bot"
+          git config user.email "scb-publish-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "no data changes"; else git commit -m "publish: approved changes from the database"; fi
+
+      - name: Install the page renderer
+        run: |
+          python -m pip install --quiet pillow playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Draw personal book pages
+        run: |
+          FORCE=""
+          if [ "${{ github.event.inputs.force_render }}" = "true" ]; then FORCE="--force"; fi
+          python -X utf8 tools/scb_render/render_books.py --apply $FORCE --fe . --out . --slots tools/scb_publish/slots.json --base tools/scb_render/base/atlas.jpg --fonts tools/fonts/NotoSansJP
+
+      - name: Draw the relationship board
+        run: |
+          FORCE=""
+          if [ "${{ github.event.inputs.force_render }}" = "true" ]; then FORCE="--force"; fi
+          python -X utf8 tools/scb_board/render_board.py --fe . --fonts tools/fonts/NotoSansJP --out-dir "$RUNNER_TEMP/board" --if-changed board/.render-state $FORCE
+          if [ -f "$RUNNER_TEMP/board/tile-1.jpg" ]; then
+            mkdir -p board
+            cp "$RUNNER_TEMP/board/tile-1.jpg" "$RUNNER_TEMP/board/tile-2.jpg" board/
+          fi
+
+      - name: Commit and push
+        run: |
+          git add -A
+          if git diff --cached --quiet; then echo "nothing new to publish"; else git commit -m "publish: book pages and board"; fi
+          git pull --rebase origin main
+          git push origin HEAD:main

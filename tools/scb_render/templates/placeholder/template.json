@@ -1,0 +1,9 @@
+{
+  "id": "placeholder",
+  "version": 1,
+  "binding": "right",
+  "writingMode": "horizontal",
+  "pageSize": { "w": 928, "h": 1528 },
+  "paper": "#fbf6f1",
+  "note": "Plain stand-in so the pipeline can run end to end. Replace page.css / art with the designer's template."
+}
