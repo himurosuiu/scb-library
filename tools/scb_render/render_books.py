@@ -336,11 +336,20 @@ def main():
     content = json.loads(cc_file.read_text(encoding='utf-8')).get('characters', {}) if cc_file.exists() else {}
     rel_file = a.fe / 'data' / 'relations.json'
     relations = json.loads(rel_file.read_text(encoding='utf-8')).get('relations', []) if rel_file.exists() else []
-    base_bytes = a.base.read_bytes()
-    base_hash = hashlib.sha256(base_bytes).hexdigest()
-    base = Image.open(io.BytesIO(base_bytes)).convert('RGB')
-    if base.size != (ATLAS, ATLAS):
-        sys.exit(f'base atlas must be {ATLAS}x{ATLAS}, got {base.size}')
+    bases = {}
+
+    def base_for(tier):
+        """(image, hash) of the base atlas of a tier: atlas-<tier>.png next to --base (one per 一年/二年/三年/教職員), else --base."""
+        if tier not in bases:
+            f = a.base.parent / f'atlas-{tier}.png'
+            f = f if f.exists() else a.base
+            raw = f.read_bytes()
+            img = Image.open(io.BytesIO(raw)).convert('RGB')
+            if img.size != (ATLAS, ATLAS):
+                sys.exit(f'base atlas {f.name} must be {ATLAS}x{ATLAS}, got {img.size}')
+            bases[tier] = (img, hashlib.sha256(raw).hexdigest())
+        return bases[tier]
+
     state_file = a.out / 'books' / '.render-state.json'
     state = json.loads(state_file.read_text(encoding='utf-8')) if state_file.exists() else {}
 
@@ -357,11 +366,12 @@ def main():
         spreads = int(s.get('spreads', 6))
         if not 1 <= spreads <= 6:
             rep.error(f'{slot}: person books support 1..6 spreads'); continue
+        tier = 'teacher' if p['kind'] == 'teacher' else {'1年': 'y1', '2年': 'y2', '3年': 'y3'}.get(p.get('grade'), 'y1')
         pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe))
         imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'),
                                                       *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
-        h = input_hash(pages, tpl, base_hash, imgs)
-        jobs.append((slot, spreads, pages, h))
+        h = input_hash(pages, tpl, base_for(tier)[1], imgs)
+        jobs.append((slot, spreads, pages, h, tier))
 
     todo = [j for j in jobs if a.force or state.get(j[0]) != j[3]
             or not all((a.out / 'books' / j[0] / f'spread-{n + 1}.jpg').exists() for n in range(j[1]))]
@@ -386,7 +396,7 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         bp = browser.new_page(viewport={'width': PAGE_W, 'height': PAGE_H})
-        for slot, spreads, pages, h in todo:
+        for slot, spreads, pages, h, tier in todo:
             outdir = a.out / 'books' / slot
             outdir.mkdir(parents=True, exist_ok=True)
             rendered = []
@@ -398,7 +408,7 @@ def main():
                     rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}'))
             for j in range(spreads):
                 right, left = rendered[2 * j], rendered[2 * j + 1]       # right-bound: p.(2j+1) right, p.(2j+2) left
-                atlas = compose(base, left, right, paper)
+                atlas = compose(base_for(tier)[0], left, right, paper)
                 path = outdir / f'spread-{j + 1}.jpg'
                 tmp = path.with_suffix('.tmp')
                 atlas.save(tmp, format='JPEG', quality=JPEG_QUALITY, optimize=True, subsampling=0)
