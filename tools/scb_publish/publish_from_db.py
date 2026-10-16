@@ -267,6 +267,14 @@ def club_text(club):
     return '・'.join(parts)
 
 
+KANJI_DIGITS = str.maketrans('0123456789', '〇一二三四五六七八九')
+
+
+def kanji_digits(text):
+    """Cover / spine use kanji numerals (二年生), never arabic ones."""
+    return text.translate(KANJI_DIGITS)
+
+
 TEACHER_TITLES = ('学園長', '神父', 'シスター')
 
 
@@ -309,17 +317,17 @@ def build_manifest(people_by_id, slots, rep: Report, failed=()):
             tier = TIER.get(p['grade'])
             if tier is None:
                 rep.warn(f'{slot}: unknown grade {p["grade"]!r}; using y1'); tier = 'y1'
-            grade = p['grade'].replace('年', '年生') if p['grade'] else ''
+            grade = kanji_digits(p['grade'].replace('年', '年生')) if p['grade'] else ''
             c = club_text(p['club'])
-            top = (f'{c}所属　{grade}' if c else grade)
+            top = (f'{grade}　{c}' if c else grade)
             name = s.get('coverName') or p['name']
         color = p['color'] or DEFAULT_COLOR
         spreads = int(s.get('spreads', 6))
         if not 1 <= spreads <= 12:
             rep.error(f'{slot}: spreads must be 1..12'); continue
-        grade_txt = p['grade'].replace('年', '年生') if p.get('grade') else ''
+        grade_txt = kanji_digits(p['grade'].replace('年', '年生')) if p.get('grade') else ''
         books.append({'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
-                      'coverTop': top, 'coverName': name, 'spineText': spine_text(p, name, grade_txt), 'spreads': spreads})
+                      'coverTop': top, 'coverName': name, 'spineText': s.get('spineText') or spine_text(p, name, grade_txt), 'spreads': spreads})
     return books
 
 
