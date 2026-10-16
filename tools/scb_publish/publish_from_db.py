@@ -267,6 +267,21 @@ def club_text(club):
     return '・'.join(parts)
 
 
+TEACHER_TITLES = ('学園長', '神父', 'シスター')
+
+
+def spine_text(p, cover_name, grade_text):
+    """Title printed on the spine: students 'N年生　name', teachers 'シスター　name' / '神父　name' / '学園長　name'."""
+    if p['kind'] == 'teacher':
+        for src in (p['name'], cover_name):
+            for title in TEACHER_TITLES:
+                if title in src:
+                    base = src.replace(title, '').replace('・', '').strip()
+                    return f'{title}　{base}' if base else title
+        return cover_name
+    return f'{grade_text}　{p["name"]}' if grade_text else p['name']
+
+
 def build_manifest(people_by_id, slots, rep: Report, failed=()):
     books = []
     seen = set()
@@ -302,8 +317,9 @@ def build_manifest(people_by_id, slots, rep: Report, failed=()):
         spreads = int(s.get('spreads', 6))
         if not 1 <= spreads <= 12:
             rep.error(f'{slot}: spreads must be 1..12'); continue
+        grade_txt = p['grade'].replace('年', '年生') if p.get('grade') else ''
         books.append({'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
-                      'coverTop': top, 'coverName': name, 'spreads': spreads})
+                      'coverTop': top, 'coverName': name, 'spineText': spine_text(p, name, grade_txt), 'spreads': spreads})
     return books
 
 
@@ -494,7 +510,7 @@ def main():
     changed_books = diff_books(old_idx.get('books', []), books) if not failed_ids else []
     if changed_books:
         new_idx['updated'] = datetime.date.today().isoformat()
-    font_gaps([s for b in books for s in (b['coverTop'], b['coverName'])], rep)
+    font_gaps([s for b in books for s in (b['coverTop'], b['coverName'], b['spineText'])], rep)
 
     # ---------- report ----------
     pd = diff_people(old_people, new_people, failed_ids)
