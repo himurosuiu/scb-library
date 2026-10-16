@@ -1,0 +1,36 @@
+/* SCB v0.8.4 — controlled art direction. Loaded AFTER layout-guard.css. */
+:root{--scb-gold:#b89a77;--scb-rose:#bc858e;--scb-petal:#edc4cf;--scb-ink:#694a50}
+/* Transparent logo: no multiply blending, which destroys alpha colors. */
+.scb-brand-image img{mix-blend-mode:normal!important;object-fit:contain!important;max-height:75px}
+/* Nav dimensions intentionally remain owned by layout-guard.css. */
+.site-nav a{position:relative;transition:color .2s ease,background-color .2s ease}
+.site-nav a.active{color:#af596e!important;background:rgba(235,187,201,.11)}
+.site-nav a.active:after{content:"";position:absolute;bottom:3px;left:36%;right:36%;height:1px;background:linear-gradient(90deg,transparent,#c18d98,transparent);pointer-events:none}
+/* Artwork never lives in interactive foreground; reserve borders for etched book-paper lines. */
+:is(.feature-card,.story-card,.fan-card,.archive-person,.detail-section,.fan-sidebar,.fan-pickup,.rel-panel,.rel-graph){outline:1px solid rgba(199,153,144,.22);outline-offset:-6px}
+/* Section titles get one subtle mark and a bottom-rule; no centered second ornament over text. */
+:is(.archive-section-head,.section-heading,.fan-heading,.detail-section h2,.fan-filter-title){position:relative;border-bottom-color:#dec2be!important}
+:is(.archive-section-head,.section-heading,.fan-heading,.detail-section h2){background:none!important}
+:is(.archive-section-head,.section-heading,.fan-heading,.detail-section h2) h2:before{background:none!important}
+/* A compact emblem sits inline instead of overlapping the heading or content. */
+:is(.archive-section-head,.section-heading,.fan-heading,.fan-filter-title) > h2::before,
+:is(.fan-heading,.fan-filter-title) h2::before{content:"";display:inline-block;width:17px;height:17px;vertical-align:-3px;margin-right:9px;background:url('assets/ornaments/sakura-mark.svg') center/contain no-repeat}
+/* Layered border style on accessible cards without covering the text region. */
+:is(.feature-card,.story-card,.fan-card,.bond-item,.related-item){border-color:#dec0bb!important;box-shadow:0 6px 18px rgba(110,60,68,.08),inset 0 0 0 3px rgba(255,252,248,.9)!important}
+:is(.feature-card,.story-card,.fan-card):hover{box-shadow:0 11px 24px rgba(110,60,68,.13),inset 0 0 0 3px #fff9f7!important}
+/* Button icon proportions; one icon only. */
+:is(.button,.text-button,.fan-tabs button)::before{width:13px!important;height:13px!important;margin-right:7px!important;background-image:url('assets/ornaments/sakura-mark.svg')!important;opacity:.85}
+/* Background corners must never enter text boxes. */
+:is(.archive-panel,.fan-sidebar,.fan-main,.fan-coming,.rel-graph,.rel-panel){background-size:30px 30px!important;background-position:right 5px top 5px!important}
+/* Fine paper grain is subtle and behind foreground controls, with no physical border protrusion. */
+body{background-image:radial-gradient(rgba(166,115,124,.065) .55px,transparent .65px);background-size:8px 8px}
+/* Inner cards are readable, with the decoration only in outer margins. */
+.detail-empty-copy,.fan-empty{background:#fffaf8!important;border:1px dashed #e3c8c6!important;padding:17px!important}
+.gallery-tabs button{border-color:#dcb8b5;transition:background .2s,color .2s}
+.gallery-tabs button[aria-selected=true]{background:#895f66!important;color:#fff}
+@media (max-width:760px){
+ :is(.archive-panel,.fan-sidebar,.fan-main,.fan-coming,.rel-graph,.rel-panel){background-image:none!important}
+ :is(.feature-card,.story-card,.fan-card){outline-offset:-4px}
+ .scb-brand-image img{max-height:53px!important}
+}
+@media(prefers-reduced-motion:reduce){:is(.feature-card,.story-card,.fan-card,.site-nav a){transition:none!important}}

@@ -1,0 +1,31 @@
+ .fan-shell{max-width:1470px;margin:auto;padding:0 24px 65px}.fan-hero{min-height:315px;margin:18px 0 0;padding:38px 45px;border:1px solid #dfb6b1;box-shadow:inset 0 0 0 5px #fffbf8,inset 0 0 0 6px #eccfca;background:linear-gradient(90deg,#fff9f8 0%,#fff9f8ea 40%,#fff9f807 100%),url('../assets/feature-visual-3.jpg') center 48%/cover}.fan-hero h1{font-weight:400;font-size:clamp(34px,4vw,61px);color:#77474b;margin:10px 0}.fan-hero h1 em,.fan-heading h2 em{display:inline-block;color:#d67a95;font:italic 30px 'Brush Script MT',cursive;margin-left:12px}.fan-hero p{max-width:590px}.fan-note{max-width:610px;background:#fff7f1d9;border:1px solid #e5c7bb;padding:8px 13px;font-size:13px;color:#875969}.fan-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 20px}.fan-tabs button{border:1px solid #dfbbb5;background:#fffaf8;color:#84565b;min-height:63px;font-size:17px}.fan-tabs small{display:block;font:11px Georgia;letter-spacing:.14em}.fan-tabs .selected{background:#855b57;color:white}.fan-layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:20px}.fan-sidebar,.fan-main{background:#fffaf9;border:1px solid #e6c8c0;box-shadow:inset 0 0 0 4px #fff,inset 0 0 0 5px #efd3d0;padding:24px}.fan-sidebar h2{font-size:22px;color:#7c4954}.fan-sidebar small{font:11px Georgia;color:#b97f89}.fan-sidebar label{font-size:13px;display:block;margin:12px 0}.fan-sidebar input{width:100%;border:1px solid #dfc4be;padding:11px;max-width:100%}.fan-sidebar p{font-size:13px;line-height:1.9;color:#806b69}.fan-charm{text-align:center;font-size:85px;color:#e5bdc5}.fan-heading{display:flex;justify-content:space-between;align-items:center}.fan-heading h2{font-size:25px;font-weight:500;color:#744b50}.fan-heading output{color:#aa7381}.fan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.fan-card{border:1px solid #dfc4bd;padding:8px;background:white;box-shadow:0 5px 15px #7c56501c}.fan-card img{width:100%;aspect-ratio:1.48;object-fit:cover;display:block}.fan-card .fan-info{padding:10px}.fan-card .fan-category{font-size:12px;color:#bd7788}.fan-card h3{margin:4px 0;color:#70464d;font-size:19px;font-weight:500}.fan-card p{font-size:13px;color:#796565}.fan-coming{margin-top:20px;border:1px solid #e6c3c3;background:#fff2f5;display:flex;align-items:center;gap:20px;padding:21px}.fan-coming>span{font-size:52px;color:#c59193}.fan-coming h2{font-size:20px;color:#854e5d}.fan-coming p{font-size:13px}.fan-empty{padding:30px;text-align:center}@media(max-width:780px){.fan-shell{padding:0 12px 40px}.fan-hero{padding:23px;min-height:0;background-image:linear-gradient(90deg,#fff9f8ed,#fff9f8bb),url('../assets/feature-visual-3.jpg')}.fan-hero h1 em{display:block;margin:0}.fan-tabs{grid-template-columns:repeat(2,1fr)}.fan-layout{grid-template-columns:1fr}.fan-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fan-sidebar,.fan-main{padding:15px}}@media(max-width:490px){.fan-grid{grid-template-columns:1fr}}
+.fan-filter-title{font:18px Georgia,serif;color:#8f5660;margin:23px 0 10px;padding-bottom:9px;border-bottom:1px solid #e8c7c4}
+.fan-character-filters{display:grid;max-height:410px;overflow-y:auto;gap:6px;padding:4px}
+.fan-person-btn{width:100%;display:flex;align-items:center;gap:9px;border:1px solid #e9cecc;border-radius:10px;background:#fffaf9;text-align:left;padding:6px 9px;color:#6d4a52;cursor:pointer;font-size:13px}
+.fan-person-btn.selected{background:#efdae0;border-color:#bc9098}
+.fan-person-btn img{height:33px;width:33px;border-radius:50%;object-fit:cover}
+.fan-group-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fan-group-option{font-size:12px;display:flex;align-items:start;gap:6px;cursor:pointer}
+.fan-pickup{background:#fff9f7;border:1px solid #e0c3bd;margin-bottom:22px;padding:16px}
+.fan-pickup-body{min-height:110px;display:grid;place-items:center;color:#967678;font-size:14px}
+.fan-pickup-card{display:flex;align-items:center;gap:18px;text-align:left;width:100%;flex-wrap:wrap}
+.fan-pickup-card img{width:180px;max-width:100%;height:100px;object-fit:cover}
+
+.fan-tabs button{min-width:105px}
+@media(max-width:850px){.fan-group-filters{grid-template-columns:1fr 1fr}}
+
+/* v0.8.2 layout correction: desktop eight in one row, sidebar one-column catalog */
+.fan-tabs{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:5px!important}
+.fan-tabs button{min-width:0!important;min-height:58px;padding:8px 4px;font-size:clamp(11px,.95vw,15px);white-space:nowrap;line-height:1.45}
+.fan-tabs small{font-size:10px;letter-spacing:.025em}
+.fan-group-filters{display:flex!important;flex-direction:column!important;gap:0!important;max-height:390px;overflow-y:auto;padding-right:5px}
+.fan-sidebar .fan-group-option{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;margin:0!important;padding:7px 6px!important;line-height:1.5;font-size:14px;white-space:normal;cursor:pointer;border-bottom:1px solid #f4e9e5}
+.fan-group-option input{appearance:none;flex:none!important;width:17px!important;height:17px!important;min-width:17px;border:1px solid #b99492!important;border-radius:2px;padding:0!important;margin:0!important;background:#fffdfb;cursor:pointer}
+.fan-group-option input:checked{background:#936a72;border-color:#936a72!important;box-shadow:inset 0 0 0 3px #fffdfb}
+.fan-group-option:hover{background:#fff1f2}
+/* 小さい画面では、分類を均等幅で整列する。 */
+@media(max-width:980px){
+ .fan-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;width:100%;overflow:visible;scroll-snap-type:none;padding-bottom:0}
+ .fan-tabs button{box-sizing:border-box;width:100%;min-height:64px;padding:10px 8px;font-size:14px;line-height:1.5;scroll-snap-align:none}
+}
+@media(max-width:600px){.fan-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 2,
+  "demo": true,
+  "comment": "依 people.json 重新產生。image 對應現有 portrait-1..10.jpg 的實際人物（以照片上的名字為準）。僅含可公開的基本欄位；color 為 null 表示資料不明，前端請用預設色。",
+  "characters": [
+    {
+      "id": "shirasaki-maina",
+      "name": "白咲 舞菜",
+      "nameKana": "しらさき まいな",
+      "romaji": "MAINA",
+      "kind": "student",
+      "grade": "3年",
+      "club": "生徒会",
+      "color": "#ffdbed",
+      "status": "active",
+      "group": "3年生 生徒会",
+      "image": "assets/portraits/shirasaki-maina.jpg",
+      "featured": true
+    },
+    {
+      "id": "arisugawa-nagi",
+      "name": "有栖川 夏葵",
+      "nameKana": "ありすがわ なぎ",
+      "romaji": "NAGI",
+      "kind": "student",
+      "grade": "3年",
+      "club": "生徒会/吹奏楽部",
+      "color": "#00AAFF",
+      "status": "active",
+      "group": "3年生 生徒会/吹奏楽部",
+      "image": "assets/portraits/arisugawa-nagi.jpg",
+      "featured": true
+    },
+    {
+      "id": "houin-sumika",
+      "name": "鳳院 澄桂",
+      "nameKana": "ほういん すみか",
+      "romaji": "SUMIKA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "吹奏楽部",
+      "color": "#7058a3",
+      "status": "active",
+      "group": "2年生 吹奏楽部",
+      "image": "assets/portraits/houin-sumika.jpg",
+      "featured": true
+    },
+    {
+      "id": "konoe-wakana",
+      "name": "近衛 和香奈",
+      "nameKana": "このえ わかな",
+      "romaji": "WAKANA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "弓道部",
+      "color": "#e82e85",
+      "status": "active",
+      "group": "2年生 弓道部",
+      "image": "assets/portraits/konoe-wakana.jpg",
+      "featured": true
+    },
+    {
+      "id": "tsukisa-yuru",
+      "name": "月冴 ゆる",
+      "nameKana": "つきさ ゆる",
+      "romaji": "YURU",
+      "kind": "student",
+      "grade": "2年",
+      "club": "文学部",
+      "color": "#e1b4f5",
+      "status": "active",
+      "group": "2年生 文学部",
+      "image": "assets/portraits/tsukisa-yuru.jpg",
+      "featured": true
+    },
+    {
+      "id": "suzugamori-kaede",
+      "name": "雀ヶ森 楓",
+      "nameKana": "すずがもり かえで",
+      "romaji": "KAEDE",
+      "kind": "student",
+      "grade": "2年",
+      "club": "バスケ部",
+      "color": "#039442",
+      "status": "active",
+      "group": "2年生 バスケ部",
+      "image": "assets/portraits/suzugamori-kaede.jpg",
+      "featured": true
+    },
+    {
+      "id": "tachibana-amaha",
+      "name": "立花 天葉",
+      "nameKana": "たちばな あまは",
+      "romaji": "AMAHA",
+      "kind": "student",
+      "grade": "2年",
+      "club": "図書委員",
+      "color": "#e4ccf6",
+      "status": "active",
+      "group": "2年生 図書委員",
+      "image": "assets/portraits/tachibana-amaha.jpg",
+      "featured": true
+    },
+    {
+      "id": "tadenomiya-karen",
+      "name": "蓼乃宮 花憐",
+      "nameKana": "たでのみや かれん",
+      "romaji": "KAREN",
+      "kind": "student",
+      "grade": "1年",
+      "club": "園芸委員",
+      "color": "#F3BEC3",
+      "status": "active",
+      "group": "1年生 園芸委員",
+      "image": "assets/portraits/tadenomiya-karen.jpg",
+      "featured": true
+    },
+    {
+      "id": "inumachi-rin",
+      "name": "犬町 りん",
+      "nameKana": "",
+      "romaji": "RIN",
+      "kind": "student",
+      "grade": "1年",
+      "club": "オカルト研究会",
+      "color": null,
+      "status": "graduated",
+      "group": "1年生 オカルト研究会",
+      "image": "assets/portraits/inumachi-rin.jpg",
+      "featured": false,
+      "note": "graduated: 首頁精選請替換這個位置的人物與照片"
+    },
+    {
+      "id": "amane-shiina",
+      "name": "天音 しいな",
+      "nameKana": "あまね しいな",
+      "romaji": "SHIINA",
+      "kind": "student",
+      "grade": "1年",
+      "club": "写真部",
+      "color": "#e6cde3",
+      "status": "active",
+      "group": "1年生 写真部",
+      "image": "assets/portraits/amane-shiina.jpg",
+      "featured": true
+    }
+  ],
+  "works": [
+    {
+      "id": "demo-story-1",
+      "category": "イベント記録",
+      "title": "桜花の一日",
+      "description": "桜舞う学園で紡がれた、出会いの記録。",
+      "image": "assets/archive-1.jpg"
+    },
+    {
+      "id": "demo-story-2",
+      "category": "小説・SS",
+      "title": "放課後の小さな約束",
+      "description": "ふたりだけの何気ない時間を、言葉に。",
+      "image": "assets/archive-2.jpg"
+    },
+    {
+      "id": "demo-story-3",
+      "category": "学園資料",
+      "title": "聖桜花女学園について",
+      "description": "学園の世界観と、ここにある物語の入口。",
+      "image": "assets/archive-3.jpg"
+    }
+  ]
+}

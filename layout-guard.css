@@ -1,0 +1,43 @@
+/* SCB v0.8.3: stable shared navigation and controlled ornament layers. */
+:root { --scb-frame-stroke:#d7aca8; }
+/* Consistent header across all public pages, independent of active nav. */
+.site-header{position:relative;z-index:20}
+.site-header::before,.site-header::after{content:none!important}
+.header-inner{box-sizing:border-box!important;width:min(100%,1510px)!important;max-width:1510px!important;margin-inline:auto!important;display:grid!important;grid-template-columns:270px minmax(0,1fr) 48px!important;align-items:center!important;gap:16px!important;padding:8px 22px!important;min-height:92px!important}
+.scb-brand-image{width:260px!important;max-width:100%!important;min-width:0!important;flex:none!important}
+.site-nav{min-width:0;display:grid!important;grid-template-columns:1fr 1.38fr 1.23fr 1.57fr .95fr!important;gap:0!important;width:100%!important;align-items:stretch!important}
+.site-nav a{box-sizing:border-box;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;min-width:0!important;min-height:62px!important;width:100%!important;padding:6px 4px!important;text-align:center!important;white-space:nowrap!important;font-size:clamp(11px,.85vw,14px)!important;border-right:1px solid #ead1cd}
+.site-nav a small{margin:3px 0 0!important;display:block!important;font-size:11px!important;white-space:nowrap!important}
+.site-nav a.active{background:rgba(232,183,197,.12)}
+.scb-search-control{box-sizing:border-box!important;display:grid!important;place-items:center!important;width:40px!important;height:40px!important;min-width:40px!important;margin:0!important;border:1px solid #dfc0bd!important;border-radius:50%!important;text-decoration:none!important;background:#fff8f7!important;color:#855d65!important;font-size:23px!important;padding:0!important;line-height:1!important}
+/* Only one intentional ornament source. Remove old pseudo overlays. */
+:is(.archive-panel,.detail-section,.fan-sidebar,.fan-main,.fan-coming,.detail-cover,.fan-pickup,.rel-graph,.rel-panel,.feature-card,.story-card,.fan-card,.rel-detail,.rel-filters,.map-panel,.work-card)::before,
+:is(.archive-panel,.detail-section,.fan-sidebar,.fan-main,.fan-coming,.detail-cover,.fan-pickup,.rel-graph,.rel-panel,.feature-card,.story-card,.fan-card,.rel-detail,.rel-filters,.map-panel,.work-card)::after {content:none!important;background:none!important;display:none!important}
+/* Decorative strokes live on the border/background, never in a foreground overlay. */
+:is(.archive-panel,.detail-section,.fan-sidebar,.fan-main,.fan-coming,.detail-cover,.fan-pickup,.rel-graph,.rel-panel,.feature-card,.story-card,.fan-card){border-color:var(--scb-frame-stroke)!important;box-shadow:inset 0 0 0 4px #fff9f8,inset 0 0 0 5px #ebd1ce,0 6px 16px #9770781e!important}
+/* No divider SVG over titles (titles already have a normal underline/border). */
+:is(.archive-section-head,.section-heading,.fan-heading,.detail-section h2){background-image:none!important}
+:is(.archive-section-head,.section-heading,.fan-heading,.detail-section h2){padding-bottom:14px!important}
+/* One small corner ornament only in spacious outer panels; reserved top-right margin keeps it clear of copy. */
+:is(.archive-panel,.fan-sidebar,.fan-main,.fan-coming,.rel-graph,.rel-panel){background-image:url('assets/ornaments/corner.svg');background-repeat:no-repeat;background-size:42px 42px;background-position:right 7px top 7px}
+/* Small tiles have no corner image so it cannot sit on titles/photos. */
+:is(.feature-card,.story-card,.fan-card,.detail-section,.fan-pickup,.detail-cover){background-image:none!important}
+/* The gallery and relations empty-states remain unobscured by graphics. */
+.detail-section .detail-empty-copy,.detail-section .gallery,.detail-section .bond-list,.detail-section .related-list{position:relative;z-index:1}
+@media(max-width:1130px){
+ .header-inner{grid-template-columns:215px minmax(0,1fr) 40px!important;gap:7px!important;padding:7px 12px!important;min-height:78px!important}
+ .scb-brand-image{width:205px!important}
+ .site-nav a{font-size:11px!important;padding:4px 2px!important}
+ .site-nav a small{font-size:9px!important}
+}
+@media(max-width:900px){
+ .header-inner{grid-template-columns:minmax(0,1fr) 40px 40px!important;gap:9px!important;min-height:66px!important}
+ .scb-brand-image{width:205px!important;max-width:100%!important}
+ .menu-toggle{display:block!important;grid-column:2;grid-row:1}
+ .scb-search-control{grid-column:3;grid-row:1}
+ .site-nav{display:none!important;position:absolute!important;left:0;right:0;top:100%;width:100%!important;background:#fff9f7;box-shadow:0 8px 25px #8a596026;padding:9px 14px!important;grid-template-columns:1fr!important;z-index:100}
+ .site-nav.open{display:grid!important}
+ .site-nav a{min-height:42px!important;align-items:flex-start!important;text-align:left!important;border-right:0!important;border-bottom:1px solid #efd9d4!important;white-space:normal!important;padding:9px!important}
+ .site-nav a small{font-size:10px!important}
+}
+@media(max-width:480px){.scb-brand-image{width:175px!important}.header-inner{padding-inline:8px!important;gap:5px!important}}

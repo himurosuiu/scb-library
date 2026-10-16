@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html lang="ja" data-site-root="./">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#fbf2f0" name="theme-color"/>
+<meta content="SALON CHERRY BLOSSOM LIBRARY — 聖桜花女学園の人物、絆、物語をつなぐアーカイブ。" name="description"/>
+<title>SALON CHERRY BLOSSOM | Library</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="visual-refresh.css" rel="stylesheet"/><link href="ornaments.css" rel="stylesheet"/><link href="layout-guard.css" rel="stylesheet"/><link href="art-direction-v084.css" rel="stylesheet"/><link href="art-direction-v085.css" rel="stylesheet"/></head>
+<body>
+<div aria-label="試作版" class="prototype-ribbon">DESIGN PROTOTYPE <span>・掲載内容はデモです</span></div>
+<header class="site-header">
+<div class="header-inner">
+<a aria-label="ホーム" class="brand scb-brand-image" href="./"><img alt="SALON CHERRY BLOSSOM — 姉妹百合女学園コンセプトカフェ" src="assets/scb-logo-transparent.png"/></a>
+<button aria-controls="siteNav" aria-expanded="false" aria-label="メニューを開く" class="menu-toggle" id="menuToggle">☰</button>
+<nav aria-label="メインナビゲーション" class="site-nav" id="siteNav"><a class="active" href="">ホーム <small>HOME</small></a><a href="characters/">人物アーカイブ <small>CHARACTERS</small></a><a href="relationships/">関係図 <small>RELATIONSHIP</small></a><a href="fan-library/">二次創作ライブラリ <small>FAN WORKS</small></a><a href="#groups">学園案内 <small>ACADEMY</small></a></nav>
+
+<button aria-label="人物を検索する" class="icon-button scb-search-control" id="searchOpen" title="人物を検索">⌕</button></div>
+</header>
+<main id="home">
+<section aria-labelledby="heroTitle" class="hero">
+<div aria-label="Salon Cherry Blossom の学園生たち" class="hero-image" role="img"></div>
+<div class="hero-content">
+<p class="eyebrow">想いが集う、わたしたちの図書館</p>
+<h1 id="heroTitle">SALON<br/>CHERRY BLOSSOM</h1>
+<div class="hero-sub"><span>聖桜花女学園 アーカイブ</span><em>Library</em></div>
+<div aria-hidden="true" class="fine-divider">◇</div>
+<p class="hero-description">ここは、姉妹たちの物語が咲き続ける場所。<br/>出会い、紡がれた絆、交わされた言葉——<br/>すべての想いを、いつまでも。</p>
+<a class="button button-primary" href="characters/">アーカイブをはじめる <span aria-hidden="true">→</span></a>
+</div>
+<span class="hero-quote">ごきげんよう。<br/>桜舞う学園の物語を、<br/>いつまでも──</span>
+</section>
+<div class="page-container">
+<section aria-label="図書館の三つの入口" class="feature-grid">
+<a class="feature-card" href="characters/"><img alt="人物のアーカイブイメージ" src="assets/feature-visual-1.jpg"/><div><span class="feature-no">01</span><h2>人物アーカイブ</h2><p>学園の姉妹たちのプロフィールや写真、エピソードを収めています。</p><span class="more">VIEW MORE →</span></div></a>
+<a class="feature-card" href="relationships/"><img alt="物語のつながりを表す手紙" src="assets/feature-visual-2.jpg"/><div><span class="feature-no">02</span><h2>関係図</h2><p>姉妹たちの絆と、交差する物語をたどってみましょう。</p><span class="more">VIEW MORE →</span></div></a>
+<a class="feature-card" href="fan-library/"><img alt="本と花に囲まれた図書館" src="assets/feature-visual-3.jpg"/><div><span class="feature-no">03</span><h2>二次創作ライブラリ</h2><p>小説・イラスト・詩など、大切な作品を集める場所。</p><span class="more">VIEW MORE →</span></div></a>
+</section>
+<section aria-labelledby="charactersTitle" class="collection-section" id="characters">
+<div class="section-heading"><div><span class="section-mark">❀</span><h2 id="charactersTitle">学園の姉妹たち <em>Our Sisters</em></h2></div><p>それぞれの個性が咲き、やがてひとつの物語に。</p><button class="text-button" id="showCharacters">キャラクター一覧を見る →</button></div>
+<div aria-live="polite" class="polaroid-row" id="characterCards"></div>
+</section>
+<section aria-labelledby="relationsTitle" class="relationship-teaser" id="relations"><div aria-hidden="true" class="relation-art"><span class="node n1">✿</span><span class="node n2">♡</span><span class="node n3">✿</span><span class="link-line l1"></span><span class="link-line l2"></span></div><div><p class="eyebrow">BONDS &amp; RELATIONSHIPS</p><h2 id="relationsTitle">姉妹たちが紡ぐ、絆の地図。</h2><p>家族、友情、想い、学園でのつながり。<br/>まだ知らなかった物語を、関係図から見つけてみませんか。</p><button class="button button-ghost" id="relationshipPreview">関係図について →</button></div></section>
+<section aria-labelledby="worksTitle" class="collection-section works-section" id="works"><div class="section-heading"><div><span class="section-mark">❀</span><h2 id="worksTitle">物語を読む <em>Story Collection</em></h2></div><p>あの日の思い出と、これから生まれる物語。</p><button class="text-button" id="worksMore">作品一覧を見る →</button></div><div class="work-grid" id="workCards"></div></section>
+<section class="groups-banner" id="groups"><div class="groups-ornament">✦</div><div><p class="eyebrow">ABOUT OUR ACADEMY</p><h2>聖桜花女学園へ、ようこそ。</h2><p>学園の世界観、学年やクラブ、姉妹たちの居場所を知るためのご案内。</p></div><button class="button button-ghost" id="groupsMore">学園案内を見る →</button></section>
+</div>
+</main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-brand">SALON<br/><strong>CHERRY BLOSSOM</strong><small>聖桜花女学園 アーカイブ</small></div><nav aria-label="フッターナビゲーション"><a href="./">ホーム</a><a href="characters/">人物アーカイブ</a><a href="relationships/">関係図</a><a href="fan-library/">二次創作ライブラリ</a><a href="#groups">学園案内</a></nav><p>© SALON CHERRY BLOSSOM<br/><small>本ページはフロントエンドの試作版です。</small></p><div aria-hidden="true" class="footer-seal">桜花</div></div></footer>
+<dialog aria-labelledby="searchTitle" class="search-dialog" id="searchDialog"><form method="dialog"><button aria-label="閉じる" class="dialog-close">×</button></form><p class="eyebrow">CHARACTER SEARCH</p><h2 id="searchTitle">人物を探す</h2><label for="characterSearch">名前・よみがな・ローマ字で検索</label><input autocomplete="off" id="characterSearch" placeholder="名前・ふりがな・ローマ字" type="search"/><div aria-live="polite" class="search-results" id="searchResults"></div></dialog>
+<dialog aria-labelledby="infoTitle" class="info-dialog" id="infoDialog"><form method="dialog"><button aria-label="閉じる" class="dialog-close">×</button></form><span class="section-mark">❀</span><h2 id="infoTitle"></h2><p id="infoBody"></p><p class="dialog-note">この画面はホームページ原型です。詳細ページと公開 JSON の連携は次の開発工程で実装します。</p><button class="button button-primary" id="infoClose">閉じる</button></dialog>
+<script defer="" src="script.js"></script>
+<script defer="" src="site-art.js"></script>
+<script defer src="site-art-decor.js"></script></body></html>

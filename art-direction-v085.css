@@ -1,0 +1,269 @@
+/* SCB Library v0.8.9 — public presentation only. Navigation remains owned by layout-guard.css. */
+:root{
+ --scb-art-backdrop:url('assets/art-system/blossom-haze.png');
+ --scb-art-divider:url('assets/art-system/chapter-flourish.png');
+ --scb-art-corner:url('assets/art-system/archive-corner.png');
+ --scb-art-seal:url('assets/art-system/wax-seal.png');
+ --scb-library-backdrop:url('assets/art-system/v087/library.webp');
+ --scb-fan-hero:url('assets/art-system/v087/books.webp');
+ --scb-margin-left:url('assets/art-system/v087/margin-left.webp');
+ --scb-margin-right:url('assets/art-system/v087/margin-right.webp');
+ --scb-paper:#fff9f6;--scb-frame:#c99293;
+}
+body{background-color:#f9e8eb!important;background-image:radial-gradient(ellipse at 50% 0%,#fffaf4b8,transparent 62%),linear-gradient(180deg,#fff7f340,#f2c5d32b),var(--scb-art-backdrop)!important;background-position:center top!important;background-size:cover!important;background-attachment:fixed!important}
+body::before,body::after{opacity:.06}
+body{position:relative;isolation:isolate}
+body>main{position:relative;z-index:1;isolation:isolate}
+.site-footer{z-index:1}
+/* 余白専用の装飾。本文の層と操作領域には入れない。 */
+.scb-margin-art{position:absolute;top:0;bottom:0;width:clamp(44px,calc((100% - 1180px)/2),330px);pointer-events:none;user-select:none;z-index:0;background-repeat:repeat-y;background-size:100% auto;opacity:.96}
+.scb-margin-art-left{left:0;background-image:var(--scb-margin-left);background-position:left top}
+.scb-margin-art-right{right:0;background-image:var(--scb-margin-right);background-position:right top}
+@media(min-width:981px){.page-container{padding-inline:80px}}
+@media(max-width:980px){.scb-margin-art{width:64px;opacity:.65}}
+@media(max-width:600px){.scb-margin-art{width:38px;opacity:.55}}
+:is(.archive-shell,.fan-shell,.rel-shell,.main-content){background:transparent}
+/* 温かい紙の質感と、文字を遮らない余白。 */
+:is(.feature-card,.story-card,.work-card,.fan-card,.archive-person,.detail-section,.archive-panel,.fan-sidebar,.fan-main,.fan-pickup,.detail-cover,.rel-filters,.rel-detail,.map-panel){background-color:#fffaf5f5!important;border:1px solid #c99996!important;box-shadow:inset 0 0 0 4px #fffdf8,inset 0 0 0 5px #e6c6bc,0 8px 24px #79455517!important}
+:is(.archive-panel,.fan-main,.detail-section,.fan-sidebar,.fan-coming,.fan-pickup,.detail-cover,.feature-card,.rel-filters,.rel-detail,.map-panel){background-image:none!important}
+/* 四隅は同じ素材を反転し、装飾は専用の枠内に収める。 */
+.scb-framed{position:relative}
+.scb-frame-corner{position:absolute;display:block;pointer-events:none;user-select:none;z-index:0;width:36px;height:36px;background:var(--scb-art-corner) left top/contain no-repeat;opacity:.8}
+.scb-frame-corner.tl{top:7px;left:7px}
+.scb-frame-corner.tr{top:7px;right:7px;transform:scaleX(-1)}
+.scb-frame-corner.bl{bottom:7px;left:7px;transform:scaleY(-1)}
+.scb-frame-corner.br{bottom:7px;right:7px;transform:scale(-1)}
+.scb-framed > :not(.scb-frame-corner){position:relative;z-index:1}
+:is(.detail-section,.fan-sidebar,.fan-pickup,.rel-filters,.rel-detail){padding:32px!important}
+/* 章飾りのための帯を確保する。 */
+:is(.section-heading,.archive-section-head,.fan-heading,.detail-section > h2,.fan-filter-title){background-image:var(--scb-art-divider)!important;background-repeat:no-repeat!important;background-position:center bottom!important;background-size:min(70%,420px) 30px!important;padding-bottom:31px!important;margin-bottom:18px!important;border-bottom:0!important}
+:is(.section-heading,.archive-section-head,.fan-heading) .section-mark{display:none!important}
+:is(.archive-section-head,.section-heading,.fan-heading) h2::before,.detail-section h2::before{content:none!important;display:none!important}
+/* 公開済みの人物写真を保持し、背景に図書館の光を添える。 */
+.hero{background-image:linear-gradient(90deg,#fff9f3ed 0%,#fff4f2c9 40%,#f8e5e342 100%),var(--scb-library-backdrop)!important;background-size:cover!important;background-position:center!important}
+.hero-image{opacity:.96}
+.hero-content{max-width:690px}
+.hero-quote{max-width:220px;background:#fff9f0e6;border:1px solid #d5ac98;box-shadow:0 0 0 4px #fff8f09c,0 6px 20px #74473617;border-radius:2px;padding:16px 20px}
+.hero::before,.hero::after{content:none!important}
+.archive-hero{background-image:linear-gradient(90deg,#fff9f5f5 0%,#fff6f2e8 40%,#fff4f054 100%),var(--scb-library-backdrop)!important;background-size:cover!important;background-position:center!important}
+.rel-heading{background-image:linear-gradient(90deg,#fff9f5f5 0%,#fff6f2ed 55%,#fff4f080 100%),var(--scb-library-backdrop)!important;background-size:cover!important;background-position:center!important}
+.archive-hero::before,.archive-hero::after,.rel-heading::before,.rel-heading::after{content:none!important}
+.fan-hero{background-image:linear-gradient(90deg,#fff9f5f5 0%,#fff8f2dd 34%,#fff8f230 60%,#fff8f200 100%),var(--scb-fan-hero)!important;background-size:cover!important;background-position:var(--scb-fan-position-desktop,70% 50%)!important;padding:40px 44px;min-height:340px}
+.fan-hero>p,.fan-hero h1{max-width:750px}
+.fan-note{max-width:560px;background:#fffaf3ed}
+/* 入口カードと写真は、枠の内側に安全な余白を持たせる。 */
+.feature-grid{gap:18px!important;margin-bottom:40px}
+.feature-card{overflow:hidden;border-radius:3px!important;min-height:210px;padding:22px!important;gap:18px;background-image:linear-gradient(125deg,#fffdf9a8,#f9e8e8a0)!important}
+.feature-card .scb-frame-corner{width:24px;height:24px;opacity:.9}
+.feature-card h2{font-size:clamp(17px,1.1vw,20px)!important;line-height:1.6;text-wrap:balance}
+.feature-card img{width:34%;flex-shrink:0;border:4px solid #fffaf1;outline:1px solid #d9aaa5;outline-offset:0;box-shadow:0 4px 12px #5d343921}
+.feature-no{font:italic 30px Georgia,serif;color:#b37d78!important}
+.feature-card .more{color:#a4566c;letter-spacing:.12em;font-size:12px}
+.collection-section{margin-bottom:40px}
+.collection-section::before{content:none!important}
+.polaroid-row{grid-template-columns:repeat(9,minmax(0,1fr));gap:12px!important}
+:is(.work-card,.fan-card,.story-card){overflow:hidden;border-radius:3px!important;transition:transform .2s ease,box-shadow .2s ease}
+:is(.work-card,.fan-card,.story-card):hover{transform:translateY(-3px);box-shadow:0 15px 26px #75455029!important}
+/* 新しい素材は文字を含まず、本文はHTMLのままにする。 */
+.work-card img,.fan-card img{width:100%;height:auto;aspect-ratio:1.9;object-fit:cover;object-position:center}
+:is(.archive-person,.fan-card) img{outline:1px solid #d09d9880;outline-offset:-3px}
+.groups-banner .groups-ornament{background:var(--scb-art-seal) center/contain no-repeat;color:transparent;width:58px;height:58px;flex:none}
+/* 空の欄を引き伸ばさず、内容のある欄の高さに依存させない。 */
+.fan-layout,.detail-content-grid,.detail-columns{align-items:start}
+.fan-main{min-width:0;padding:24px!important}
+.fan-character-filters{max-height:240px}
+.fan-group-filters{max-height:260px}
+.fan-charm{font-size:48px;line-height:1.5;margin-top:18px}
+.fan-sidebar h2{margin-top:0}
+@media(min-width:761px){
+ .detail-content-grid:has(.gallery .empty-image) > .detail-section:first-child{grid-row:span 2}
+ .detail-content-grid:has(.gallery .empty-image) > .detail-gallery-section{grid-column:2}
+}
+.detail-section{min-height:0!important}
+.detail-content-grid{row-gap:20px}
+.fan-pickup-body{min-height:68px;padding:8px 0;text-align:center;line-height:1.9}
+.fan-heading{gap:14px;flex-wrap:wrap;align-items:baseline}
+.fan-heading h2{margin:0;font-size:clamp(20px,2vw,26px);line-height:1.6}
+.fan-heading output{font-size:13px}
+.fan-heading h2 em{font-size:24px}
+.fan-coming{padding:24px;gap:16px}
+.fan-coming h2{margin:0 0 8px}
+.fan-coming p{margin:0;line-height:1.9}
+.fan-coming>span{font-size:34px;flex:none}
+.detail-section .detail-empty-copy{margin:0;line-height:1.9}
+.gallery:has(.empty-image){min-height:0}
+.gallery .empty-image{width:100%;height:76px;background:#fbf1ed;line-height:1.9}
+.detail-cover{background-image:linear-gradient(100deg,#fffaf5fa,#fff8f4e8 65%,#fff8f4b8),var(--scb-library-backdrop)!important;background-size:cover!important;min-height:0}
+.detail-portrait-box{align-self:start}
+.detail-section h2 small{display:inline-block}
+/* 分類の色と二重枠を統一する。レイアウトは専用CSSで管理。 */
+.fan-tabs button{border:1px solid #c99896!important;outline:1px solid #d3a29d59;outline-offset:-5px;background:linear-gradient(155deg,#fffaf7,#f9e6e8)!important;color:#784a55!important;box-shadow:0 3px 8px #935b6412!important;transition:background .15s,color .15s}
+.fan-tabs button:hover{background:linear-gradient(155deg,#fff5ef,#f3dbe0)!important;transform:none}
+.fan-tabs button.selected{color:#fff!important;background:linear-gradient(130deg,#815259,#aa7380)!important;outline-color:#e8c5c3}
+.fan-tabs button::before{content:none!important;display:none!important}
+.fan-tabs button:focus-visible{outline:2px solid #8b4c61;outline-offset:2px}
+@media(max-width:900px){body{background-attachment:scroll!important}.feature-grid{gap:12px!important}.feature-card{padding:18px!important;gap:12px}.hero-quote{display:none}.fan-hero{padding:28px}}
+@media(max-width:760px){
+ .hero-content{padding:40px 24px 32px}.hero{background-position:center top!important}
+ .hero-image{opacity:1}
+ .archive-hero,.rel-heading{background-image:linear-gradient(90deg,#fff9f5f5,#fff6f2c9),var(--scb-library-backdrop)!important}
+ .fan-hero{background-image:linear-gradient(90deg,#fff9f5f0,#fff8f2c9),var(--scb-fan-hero)!important;background-position:var(--scb-fan-position-mobile,75% 50%)!important;min-height:0;padding:24px 22px}
+ :is(.section-heading,.archive-section-head,.fan-heading,.detail-section > h2,.fan-filter-title){background-size:min(90%,340px) 26px!important;padding-bottom:28px!important}
+ :is(.detail-section,.fan-sidebar,.fan-pickup,.rel-filters,.rel-detail){padding:26px!important}
+ .fan-main{padding:18px!important}.fan-pickup{margin-bottom:24px}
+ .detail-section h2{font-size:21px}.detail-section h2 small{font-size:10px;letter-spacing:.08em;margin-left:6px}
+ .polaroid-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important}
+ .polaroid-row > :last-child:nth-child(odd){grid-column:1/-1;width:calc((100% - 14px)/2);justify-self:center}
+ .scb-frame-corner{width:28px;height:28px}
+ .fan-coming{padding:20px;align-items:start}.fan-coming>span{font-size:26px}
+ .fan-heading h2 em{font-size:22px;margin-left:4px}
+}
+@media(prefers-reduced-motion:reduce){:is(.work-card,.fan-card,.story-card,.fan-tabs button){transition:none!important}}
+
+/* v0.8.8 — 固定画布、余白と桜の線画。 */
+:root{--scb-margin-left:url('assets/art-system/v088/corner-left.webp');--scb-margin-right:url('assets/art-system/v088/corner-right.webp');--scb-chapter-emblem:url('assets/art-system/v088/chapter-blossom.svg')}
+body{background:#000!important;position:relative}
+body::before,body::after{content:none!important}
+.scb-stage{position:relative;isolation:isolate;overflow:clip;width:100%;margin-inline:auto;background-color:#fcf2f1;background-image:linear-gradient(#fffaf6a6,#f7e5e766),var(--scb-art-backdrop);background-size:100% 100%;background-attachment:scroll}
+.scb-stage>main{position:relative;z-index:1;isolation:isolate}
+.scb-margin-art{position:absolute;bottom:auto;width:360px;height:320px;z-index:25;pointer-events:none;user-select:none;opacity:.78;background-repeat:no-repeat;background-size:100% auto;mask-image:linear-gradient(#000 0 65%,transparent)}
+.scb-margin-art-left{left:0;background-image:var(--scb-margin-left);background-position:left top}
+.scb-margin-art-right{right:0;background-image:var(--scb-margin-right);background-position:right top}
+.scb-margin-top{top:100px;height:300px}
+.scb-margin-top.scb-margin-art-left{clip-path:inset(0 78% 0 0)}
+.scb-margin-top.scb-margin-art-right{clip-path:inset(0 0 0 78%)}
+.scb-margin-chapter{top:800px;opacity:.58}
+.scb-margin-interlude{top:1500px;opacity:.52;transform:scaleY(-1)}
+.scb-margin-bottom{top:auto;bottom:60px;opacity:.64;transform:scaleY(-1)}
+.scb-margin-chapter.scb-margin-art-left,.scb-margin-interlude.scb-margin-art-left,.scb-margin-bottom.scb-margin-art-left{clip-path:inset(0 80% 0 0)}
+.scb-margin-chapter.scb-margin-art-right,.scb-margin-interlude.scb-margin-art-right,.scb-margin-bottom.scb-margin-art-right{clip-path:inset(0 0 0 80%)}
+.scb-stage:has(.fan-shell) .scb-margin-chapter.scb-margin-art-left,.scb-stage:has(.rel-shell) .scb-margin-chapter.scb-margin-art-left{clip-path:inset(0 94% 0 0)}
+.scb-stage:has(.fan-shell) .scb-margin-chapter.scb-margin-art-right,.scb-stage:has(.rel-shell) .scb-margin-chapter.scb-margin-art-right{clip-path:inset(0 0 0 94%)}
+/* 主視覚の下端を次の紙面へ溶かす。 */
+.hero{border-bottom:0;overflow:visible}
+.hero::after{content:''!important;position:absolute;inset:auto 0 -46px;z-index:3;height:140px;pointer-events:none;background:linear-gradient(transparent,#fbefef 72%,#fbefef00)!important;opacity:1!important;font-size:0!important}
+.hero-image{mask-image:linear-gradient(#000 0 74%,#000d 86%,transparent 100%)}
+.hero-content{padding-bottom:94px}
+.hero-quote{right:84px}
+.feature-grid{position:relative;z-index:4;margin-top:0!important}
+/* 桜紋と繊細な二重線。 */
+.section-heading{position:relative;padding:20px 5px 32px 68px!important;border-top:3px double #d9bcb0;background-size:100% 38px!important;margin-bottom:20px!important}
+.section-heading::before{content:'';position:absolute;left:2px;top:13px;width:52px;height:52px;background:var(--scb-chapter-emblem) center/contain no-repeat;pointer-events:none}
+.section-heading h2{font-size:25px;letter-spacing:.1em}
+.section-heading em{font-size:27px;margin-left:14px}
+.section-heading p{text-align:left;line-height:1.9;max-width:300px}
+.section-heading .text-button{margin-left:auto}
+.text-button,.button-ghost,.selected-link{background:linear-gradient(#fffdf9,#fcf0ed)!important;border:1px solid #d7ada6!important;box-shadow:inset 0 0 0 3px #fff9f4,0 2px 6px #986c6510;color:#a36d76!important;border-radius:24px!important}
+.text-button{padding:9px 22px;letter-spacing:.12em;font-size:12px}
+.button-primary{border:1px solid #a77e66!important;outline:1px solid #b58e75;outline-offset:3px;border-radius:3px!important;clip-path:polygon(5% 0,95% 0,100% 25%,100% 75%,95% 100%,5% 100%,0 75%,0 25%);background:linear-gradient(#ad8270,#825a4d)!important;box-shadow:inset 0 0 0 3px #f3ddbf!important;padding-inline:34px}
+/* 分類ボタンに一つずつ、統一した線画を使う。 */
+.fan-tabs button{display:flex;align-items:center;justify-content:center;gap:9px;padding:10px 8px;min-height:76px!important;position:relative;border-radius:3px;outline-offset:-4px;background:linear-gradient(#fffdf9,#fff4f1)!important}
+.scb-tab-icon{width:34px!important;height:34px!important;flex:none;object-fit:contain;opacity:.9}
+.scb-tab-copy{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5;font-size:13px}
+.scb-tab-copy small{font-size:9px;letter-spacing:.09em;margin-top:4px}
+.fan-tabs button.selected .scb-tab-icon{filter:brightness(0) invert(1);opacity:.9}
+.fan-tabs button .scb-frame-corner{width:17px;height:17px;opacity:.5}
+.fan-tabs button .tl,.fan-tabs button .tr{top:3px}.fan-tabs button .bl,.fan-tabs button .br{bottom:3px}
+.fan-tabs button .tl,.fan-tabs button .bl{left:3px}.fan-tabs button .tr,.fan-tabs button .br{right:3px}
+.footer-seal{width:104px;height:104px;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;transform:none!important;flex:none}
+.footer-seal img{display:block;width:100%;height:100%;object-fit:contain;clip-path:circle(42% at 54% 48%)}
+/* 人物の見出しを重複させず、写真と資料の接点を作る。 */
+.archive-shell:has(#detail:not([hidden]))>.archive-hero{display:none}
+.detail-panel{margin-top:24px;border:0;background:transparent;padding:0}
+.detail-cover{grid-template-columns:42% minmax(0,1fr);gap:44px;padding:26px;border:0!important;box-shadow:none!important;background-image:linear-gradient(90deg,#fffaf5a6,#fff8f4f5 68%),var(--scb-library-backdrop)!important}
+.detail-portrait-box{border:7px solid #fffdf8!important;transform:none!important;min-height:0;box-shadow:0 8px 20px #72554b26!important}
+.detail-portrait-box img{height:480px;max-height:none;object-position:center 25%}
+.detail-intro{padding:20px 12px}
+.detail-intro h1{letter-spacing:.04em}
+.detail-tags span{border-radius:3px;background:linear-gradient(#fff5f5,#f7e1e8)!important;border-color:#e5b7c4!important;padding:6px 13px}
+.facts{column-gap:18px;row-gap:0;line-height:1.9}
+.facts dt,.facts dd{padding:8px 0;border-bottom:1px solid #ead8d0}
+.detail-section{box-shadow:inset 0 0 0 4px #fffaf6,0 6px 16px #79584c0b!important}
+/* デスクトップは同一の構図を表示し、画布の外側を黒で補う。 */
+@media(min-width:981px){
+ .scb-stage{width:1440px;zoom:var(--scb-stage-scale,1)}
+ .header-inner{grid-template-columns:270px minmax(0,1fr) 48px!important;gap:16px!important;padding:8px 22px!important;min-height:92px!important}
+ .scb-brand-image{width:260px!important}
+ .site-nav a{font-size:12px!important;padding:6px 4px!important}.site-nav a small{font-size:11px!important}
+ .page-container{padding-inline:80px}
+ .hero{height:624px;min-height:624px}.hero-content{height:624px;padding-left:86px;max-width:690px}.hero h1{font-size:61px}.hero-image{left:36%!important}
+ .feature-card{flex-direction:row!important}.feature-card img{width:34%;height:auto}.feature-card h2{font-size:18px!important}
+ .polaroid-row{grid-template-columns:repeat(9,minmax(0,1fr))}.polaroid img{height:136px}
+ .archive-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.archive-controls{grid-template-columns:minmax(190px,2fr) repeat(4,minmax(115px,1fr)) auto}
+ .archive-hero h1,.rel-heading h1{font-size:52px!important}.fan-hero h1{font-size:58px}
+ .fan-tabs{grid-template-columns:repeat(8,minmax(0,1fr))!important}
+ .rel-heading{padding:26px 36px!important;margin-bottom:18px}
+ .rel-heading h1{font-size:46px!important}.rel-heading .eyebrow{margin-top:0}
+ .rel-heading .demo-warning{margin-top:14px;max-width:100%}
+ .rel-workspace{display:grid!important;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+ .rel-filters{grid-column:1/-1;display:grid;grid-template-columns:2fr 1.3fr 1fr 1.7fr;gap:6px 18px;padding:22px 30px!important}
+ .rel-filters h2{grid-column:1/-1;margin:0 0 6px;padding-bottom:8px}.rel-filters h2 small{display:inline;margin-left:10px}
+ .rel-filters>label{margin:0;font-size:12px}
+ .rel-filters label[for=personSearch]{grid-column:1;grid-row:2}.rel-filters #personSearch{grid-column:1;grid-row:3}
+ .rel-filters label[for=viewMode]{grid-column:2;grid-row:2}.rel-filters #viewMode{grid-column:2;grid-row:3}
+ .rel-filters label[for=gradeSelect]{grid-column:3;grid-row:2}.rel-filters #gradeSelect{grid-column:3;grid-row:3}
+ .rel-filters #personMatches{grid-column:1/4;grid-row:4}
+ .rel-filters fieldset{grid-column:4;grid-row:2/4;display:grid;grid-template-columns:1fr 1fr;margin:0;padding:5px 10px;border-color:#ead8d0}
+ .rel-filters fieldset label{margin:3px 0;font-size:12px}.rel-filters legend{font-size:11px}
+ .rel-filters .rel-reset{grid-column:4;grid-row:4;font-size:12px;padding:6px 10px}
+ .rel-filters .rel-help{grid-column:1/-1;margin:0;font-size:11px}
+ .map-panel{grid-column:1;grid-row:2}.rel-detail{grid-column:2;grid-row:2;padding:24px!important;min-height:0}
+ .map-viewport{height:640px;min-height:640px}.selected-portrait{max-height:250px}
+ .empty-selection{padding-top:26px;padding-bottom:26px}.empty-selection span{font-size:38px}
+}
+@media(max-width:980px){
+ .scb-stage{width:100%;zoom:1}.scb-margin-art{width:200px;opacity:.4;height:160px}
+ .scb-margin-top{clip-path:none!important;top:0;max-height:20px}
+ .scb-margin-chapter{top:700px}.scb-margin-bottom{bottom:35px}
+ .scb-margin-art-left:not(.scb-margin-top){clip-path:inset(0 94% 0 0)!important}
+ .scb-margin-art-right:not(.scb-margin-top){clip-path:inset(0 0 0 94%)!important}
+ .hero-content{padding-bottom:40px}.hero::after{height:90px;bottom:-28px}
+ .section-heading{padding-left:42px!important;gap:12px}.section-heading::before{width:32px;height:32px;top:20px}
+ .section-heading h2{font-size:19px;letter-spacing:.02em}.section-heading em{font-size:19px;margin-left:6px}
+ .section-heading .text-button{padding:7px 12px;font-size:11px}
+ .detail-cover{grid-template-columns:1fr;gap:20px;padding:18px}.detail-portrait-box img{height:380px}.detail-intro{padding:5px}.detail-intro h1{font-size:36px!important}
+ .footer-seal{width:72px;height:72px}.scb-tab-icon{width:28px!important;height:28px!important}.scb-tab-copy{font-size:14px}
+}
+.public-node .node-name{font-size:11px;fill:#694c4b}.public-node .node-meta{font-size:10px}
+/* 関係図の線画、凡例と選択状態。 */
+.rel-filters h2{background:url('assets/art-system/v089/network.svg') left 0 top 0/25px 25px no-repeat;padding-left:35px}
+#personSearch{padding-right:38px!important;background:#fffdf9 url('assets/art-system/v089/search.svg') right 10px center/22px 22px no-repeat!important}
+.rel-filters #relationTypes label{gap:7px;padding:4px 5px;border-radius:4px;transition:background .15s}
+.rel-filters #relationTypes label:has(input:checked){background:#f8eced}
+.rel-filters #relationTypes label:hover{background:#f3e3e7}
+.rel-filters .legend-dot{display:inline-block;width:22px;height:22px;flex:none;border-radius:0;vertical-align:middle}
+.rel-filters .legend-dot.family{background:url('assets/art-system/v089/family.svg') center/contain no-repeat}
+.rel-filters .legend-dot.love{background:url('assets/art-system/v089/love.svg') center/contain no-repeat}
+.rel-filters .legend-dot.friend{background:url('assets/art-system/v089/friend.svg') center/contain no-repeat}
+.rel-filters .legend-dot.school{background:url('assets/art-system/v089/school.svg') center/contain no-repeat}
+#relationTypes input{appearance:none;flex:none;width:15px;height:15px;border:1px solid #bf9b9c;border-radius:3px;background:#fffdf9;cursor:pointer;margin:0}
+#relationTypes input:checked{background:#ae7c8c url('assets/art-system/v089/check.svg') center/13px 13px no-repeat;border-color:#ae7c8c}
+#relationTypes input:focus-visible{outline:2px solid #9e627d;outline-offset:3px}
+.rel-reset::before{content:'';display:inline-block;width:18px;height:18px;vertical-align:-4px;margin-right:8px;background:url('assets/art-system/v089/reset.svg') center/contain no-repeat}
+.zoom-actions{gap:7px}
+.zoom-actions button{display:grid;place-items:center;width:42px;height:42px;padding:7px;border:1px solid #d9bcb2;border-radius:5px;background:linear-gradient(#fffefa,#f9ece8);box-shadow:inset 0 0 0 3px #fffaf6,0 2px 5px #8a65590c;transition:border-color .15s,background .15s}
+.zoom-actions button img{width:25px;height:25px;pointer-events:none}
+.zoom-actions button:hover{background:#f7e6eb;border-color:#b88897}
+.zoom-actions button:focus-visible{outline:2px solid #9e627d;outline-offset:3px}
+.zoom-actions output{color:#946679;background:#fffaf6;border:1px solid #ead4cc;border-radius:4px;padding:6px;min-width:53px}
+.map-toolbar{background:linear-gradient(#fffaf6,#fcf0ed)!important;padding:12px 17px;gap:12px}
+.map-toolbar strong{font-weight:500;letter-spacing:.05em}
+.node-halo{fill:none;stroke:#c897aa;stroke-width:1.5;stroke-dasharray:2 4;opacity:0;transition:opacity .15s}
+.node-nameplate{fill:#fffaf4;stroke:#e8d3c8;stroke-width:1;opacity:.95}
+.node-circle{fill:#fffaf5;stroke:#cfb1a1;stroke-width:2.3;filter:drop-shadow(0 3px 4px #7c575321)}
+.node-circle.selected{stroke:#ae6d89;stroke-width:4}
+.node-hit:hover .node-halo,.node-hit:focus-visible .node-halo,.node-hit.is-selected .node-halo{opacity:1}
+.node-hit:focus-visible .node-nameplate,.node-hit.is-selected .node-nameplate{fill:#faeaf0;stroke:#c798aa}
+.edge{stroke-linecap:round;transition:opacity .15s,stroke-width .15s}
+.edge.dimmed{opacity:.22}.edge.emphasized{opacity:1;stroke-width:4}
+.node-symbol{opacity:.82}
+.rel-icon-legend{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 18px;background:#fffaf4;border-top:1px solid #ead4cc;color:#826568}
+.rel-icon-legend>strong{font-size:11px;letter-spacing:.05em;font-weight:400;color:#9b7c73}
+.rel-icon-legend .rel-legend-item{display:flex;align-items:center;gap:7px;background:none;font-size:12px}
+.rel-legend-item img{width:23px;height:23px}
+.rel-shell:has(#viewMode option[value=people]:checked) .rel-icon-legend{display:none}
+.empty-selection>span{display:inline-block;width:54px;height:54px;font-size:0!important;background:url('assets/art-system/v089/person.svg') center/contain no-repeat;opacity:.65}
+.selected-placeholder{font-size:0!important;background:#fbefec url('assets/art-system/v089/person.svg') center/58px 58px no-repeat}
+.selected-portrait{border:5px solid #fffdf7;outline:1px solid #e0c7ba;outline-offset:0;box-shadow:0 5px 14px #76594f17}
+@media(max-width:980px){.rel-icon-legend{gap:10px 16px;padding:12px}.rel-icon-legend>strong{width:100%}.rel-filters #relationTypes label{padding:6px 5px}}
+@media(prefers-reduced-motion:reduce){.node-halo,.edge,.zoom-actions button,#relationTypes label{transition:none!important}}
