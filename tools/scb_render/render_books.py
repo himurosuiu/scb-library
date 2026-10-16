@@ -243,9 +243,10 @@ def main():
     ap.add_argument('--png', action='store_true', help='also save lossless PNG next to each JPEG (debug)')
     a = ap.parse_args()
 
+    a.fe, a.out, a.slots, a.base = a.fe.resolve(), a.out.resolve(), a.slots.resolve(), a.base.resolve()   # file:// URLs need absolute paths
     if a.fonts:
         global FONT_DIR
-        FONT_DIR = a.fonts
+        FONT_DIR = a.fonts.resolve()
     rep = Report()
     tpl = json.loads((TEMPLATES / a.template / 'template.json').read_text(encoding='utf-8'))
     people = {p['id']: p for p in json.loads((a.fe / 'data' / 'public-people-all.json').read_text(encoding='utf-8'))['people']}
