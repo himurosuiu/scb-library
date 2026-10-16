@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "updated": "2026-10-16",
+  "books": [
+    {
+      "slot": "person-001",
+      "type": "person",
+      "tier": "y2",
+      "color": "#e1b4f5",
+      "coverTop": "文学部所属　2年生",
+      "coverName": "月冴 ゆる",
+      "spreads": 6
+    },
+    {
+      "slot": "person-002",
+      "type": "person",
+      "tier": "y3",
+      "color": "#ffdbed",
+      "coverTop": "生徒会所属　3年生",
+      "coverName": "白咲 舞菜",
+      "spreads": 6
+    },
+    {
+      "slot": "person-003",
+      "type": "person",
+      "tier": "y1",
+      "color": "#2BC1FF",
+      "coverTop": "文学部所属　1年生",
+      "coverName": "朝凪 潮",
+      "spreads": 6
+    },
+    {
+      "slot": "person-004",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#E32869",
+      "coverTop": "",
+      "coverName": "ビオラ神父",
+      "spreads": 6
+    }
+  ]
+}
