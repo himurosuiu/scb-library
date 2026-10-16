@@ -1,0 +1,29 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>学年ごとの見た目 | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1100px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.2rem}
+.tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}.tier{border:1px solid #d6bcb9;border-radius:12px;padding:.8rem;background:#fff}.tier img{width:100%;aspect-ratio:1;object-fit:contain;background:#efe6e0;border-radius:8px;display:block;margin:.4rem 0}
+.muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.85rem;color:#8a7a6b}
+</style></head><body>
+<div class="prototype-ribbon">TIER ART ・ 学年ごとの見た目 ・ 管理者のみ</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · ART</p>
+<h1>学年ごとの見た目</h1>
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+<div id="panel" hidden>
+ <div class="cloud-box"><h2>書籍ページの底画像（一年生・二年生・三年生・教職員）</h2>
+  <p>本の見開き画像のうち、<b>書背・ページの小口</b>にあたる部分と枠の絵は、この画像から作られます（ページの中身は自動で重ねられます）。<br>
+  モデルの UV 展開と同じ配置の<b>正方形の画像</b>（1024×1024 または 2048×2048、PNG／JPG／WebP、5MB 以下）をアップロードしてください。保存すると最大 15 分で、その学年の全員の書籍画像が描き直されます。</p>
+  <div class="tiers" id="tiers"></div>
+  <button id="save" type="button">保存</button> <span id="msg" role="status" aria-live="polite"></span>
+ </div>
+ <div class="cloud-box"><h2>封面・封底について</h2>
+  <p>表紙と裏表紙の絵は、VRChat の仕様上 <b>Unity に入れて World をアップロード</b>する必要があります（ここからは変更できません）。</p>
+  <ol>
+   <li><code>Assets/Enchanted_tim/memoria book/Material/Texture/hyoushi/</code> に <code>hyousi_1〜4.png</code>（表紙）と <code>urebyoushi_1〜4.png</code>（裏表紙）を置く（1＝一年生、2＝二年生、3＝三年生、4＝教職員）。</li>
+   <li>プレハブ <code>Book_MEMORIA_Right_P0</code> の「Cover By Tier」「Back By Tier」に 4 枚ずつ設定する。</li>
+   <li>World をアップロードする。</li>
+  </ol>
+ </div>
+</div>
+<p><a href="hub.html">管理センター</a> · <a href="site.html">サイト内容</a></p>
+</main>
+<script src="config.js"></script><script type="module" src="art.js"></script></body></html>

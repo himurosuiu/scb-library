@@ -54,7 +54,7 @@ jobs:
         run: |
           FORCE=""
           if [ "${{ github.event.inputs.force_render }}" = "true" ]; then FORCE="--force"; fi
-          python -X utf8 tools/scb_render/render_books.py --apply $FORCE --fe . --out . --slots tools/scb_publish/slots.json --base tools/scb_render/base/atlas.png --fonts tools/fonts/NotoSansJP
+          python -X utf8 tools/scb_render/render_books.py --apply $FORCE --fe . --out . --slots data/slots.json --base tools/scb_render/base/atlas.png --fonts tools/fonts/NotoSansJP
 
       - name: Draw the relationship board
         run: |

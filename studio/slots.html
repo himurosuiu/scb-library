@@ -1,0 +1,27 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>書位・書名の編集 | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1150px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.2rem}
+table.slots{width:100%;border-collapse:collapse;margin:.6rem 0}table.slots th,table.slots td{border-bottom:1px solid #e2d6c8;padding:.4rem .4rem;text-align:left;vertical-align:middle;font-size:.92rem}table.slots th{color:#8a6a55;font-weight:600}
+table.slots select,table.slots input{width:100%;padding:.35rem;box-sizing:border-box}table.slots input[type=number]{width:4.5rem}
+tr.dirty td{background:#fff7e0}tr.warn td{background:#fdeeee}.muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.slotid{font-family:monospace;white-space:nowrap}
+.sub{font-size:.8rem;color:#8a7a6b}
+</style></head><body>
+<div class="prototype-ribbon">BOOK SLOTS ・ 誰がどの書棚の本になるか ・ 管理者のみ</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · BOOKS</p>
+<h1>書位・書名の編集</h1>
+<p>World の本（person-001 …）に、どの人物を入れるかを決めます。保存した内容は最大 15 分で自動的に <code>books/index.json</code> と書籍画像に反映されます。</p>
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+
+<div id="panel" hidden>
+ <div class="cloud-box">
+  <p><strong>見方</strong>：<b>封面名</b>は表紙の名前の上書き（空欄なら人物の名前。教職員は「神父」「シスター」を含めてください）。<b>書背名</b>は背表紙の文字の上書き（空欄なら「二年生　名前」「シスター　名前」と自動）。長い英語の名前は短くすると読みやすくなります。</p>
+  <p class="muted">World に本のオブジェクトがあるのは person-001 〜 person-<span id="worldMax">048</span> です。それ以降のスロットは、Unity で本を追加して World をアップロードするまで World には出ません。</p>
+  <button id="add" type="button">スロットを追加</button> <button id="reload" type="button">再読み込み</button> <span id="msg" role="status" aria-live="polite"></span>
+ </div>
+ <table class="slots"><thead><tr><th>スロット</th><th>人物</th><th>見開き</th><th>封面名（上書き）</th><th>書背名（上書き）</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+ <div class="cloud-box"><h2>人物の入れ替え</h2><p class="muted">2 つのスロットの人物を入れ替えます（書棚の並びを変えたいとき）。</p>
+  <select id="swapA"></select> ⇄ <select id="swapB"></select> <button id="swap" type="button">入れ替える</button></div>
+</div>
+<p><a href="hub.html">管理センター</a> · <a href="./">人物の編集</a> · <a href="review.html">審査</a></p>
+</main>
+<script src="config.js"></script><script type="module" src="slots.js"></script></body></html>

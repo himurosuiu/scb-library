@@ -1,0 +1,35 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>人物の追加・削除 | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1100px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.2rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem 1.2rem}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:.9rem;color:#6b5a4e}label input,label select{width:100%;padding:.5rem;box-sizing:border-box;margin-top:.15rem}
+table.pp{width:100%;border-collapse:collapse}table.pp th,table.pp td{border-bottom:1px solid #e2d6c8;padding:.4rem;text-align:left;font-size:.92rem}table.pp th{color:#8a6a55}
+.muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.id{font-family:monospace}
+</style></head><body>
+<div class="prototype-ribbon">PEOPLE ・ 人物の追加と削除 ・ 管理者のみ</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · PEOPLE</p>
+<h1>人物の追加・削除</h1>
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+<div id="panel" hidden>
+ <div class="cloud-box"><h2>人物を追加する</h2>
+  <p class="muted">作成後は、<a href="roles.html">編集者の割り当て</a>で担当を決め、<a href="slots.html">書位</a>で本に割り当てます。プロフィールの詳細は人物の編集から入力できます。</p>
+  <div class="grid">
+   <label>ID（英小文字・数字・ハイフン。後から変えられません）<input id="nId" maxlength="80" placeholder="例：sakura-hanako"></label>
+   <label>名前<input id="nName" maxlength="100" placeholder="例：桜田 花子"></label>
+   <label>よみがな<input id="nKana" maxlength="130"></label>
+   <label>ローマ字<input id="nRomaji" maxlength="130"></label>
+   <label>区分<select id="nKind"><option value="student">生徒</option><option value="teacher">教員</option></select></label>
+   <label>学年（例：1年 ／ 教員は空欄）<input id="nGrade" maxlength="30"></label>
+   <label>所属（クラブ・委員会）<input id="nClub" maxlength="130"></label>
+   <label>イメージカラー（#RRGGBB・任意）<input id="nColor" maxlength="7" placeholder="#d9c3cf"></label>
+  </div>
+  <button id="create" type="button">人物を作成</button> <span id="msg" role="status" aria-live="polite"></span>
+ </div>
+ <div class="cloud-box"><h2>人物の一覧</h2>
+  <table class="pp"><thead><tr><th>名前</th><th>ID</th><th>区分・学年</th><th>書位</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  <p class="muted">削除すると、その人物の編集者割り当て・草稿・関係も一緒に消えます（関係は確認が出ます）。書位に入っている人物は、先に書位を削除してください。</p>
+ </div>
+</div>
+<p><a href="hub.html">管理センター</a> · <a href="slots.html">書位</a> · <a href="roles.html">編集者の割り当て</a></p>
+</main>
+<script src="config.js"></script><script type="module" src="people.js"></script></body></html>

@@ -1,0 +1,24 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>サイト内容の設定 | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1100px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.2rem}
+label{display:block;font-size:.9rem;color:#6b5a4e;margin:.5rem 0}label input,label select,label textarea{width:100%;padding:.5rem;box-sizing:border-box;margin-top:.15rem}label textarea{min-height:5rem}
+.item{border:1px solid #d6bcb9;border-radius:10px;padding:.7rem .9rem;margin:.6rem 0;background:#fff}.row{display:grid;grid-template-columns:1fr 1fr;gap:.2rem 1rem}@media(max-width:700px){.row{grid-template-columns:1fr}}
+.thumb{width:110px;height:80px;object-fit:cover;border:1px solid #d6bcb9;border-radius:6px;background:#f3ece6}
+.muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.82rem;color:#8a7a6b}
+.tabs button{padding:.5rem 1rem;border:1px solid #c9b8a6;background:#fff;border-radius:10px 10px 0 0;cursor:pointer}.tabs button[aria-selected=true]{background:#fffaf5;font-weight:700}
+</style></head><body>
+<div class="prototype-ribbon">SITE CONTENT ・ ホームページの内容 ・ 管理者のみ</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · SITE</p>
+<h1>サイト内容の設定</h1>
+<p>ホームページの「学園の姉妹たち」「物語を読む」と、決まり文句の文章を編集します。保存した内容は最大 15 分で自動的にサイトに反映されます。</p>
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+<div id="panel" hidden>
+ <div class="tabs" role="tablist"><button id="tabF" role="tab" aria-selected="true">表示する人物</button><button id="tabW" role="tab" aria-selected="false">作品カード</button><button id="tabT" role="tab" aria-selected="false">文章</button></div>
+ <p id="msg" role="status" aria-live="polite"></p>
+ <div class="cloud-box" id="boxF"><h2>ホームに並べる人物</h2><p class="muted">上から順に表示されます（最大 12 名）。</p><div id="featList"></div><label>人物を追加<select id="featAdd"></select></label><button id="featAddBtn" type="button">追加</button> <button id="featSave" type="button">保存</button></div>
+ <div class="cloud-box" id="boxW" hidden><h2>作品カード（物語を読む）</h2><p class="muted">最大 12 件。リンクは https の URL か、サイト内のページ（例：<code>fan-library/</code>）。空欄なら、押すと説明が表示されます。</p><div id="workList"></div><button id="workAdd" type="button">作品を追加</button> <button id="workSave" type="button">保存</button></div>
+ <div class="cloud-box" id="boxT" hidden><h2>ホームの文章</h2><p class="muted">空欄にすると元の文章に戻ります。改行は文章の中でそのまま入力できます。</p><div id="textList"></div><button id="textSave" type="button">保存</button></div>
+</div>
+<p><a href="hub.html">管理センター</a> · <a href="../" target="_blank">サイトを見る</a></p>
+</main>
+<script src="config.js"></script><script type="module" src="site.js"></script></body></html>

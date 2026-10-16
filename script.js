@@ -26,7 +26,7 @@ function renderCharacters(characters){
 }
 function renderWorks(works){
  const root=byId('workCards');root.replaceChildren();
- for(const w of works){const b=document.createElement('button');b.className='work-card';b.type='button';const img=document.createElement('img');img.src=w.image;img.alt='';img.loading='lazy';const box=document.createElement('div');box.className='work-card-body';const cat=document.createElement('span');cat.className='category';cat.textContent=w.category;const h=document.createElement('h3');h.textContent=w.title;const p=document.createElement('p');p.textContent=w.description;const arrow=document.createElement('div');arrow.className='arrow';arrow.textContent='→';box.append(cat,h,p,arrow);b.append(img,box);b.addEventListener('click',()=>notice(w.title,'この作品は画面レイアウト確認用のデモコンテンツです。実際の投稿作品ではありません。'));root.append(b);}
+ for(const w of works){const b=document.createElement('button');b.className='work-card';b.type='button';const img=document.createElement('img');img.src=w.image;img.alt='';img.loading='lazy';const box=document.createElement('div');box.className='work-card-body';const cat=document.createElement('span');cat.className='category';cat.textContent=w.category;const h=document.createElement('h3');h.textContent=w.title;const p=document.createElement('p');p.textContent=w.description;const arrow=document.createElement('div');arrow.className='arrow';arrow.textContent='→';box.append(cat,h,p,arrow);b.append(img,box);b.addEventListener('click',()=>{if(w.link){location.href=w.link;}else{notice(w.title,w.demo===false?(w.description||''):'この作品は画面レイアウト確認用のデモコンテンツです。実際の投稿作品ではありません。');}});root.append(b);}
 }
 function renderSearch(query){
  const root=byId('searchResults');root.replaceChildren();const q=normalizeJapanese(query);
@@ -49,10 +49,20 @@ byId('worksMore').addEventListener('click',()=>{location.href='fan-library/';});
 byId('groupsMore').addEventListener('click',()=>notice('学園案内','学年・クラス・クラブ・教員などのグループ一覧は次の工程で実装します。'));
 byId('infoClose').addEventListener('click',()=>info.close());
 async function loadJson(path){const r=await fetch(path);if(!r.ok)throw new Error(`${path}: HTTP ${r.status}`);return r.json();}
+function applyTexts(texts){
+ if(!texts||typeof texts!=='object')return;
+ for(const [key,value] of Object.entries(texts)){
+  if(typeof value!=='string'||!value.trim())continue;
+  const el=document.querySelector('[data-text="'+key.replace(/[^A-Za-z0-9]/g,'')+'"]');
+  if(!el)continue;
+  el.replaceChildren();
+  value.split('\n').forEach((line,i)=>{if(i)el.append(document.createElement('br'));el.append(document.createTextNode(line));});
+ }
+}
 async function init(){
  try{data=await loadJson('data/public-demo.json');}catch(e){console.warn('Demo data unavailable:',e);data={characters:[],works:[]};}
  try{const all=await loadJson('data/public-people-all.json');const demomap=new Map(data.characters.map(c=>[c.id,c]));searchablePeople=(all.people||[]).map(p=>({...p,...(demomap.get(p.id)||{})}));for(const c of data.characters){if(!searchablePeople.some(p=>p.id===c.id))searchablePeople.push(c);}}
  catch(e){console.warn('Full public list unavailable:',e);searchablePeople=data.characters;}
- renderCharacters(data.characters);renderWorks(data.works);
+ renderCharacters(data.characters);renderWorks(data.works);applyTexts(data.texts);
 }
 init();

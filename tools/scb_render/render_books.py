@@ -343,10 +343,19 @@ def main():
         if tier not in bases:
             f = a.base.parent / f'atlas-{tier}.png'
             f = f if f.exists() else a.base
+            try:                                           # an atlas uploaded in the admin hub (data/tier-art.json) wins
+                up = json.loads((a.fe / 'data' / 'tier-art.json').read_text(encoding='utf-8')).get(tier)
+                if up and (a.fe / up).is_file():
+                    f = a.fe / up
+            except (OSError, ValueError):
+                pass
             raw = f.read_bytes()
             img = Image.open(io.BytesIO(raw)).convert('RGB')
             if img.size != (ATLAS, ATLAS):
-                sys.exit(f'base atlas {f.name} must be {ATLAS}x{ATLAS}, got {img.size}')
+                if img.size[0] == img.size[1] and img.size[0] in (1024, 4096):   # the model texture is 1024 square: enlarge to the atlas size
+                    img = img.resize((ATLAS, ATLAS), Image.LANCZOS)
+                else:
+                    sys.exit(f'base atlas {f.name} must be square (1024 / 2048), got {img.size}')
             bases[tier] = (img, hashlib.sha256(raw).hexdigest())
         return bases[tier]
 
