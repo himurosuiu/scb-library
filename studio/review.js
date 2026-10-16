@@ -5,7 +5,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const $ = id => document.getElementById(id);
 const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
-const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー' };
+const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', outfits: 'ギャラリー（衣装別）' };
 const ORDER = Object.keys(LABELS);
 const VALUE_WORDS = { student: '生徒', teacher: '教員', active: '在籍中', graduated: '卒業' };
 const SAFE_IMG = /^assets\/[A-Za-z0-9_./-]+$/;
@@ -16,15 +16,33 @@ const fmt = iso => iso ? new Date(iso).toLocaleString('ja-JP', { dateStyle: 'sho
 const need = res => { if (res.error) throw new Error(res.error.message); return res.data; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
 
+// Pending uploads live in Storage until the administrator publishes them into assets/.
+function thumbFor(path) {
+  if (typeof path !== 'string' || !SAFE_IMG.test(path) || path.includes('..')) return null;
+  const m = /^assets\/uploads\/(.+)$/.exec(path);
+  const img = el('img', 'thumb'); img.alt = ''; img.loading = 'lazy';
+  img.src = m ? `${cfg.url}/storage/v1/object/public/scb-uploads/${m[1]}` : '../' + path;
+  img.onerror = () => img.remove();
+  return img;
+}
+
 function valueCell(key, v, cls) {
   const td = el('td', cls);
   if (v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length)) { td.textContent = '（なし）'; td.classList.add('muted'); return td; }
   if (key === 'color' && typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) { const sw = el('span', 'sw'); sw.style.background = v; td.append(sw, document.createTextNode(v)); return td; }
+  if (key === 'outfits' && Array.isArray(v)) {
+    for (const o of v) {
+      td.append(el('div', '', '■ ' + (o && o.label ? o.label : '（衣装名なし）')));
+      const row = el('div'); row.style.display = 'flex'; row.style.flexWrap = 'wrap'; row.style.gap = '.3rem';
+      for (const path of (o && Array.isArray(o.images) ? o.images : [])) { const t = thumbFor(path); if (t) row.append(t); }
+      td.append(row);
+    }
+    return td;
+  }
   if (Array.isArray(v)) { td.textContent = v.join('\n'); td.style.whiteSpace = 'pre-line'; return td; }
   td.textContent = VALUE_WORDS[v] ? `${VALUE_WORDS[v]}（${v}）` : String(v);
-  if ((key === 'portrait' || key === 'fullBody') && typeof v === 'string' && SAFE_IMG.test(v) && !v.includes('..')) {
-    const img = el('img', 'thumb'); img.alt = ''; img.loading = 'lazy'; img.src = '../' + v; img.onerror = () => img.remove(); td.append(img);
-  }
+  if (key === 'about') td.style.whiteSpace = 'pre-wrap';
+  if ((key === 'portrait' || key === 'fullBody') && typeof v === 'string') { const t = thumbFor(v); if (t) td.append(t); }
   return td;
 }
 
