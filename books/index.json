@@ -37,6 +37,402 @@
       "coverTop": "",
       "coverName": "ビオラ神父",
       "spreads": 6
+    },
+    {
+      "slot": "person-005",
+      "type": "person",
+      "tier": "y3",
+      "color": "#1955A6",
+      "coverTop": "図書委員所属　3年生",
+      "coverName": "吉水 鏡花",
+      "spreads": 6
+    },
+    {
+      "slot": "person-006",
+      "type": "person",
+      "tier": "y1",
+      "color": "#f09199",
+      "coverTop": "図書委員所属　1年生",
+      "coverName": "花岸 もも",
+      "spreads": 6
+    },
+    {
+      "slot": "person-007",
+      "type": "person",
+      "tier": "y1",
+      "color": "#5c72ed",
+      "coverTop": "図書委員所属　1年生",
+      "coverName": "雨宮 詩織",
+      "spreads": 6
+    },
+    {
+      "slot": "person-008",
+      "type": "person",
+      "tier": "y2",
+      "color": "#AF011C",
+      "coverTop": "ダンス部所属　2年生",
+      "coverName": "猫塚 杏寿",
+      "spreads": 6
+    },
+    {
+      "slot": "person-009",
+      "type": "person",
+      "tier": "y1",
+      "color": "#FFC20E",
+      "coverTop": "ダンス部所属　1年生",
+      "coverName": "黒羽 りあ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-010",
+      "type": "person",
+      "tier": "y3",
+      "color": "#00AAFF",
+      "coverTop": "生徒会・吹奏楽部所属　3年生",
+      "coverName": "有栖川 夏葵",
+      "spreads": 6
+    },
+    {
+      "slot": "person-011",
+      "type": "person",
+      "tier": "y3",
+      "color": "#D8A7A7",
+      "coverTop": "帰宅部所属　3年生",
+      "coverName": "兎田 ろる",
+      "spreads": 6
+    },
+    {
+      "slot": "person-012",
+      "type": "person",
+      "tier": "y3",
+      "color": "#ffb3d5",
+      "coverTop": "華道部所属　3年生",
+      "coverName": "春日谷 汐音",
+      "spreads": 6
+    },
+    {
+      "slot": "person-013",
+      "type": "person",
+      "tier": "y3",
+      "color": "#FFE500",
+      "coverTop": "演劇部所属　3年生",
+      "coverName": "九条 理世",
+      "spreads": 6
+    },
+    {
+      "slot": "person-014",
+      "type": "person",
+      "tier": "y3",
+      "color": "#0068b7",
+      "coverTop": "生徒会所属　3年生",
+      "coverName": "紗乙女 瑠璃",
+      "spreads": 6
+    },
+    {
+      "slot": "person-015",
+      "type": "person",
+      "tier": "y3",
+      "color": "#383c57",
+      "coverTop": "天文部所属　3年生",
+      "coverName": "小夜崎 透",
+      "spreads": 6
+    },
+    {
+      "slot": "person-016",
+      "type": "person",
+      "tier": "y3",
+      "color": "#7583D6",
+      "coverTop": "保健委員所属　3年生",
+      "coverName": "小鳥遊 陽葵",
+      "spreads": 6
+    },
+    {
+      "slot": "person-017",
+      "type": "person",
+      "tier": "y3",
+      "color": "#B9C7D6",
+      "coverTop": "風紀委員所属　3年生",
+      "coverName": "仁科 茉知",
+      "spreads": 6
+    },
+    {
+      "slot": "person-018",
+      "type": "person",
+      "tier": "y3",
+      "color": "#BAA7CC",
+      "coverTop": "文芸部所属　3年生",
+      "coverName": "藤宮 ヰオリ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-019",
+      "type": "person",
+      "tier": "y3",
+      "color": "#562A7E",
+      "coverTop": "帰宅部所属　3年生",
+      "coverName": "幽月 澪璃",
+      "spreads": 6
+    },
+    {
+      "slot": "person-020",
+      "type": "person",
+      "tier": "y2",
+      "color": "#d3d3d3",
+      "coverTop": "陸上部所属　2年生",
+      "coverName": "安倍 銀華",
+      "spreads": 6
+    },
+    {
+      "slot": "person-021",
+      "type": "person",
+      "tier": "y2",
+      "color": "#E08166",
+      "coverTop": "茶道部所属　2年生",
+      "coverName": "天城 沙耶華",
+      "spreads": 6
+    },
+    {
+      "slot": "person-022",
+      "type": "person",
+      "tier": "y2",
+      "color": "#e82e85",
+      "coverTop": "弓道部所属　2年生",
+      "coverName": "近衛 和香奈",
+      "spreads": 6
+    },
+    {
+      "slot": "person-023",
+      "type": "person",
+      "tier": "y2",
+      "color": "#4CAFE5",
+      "coverTop": "美術部所属　2年生",
+      "coverName": "時雨 蛍",
+      "spreads": 6
+    },
+    {
+      "slot": "person-024",
+      "type": "person",
+      "tier": "y2",
+      "color": "#841617",
+      "coverTop": "ダンス部所属　2年生",
+      "coverName": "錠前 咲凪",
+      "spreads": 6
+    },
+    {
+      "slot": "person-025",
+      "type": "person",
+      "tier": "y2",
+      "color": "#1f2e55",
+      "coverTop": "手芸部所属　2年生",
+      "coverName": "錠前 蓮",
+      "spreads": 6
+    },
+    {
+      "slot": "person-026",
+      "type": "person",
+      "tier": "y2",
+      "color": "#039442",
+      "coverTop": "バスケ部所属　2年生",
+      "coverName": "雀ヶ森 楓",
+      "spreads": 6
+    },
+    {
+      "slot": "person-027",
+      "type": "person",
+      "tier": "y2",
+      "color": "#e4ccf6",
+      "coverTop": "図書委員所属　2年生",
+      "coverName": "立花 天葉",
+      "spreads": 6
+    },
+    {
+      "slot": "person-028",
+      "type": "person",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "保健委員所属　2年生",
+      "coverName": "藤白 まひる",
+      "spreads": 6
+    },
+    {
+      "slot": "person-029",
+      "type": "person",
+      "tier": "y2",
+      "color": "#8CFFFF",
+      "coverTop": "写真部所属　2年生",
+      "coverName": "藤原 テトラ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-030",
+      "type": "person",
+      "tier": "y2",
+      "color": "#7058a3",
+      "coverTop": "吹奏楽部所属　2年生",
+      "coverName": "鳳院 澄桂",
+      "spreads": 6
+    },
+    {
+      "slot": "person-031",
+      "type": "person",
+      "tier": "y1",
+      "color": "#e6cde3",
+      "coverTop": "写真部所属　1年生",
+      "coverName": "天音 しいな",
+      "spreads": 6
+    },
+    {
+      "slot": "person-032",
+      "type": "person",
+      "tier": "y1",
+      "color": "#89c3eb",
+      "coverTop": "茶道部所属　1年生",
+      "coverName": "緒羊 楽未",
+      "spreads": 6
+    },
+    {
+      "slot": "person-033",
+      "type": "person",
+      "tier": "y1",
+      "color": "#48613b",
+      "coverTop": "黒ミサ軽音部所属　1年生",
+      "coverName": "神牙 ルー",
+      "spreads": 6
+    },
+    {
+      "slot": "person-034",
+      "type": "person",
+      "tier": "y1",
+      "color": "#D2A3CB",
+      "coverTop": "家庭科部所属　1年生",
+      "coverName": "千雅 ゆら",
+      "spreads": 6
+    },
+    {
+      "slot": "person-035",
+      "type": "person",
+      "tier": "y1",
+      "color": "#F3BEC3",
+      "coverTop": "園芸委員所属　1年生",
+      "coverName": "蓼乃宮 花憐",
+      "spreads": 6
+    },
+    {
+      "slot": "person-036",
+      "type": "person",
+      "tier": "y1",
+      "color": "#FFFFBA",
+      "coverTop": "生徒会所属　1年生",
+      "coverName": "時鈴 ぺるる",
+      "spreads": 6
+    },
+    {
+      "slot": "person-037",
+      "type": "person",
+      "tier": "y1",
+      "color": "#ffd900",
+      "coverTop": "保健委員所属　1年生",
+      "coverName": "雛木 こはる",
+      "spreads": 6
+    },
+    {
+      "slot": "person-038",
+      "type": "person",
+      "tier": "y1",
+      "color": "#ff1493",
+      "coverTop": "帰宅部所属　1年生",
+      "coverName": "姫宮 心優",
+      "spreads": 6
+    },
+    {
+      "slot": "person-039",
+      "type": "person",
+      "tier": "y1",
+      "color": "#ed6d35",
+      "coverTop": "茶道部所属　1年生",
+      "coverName": "鉾先 鈴音",
+      "spreads": 6
+    },
+    {
+      "slot": "person-040",
+      "type": "person",
+      "tier": "y1",
+      "color": "#d9c3cf",
+      "coverTop": "オカルト研究会所属　1年生",
+      "coverName": "犬町 りん",
+      "spreads": 6
+    },
+    {
+      "slot": "person-041",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9333f",
+      "coverTop": "",
+      "coverName": "シスター・セラフィナ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-042",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9c3cf",
+      "coverTop": "",
+      "coverName": "unknown Luminous シスター",
+      "spreads": 6
+    },
+    {
+      "slot": "person-043",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9c3cf",
+      "coverTop": "",
+      "coverName": "クロード神父",
+      "spreads": 6
+    },
+    {
+      "slot": "person-044",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#0fff87",
+      "coverTop": "",
+      "coverName": "鉾先 凛音シスター",
+      "spreads": 6
+    },
+    {
+      "slot": "person-045",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9c3cf",
+      "coverTop": "",
+      "coverName": "アンジュ神父",
+      "spreads": 6
+    },
+    {
+      "slot": "person-046",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9c3cf",
+      "coverTop": "",
+      "coverName": "ラプラス神父",
+      "spreads": 6
+    },
+    {
+      "slot": "person-047",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#004225",
+      "coverTop": "",
+      "coverName": "William Kirk 神父",
+      "spreads": 6
+    },
+    {
+      "slot": "person-048",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#00ff7f",
+      "coverTop": "",
+      "coverName": "ヘデラ神父",
+      "spreads": 6
     }
   ]
 }
