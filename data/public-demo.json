@@ -60,20 +60,6 @@
       "featured": true
     },
     {
-      "id": "usagida-roru",
-      "name": "兎田 ろる",
-      "nameKana": "うさぎだ ろる",
-      "romaji": "RORU",
-      "kind": "student",
-      "grade": "3年",
-      "club": "帰宅部",
-      "color": "#D8A7A7",
-      "status": "active",
-      "group": "3年生 帰宅部",
-      "image": "assets/portraits/usagida-roru.jpg",
-      "featured": true
-    },
-    {
       "id": "abe-ginka",
       "name": "安倍 銀華",
       "nameKana": "あべ ぎんか",
