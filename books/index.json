@@ -7,8 +7,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#e1b4f5",
-      "coverTop": "文学部所属　2年生",
+      "coverTop": "二年生　文学部",
       "coverName": "月冴 ゆる",
+      "spineText": "二年生　月冴 ゆる",
       "spreads": 6
     },
     {
@@ -16,8 +17,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#ffdbed",
-      "coverTop": "生徒会所属　3年生",
+      "coverTop": "三年生　生徒会",
       "coverName": "白咲 舞菜",
+      "spineText": "三年生　白咲 舞菜",
       "spreads": 6
     },
     {
@@ -25,8 +27,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#2BC1FF",
-      "coverTop": "文学部所属　1年生",
+      "coverTop": "一年生　文学部",
       "coverName": "朝凪 潮",
+      "spineText": "一年生　朝凪 潮",
       "spreads": 6
     },
     {
@@ -36,6 +39,7 @@
       "color": "#E32869",
       "coverTop": "",
       "coverName": "ビオラ神父",
+      "spineText": "学園長　ビオラ",
       "spreads": 6
     },
     {
@@ -43,8 +47,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#1955A6",
-      "coverTop": "図書委員所属　3年生",
+      "coverTop": "三年生　図書委員",
       "coverName": "吉水 鏡花",
+      "spineText": "三年生　吉水 鏡花",
       "spreads": 6
     },
     {
@@ -52,8 +57,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#f09199",
-      "coverTop": "図書委員所属　1年生",
+      "coverTop": "一年生　図書委員",
       "coverName": "花岸 もも",
+      "spineText": "一年生　花岸 もも",
       "spreads": 6
     },
     {
@@ -61,8 +67,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#5c72ed",
-      "coverTop": "図書委員所属　1年生",
+      "coverTop": "一年生　図書委員",
       "coverName": "雨宮 詩織",
+      "spineText": "一年生　雨宮 詩織",
       "spreads": 6
     },
     {
@@ -70,8 +77,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#AF011C",
-      "coverTop": "ダンス部所属　2年生",
+      "coverTop": "二年生　ダンス部",
       "coverName": "猫塚 杏寿",
+      "spineText": "二年生　猫塚 杏寿",
       "spreads": 6
     },
     {
@@ -79,8 +87,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#FFC20E",
-      "coverTop": "ダンス部所属　1年生",
+      "coverTop": "一年生　ダンス部",
       "coverName": "黒羽 りあ",
+      "spineText": "一年生　黒羽 りあ",
       "spreads": 6
     },
     {
@@ -88,8 +97,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#00AAFF",
-      "coverTop": "生徒会・吹奏楽部所属　3年生",
+      "coverTop": "三年生　生徒会・吹奏楽部",
       "coverName": "有栖川 夏葵",
+      "spineText": "三年生　有栖川 夏葵",
       "spreads": 6
     },
     {
@@ -97,8 +107,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#D8A7A7",
-      "coverTop": "帰宅部所属　3年生",
+      "coverTop": "三年生　帰宅部",
       "coverName": "兎田 ろる",
+      "spineText": "三年生　兎田 ろる",
       "spreads": 6
     },
     {
@@ -106,8 +117,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#ffb3d5",
-      "coverTop": "華道部所属　3年生",
+      "coverTop": "三年生　華道部",
       "coverName": "春日谷 汐音",
+      "spineText": "三年生　春日谷 汐音",
       "spreads": 6
     },
     {
@@ -115,8 +127,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#FFE500",
-      "coverTop": "演劇部所属　3年生",
+      "coverTop": "三年生　演劇部",
       "coverName": "九条 理世",
+      "spineText": "三年生　九条 理世",
       "spreads": 6
     },
     {
@@ -124,8 +137,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#0068b7",
-      "coverTop": "生徒会所属　3年生",
+      "coverTop": "三年生　生徒会",
       "coverName": "紗乙女 瑠璃",
+      "spineText": "三年生　紗乙女 瑠璃",
       "spreads": 6
     },
     {
@@ -133,8 +147,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#383c57",
-      "coverTop": "天文部所属　3年生",
+      "coverTop": "三年生　天文部",
       "coverName": "小夜崎 透",
+      "spineText": "三年生　小夜崎 透",
       "spreads": 6
     },
     {
@@ -142,8 +157,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#7583D6",
-      "coverTop": "保健委員所属　3年生",
+      "coverTop": "三年生　保健委員",
       "coverName": "小鳥遊 陽葵",
+      "spineText": "三年生　小鳥遊 陽葵",
       "spreads": 6
     },
     {
@@ -151,8 +167,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#B9C7D6",
-      "coverTop": "風紀委員所属　3年生",
+      "coverTop": "三年生　風紀委員",
       "coverName": "仁科 茉知",
+      "spineText": "三年生　仁科 茉知",
       "spreads": 6
     },
     {
@@ -160,8 +177,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#BAA7CC",
-      "coverTop": "文芸部所属　3年生",
+      "coverTop": "三年生　文芸部",
       "coverName": "藤宮 ヰオリ",
+      "spineText": "三年生　藤宮 ヰオリ",
       "spreads": 6
     },
     {
@@ -169,8 +187,9 @@
       "type": "person",
       "tier": "y3",
       "color": "#562A7E",
-      "coverTop": "帰宅部所属　3年生",
+      "coverTop": "三年生　帰宅部",
       "coverName": "幽月 澪璃",
+      "spineText": "三年生　幽月 澪璃",
       "spreads": 6
     },
     {
@@ -178,8 +197,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#d3d3d3",
-      "coverTop": "陸上部所属　2年生",
+      "coverTop": "二年生　陸上部",
       "coverName": "安倍 銀華",
+      "spineText": "二年生　安倍 銀華",
       "spreads": 6
     },
     {
@@ -187,8 +207,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#E08166",
-      "coverTop": "茶道部所属　2年生",
+      "coverTop": "二年生　茶道部",
       "coverName": "天城 沙耶華",
+      "spineText": "二年生　天城 沙耶華",
       "spreads": 6
     },
     {
@@ -196,8 +217,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#e82e85",
-      "coverTop": "弓道部所属　2年生",
+      "coverTop": "二年生　弓道部",
       "coverName": "近衛 和香奈",
+      "spineText": "二年生　近衛 和香奈",
       "spreads": 6
     },
     {
@@ -205,8 +227,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#4CAFE5",
-      "coverTop": "美術部所属　2年生",
+      "coverTop": "二年生　美術部",
       "coverName": "時雨 蛍",
+      "spineText": "二年生　時雨 蛍",
       "spreads": 6
     },
     {
@@ -214,8 +237,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#841617",
-      "coverTop": "ダンス部所属　2年生",
+      "coverTop": "二年生　ダンス部",
       "coverName": "錠前 咲凪",
+      "spineText": "二年生　錠前 咲凪",
       "spreads": 6
     },
     {
@@ -223,8 +247,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#1f2e55",
-      "coverTop": "手芸部所属　2年生",
+      "coverTop": "二年生　手芸部",
       "coverName": "錠前 蓮",
+      "spineText": "二年生　錠前 蓮",
       "spreads": 6
     },
     {
@@ -232,8 +257,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#039442",
-      "coverTop": "バスケ部所属　2年生",
+      "coverTop": "二年生　バスケ部",
       "coverName": "雀ヶ森 楓",
+      "spineText": "二年生　雀ヶ森 楓",
       "spreads": 6
     },
     {
@@ -241,8 +267,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#e4ccf6",
-      "coverTop": "図書委員所属　2年生",
+      "coverTop": "二年生　図書委員",
       "coverName": "立花 天葉",
+      "spineText": "二年生　立花 天葉",
       "spreads": 6
     },
     {
@@ -250,8 +277,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#d9c3cf",
-      "coverTop": "保健委員所属　2年生",
+      "coverTop": "二年生　保健委員",
       "coverName": "藤白 まひる",
+      "spineText": "二年生　藤白 まひる",
       "spreads": 6
     },
     {
@@ -259,8 +287,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#8CFFFF",
-      "coverTop": "写真部所属　2年生",
+      "coverTop": "二年生　写真部",
       "coverName": "藤原 テトラ",
+      "spineText": "二年生　藤原 テトラ",
       "spreads": 6
     },
     {
@@ -268,8 +297,9 @@
       "type": "person",
       "tier": "y2",
       "color": "#7058a3",
-      "coverTop": "吹奏楽部所属　2年生",
+      "coverTop": "二年生　吹奏楽部",
       "coverName": "鳳院 澄桂",
+      "spineText": "二年生　鳳院 澄桂",
       "spreads": 6
     },
     {
@@ -277,8 +307,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#e6cde3",
-      "coverTop": "写真部所属　1年生",
+      "coverTop": "一年生　写真部",
       "coverName": "天音 しいな",
+      "spineText": "一年生　天音 しいな",
       "spreads": 6
     },
     {
@@ -286,8 +317,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#89c3eb",
-      "coverTop": "茶道部所属　1年生",
+      "coverTop": "一年生　茶道部",
       "coverName": "緒羊 楽未",
+      "spineText": "一年生　緒羊 楽未",
       "spreads": 6
     },
     {
@@ -295,8 +327,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#48613b",
-      "coverTop": "黒ミサ軽音部所属　1年生",
+      "coverTop": "一年生　黒ミサ軽音部",
       "coverName": "神牙 ルー",
+      "spineText": "一年生　神牙 ルー",
       "spreads": 6
     },
     {
@@ -304,8 +337,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#D2A3CB",
-      "coverTop": "家庭科部所属　1年生",
+      "coverTop": "一年生　家庭科部",
       "coverName": "千雅 ゆら",
+      "spineText": "一年生　千雅 ゆら",
       "spreads": 6
     },
     {
@@ -313,8 +347,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#F3BEC3",
-      "coverTop": "園芸委員所属　1年生",
+      "coverTop": "一年生　園芸委員",
       "coverName": "蓼乃宮 花憐",
+      "spineText": "一年生　蓼乃宮 花憐",
       "spreads": 6
     },
     {
@@ -322,8 +357,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#FFFFBA",
-      "coverTop": "生徒会所属　1年生",
+      "coverTop": "一年生　生徒会",
       "coverName": "時鈴 ぺるる",
+      "spineText": "一年生　時鈴 ぺるる",
       "spreads": 6
     },
     {
@@ -331,8 +367,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#ffd900",
-      "coverTop": "保健委員所属　1年生",
+      "coverTop": "一年生　保健委員",
       "coverName": "雛木 こはる",
+      "spineText": "一年生　雛木 こはる",
       "spreads": 6
     },
     {
@@ -340,8 +377,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#ff1493",
-      "coverTop": "帰宅部所属　1年生",
+      "coverTop": "一年生　帰宅部",
       "coverName": "姫宮 心優",
+      "spineText": "一年生　姫宮 心優",
       "spreads": 6
     },
     {
@@ -349,8 +387,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#ed6d35",
-      "coverTop": "茶道部所属　1年生",
+      "coverTop": "一年生　茶道部",
       "coverName": "鉾先 鈴音",
+      "spineText": "一年生　鉾先 鈴音",
       "spreads": 6
     },
     {
@@ -358,8 +397,9 @@
       "type": "person",
       "tier": "y1",
       "color": "#d9c3cf",
-      "coverTop": "オカルト研究会所属　1年生",
+      "coverTop": "一年生　オカルト研究会",
       "coverName": "犬町 りん",
+      "spineText": "一年生　犬町 りん",
       "spreads": 6
     },
     {
@@ -369,6 +409,7 @@
       "color": "#d9333f",
       "coverTop": "",
       "coverName": "シスター・セラフィナ",
+      "spineText": "シスター　セラフィナ",
       "spreads": 6
     },
     {
@@ -378,6 +419,7 @@
       "color": "#d9c3cf",
       "coverTop": "",
       "coverName": "unknown Luminous シスター",
+      "spineText": "シスター　unknown Luminous",
       "spreads": 6
     },
     {
@@ -387,6 +429,7 @@
       "color": "#d9c3cf",
       "coverTop": "",
       "coverName": "クロード神父",
+      "spineText": "神父　クロード",
       "spreads": 6
     },
     {
@@ -396,6 +439,7 @@
       "color": "#0fff87",
       "coverTop": "",
       "coverName": "鉾先 凛音シスター",
+      "spineText": "シスター　鉾先 凛音",
       "spreads": 6
     },
     {
@@ -405,6 +449,7 @@
       "color": "#d9c3cf",
       "coverTop": "",
       "coverName": "アンジュ神父",
+      "spineText": "神父　アンジュ",
       "spreads": 6
     },
     {
@@ -414,6 +459,7 @@
       "color": "#d9c3cf",
       "coverTop": "",
       "coverName": "ラプラス神父",
+      "spineText": "神父　ラプラス",
       "spreads": 6
     },
     {
@@ -423,6 +469,7 @@
       "color": "#004225",
       "coverTop": "",
       "coverName": "William Kirk 神父",
+      "spineText": "神父　William Kirk",
       "spreads": 6
     },
     {
@@ -432,6 +479,7 @@
       "color": "#00ff7f",
       "coverTop": "",
       "coverName": "ヘデラ神父",
+      "spineText": "神父　ヘデラ",
       "spreads": 6
     }
   ]
