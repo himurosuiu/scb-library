@@ -7,63 +7,90 @@
       "b": "hokosaki-suzune",
       "kind": "blood",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "血縁",
+      "forB": "血縁"
+    },
+    {
+      "a": "tsukisa-yuru",
+      "b": "viola",
+      "kind": "other",
+      "label": "お世話してもらってる",
+      "note": "孤児収容",
+      "forA": "お世話してもらってる",
+      "forB": "お世話してもらってる"
     },
     {
       "a": "fujimiya-iori",
       "b": "senga-yura",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "houin-sumika",
       "b": "inumachi-rin",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "kasugaya-shion",
       "b": "hokosaki-suzune",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "konoe-wakana",
       "b": "tokisuzu-peruru",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "shirasaki-maina",
       "b": "tsukisa-yuru",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "suzugamori-kaede",
       "b": "amane-shiina",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "usagida-roru",
       "b": "suzugamori-kaede",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     },
     {
       "a": "yuuzuki-miori",
       "b": "abe-ginka",
       "kind": "sister",
       "label": "",
-      "note": ""
+      "note": "",
+      "forA": "妹",
+      "forB": "お姉様"
     }
   ]
 }

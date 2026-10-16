@@ -6,6 +6,12 @@
     "tsukisa-yuru": {
       "relationships": [
         {
+          "characterId": "viola",
+          "kind": "other",
+          "label": "お世話してもらってる",
+          "approved": true
+        },
+        {
           "characterId": "shirasaki-maina",
           "kind": "sister",
           "label": "お姉様",
@@ -31,7 +37,15 @@
     },
     "viola": {
       "firstPerson": "私",
-      "about": "学園に仕える神父、ビオラ神父。\n頭に掲げられた“信仰の象徴”は、救いではなく、問いかけのしるし。\n神に仕えるはずのその姿は、どこか人ならざるものを思わせるが、\nその冷たい瞳の奥には、決して揺るがぬ優しさが宿っている。\n\n祈りの声を受け止めはするが、安易な救済は与えない。\n本当の救いは、自分の中から見つけ出すものだから――。"
+      "about": "学園に仕える神父、ビオラ神父。\n頭に掲げられた“信仰の象徴”は、救いではなく、問いかけのしるし。\n神に仕えるはずのその姿は、どこか人ならざるものを思わせるが、\nその冷たい瞳の奥には、決して揺るがぬ優しさが宿っている。\n\n祈りの声を受け止めはするが、安易な救済は与えない。\n本当の救いは、自分の中から見つけ出すものだから――。",
+      "relationships": [
+        {
+          "characterId": "tsukisa-yuru",
+          "kind": "other",
+          "label": "お世話してもらってる",
+          "approved": true
+        }
+      ]
     },
     "usagida-roru": {
       "relationships": [
