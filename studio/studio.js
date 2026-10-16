@@ -122,7 +122,8 @@ $('saveCloud').onclick=async()=>{if(!record||!user)return;let patch,expected;try
  $('saveCloud').disabled=true;try{const {data,error}=await api.rpc('save_scb_draft',{cid:record.id,patch,expected,expected_revision:record.revision});if(error)throw error;if(!data.ok){$('conflictOutput').hidden=false;$('conflictOutput').textContent=JSON.stringify(data.conflicts,null,2);say('競合があります。最新データを確認し、再読み込み後に編集してください。');return;}say('クラウド草稿を保存しました（未公開）'+(data.baseChanged?'。公開 DB に別の更新があります。':''));}catch(e){say('保存失敗: '+e.message);}finally{$('saveCloud').disabled=false;}};
 
 // ---- relations (propose -> the other side agrees -> administrator approves)
-const KIND_WORDS={sister:'姉妹（お姉様と妹）',blood:'血縁',friend:'友人',acquaintance:'知人',other:'その他'};
+const KIND_WORDS={sister:'姉妹（お姉様と妹）',blood:'血縁',friend:'友人',acquaintance:'知人',clan:'同族',rival:'ライバル',kusareen:'腐れ縁',gizagiza:'ギザギザ',other:'その他',one_sided:'片想い',tsuntsun:'ツンツン',honmei:'本命',oshi:'推し',amayakashi:'甘やかし',amae:'甘え',izon:'依存',kininaru:'気になる'};
+const ELDER_KINDS=['sister','blood'],DIRECTED_KINDS=['one_sided','tsuntsun','honmei','oshi','amayakashi','amae','izon','kininaru'];
 const STATUS_WORDS={pending_counterpart:'相手の確認待ち',pending_admin:'管理者の承認待ち',approved:'公開対象（承認済み）',rejected:'却下'};
 const relSay=t=>{$('relStatus').textContent=t;};
 const nameOf=id=>(everyone.find(p=>p.id===id)||{data:{name:id}}).data.name||id;
@@ -145,7 +146,7 @@ async function refreshRelations(){
   list.append(row);}
  renderRelForm();
 }
-function describe(r){const d=el('div',{});const elder=(r.kind==='sister'||r.kind==='blood')?`（年長者：${r.a_name}）`:'';
+function describe(r){const d=el('div',{});const elder=ELDER_KINDS.includes(r.kind)?`（年長者：${r.a_name}）`:DIRECTED_KINDS.includes(r.kind)?`（${r.a_name} → ${r.b_name}）`:'';
  d.append(el('strong',{},`${r.a_name} ⇔ ${r.b_name}`),el('div',{},`${KIND_WORDS[r.kind]||r.kind}${elder}${r.label?' ／ 表示名：'+r.label:''}`));
  if(r.note)d.append(el('div',{className:'hint'},'メモ：'+r.note));
  d.append(el('div',{className:'hint'},'状態：'+(STATUS_WORDS[r.status]||r.status)+(r.status==='rejected'&&r.reject_reason?'（'+r.reject_reason+'）':'')));return d;}
@@ -156,10 +157,13 @@ const removal=id=>{if(confirm('この関係の削除を管理者に申請しま�
 function renderRelForm(){const f=$('relForm');f.replaceChildren();
  const other=el('select',{});for(const p of everyone){if(p.id!==record.id)other.add(new Option(p.data.name+' ('+p.id+')',p.id));}
  const kind=el('select',{});for(const [k,v] of Object.entries(KIND_WORDS))kind.add(new Option(v,k));
- const elder=el('select',{});elder.add(new Option('この人物が年長者（お姉様・年上）','self'));elder.add(new Option('相手が年長者','other'));
+ const elder=el('select',{});
  const label=el('input',{maxLength:40,placeholder:'表示名（任意・例：従姉妹、幼なじみ）'});const note=el('input',{maxLength:200,placeholder:'メモ（任意）'});
- const eld=el('label',{},'年長者',elder);const sync=()=>{eld.style.display=(kind.value==='sister'||kind.value==='blood')?'':'none';};kind.onchange=sync;sync();
+ const eldLabel=el('span',{},'向き');const eld=el('label',{},eldLabel,elder);
+ const sync=()=>{const e=ELDER_KINDS.includes(kind.value),d=DIRECTED_KINDS.includes(kind.value);eld.style.display=(e||d)?'':'none';elder.replaceChildren();
+  if(e){eldLabel.textContent='年長者';elder.add(new Option('この人物が年長者（お姉様・年上）','self'));elder.add(new Option('相手が年長者','other'));}
+  else if(d){const w=KIND_WORDS[kind.value];eldLabel.textContent='向き（誰から誰へ）';elder.add(new Option(`この人物 → 相手（この人物が相手に「${w}」）`,'self'));elder.add(new Option(`相手 → この人物（相手がこの人物に「${w}」）`,'other'));}};kind.onchange=sync;sync();
  const go=el('button',{type:'button'},'この関係を提案する');
- go.onclick=()=>{let a=record.id,b=other.value;if((kind.value==='sister'||kind.value==='blood')&&elder.value==='other'){[a,b]=[b,a];}
+ go.onclick=()=>{let a=record.id,b=other.value;if((ELDER_KINDS.includes(kind.value)||DIRECTED_KINDS.includes(kind.value))&&elder.value==='other'){[a,b]=[b,a];}
   relCall('scb_propose_relation',{a,b,k:kind.value,lbl:label.value.trim(),nt:note.value.trim()},'提案しました。相手の担当者の同意と管理者の承認を待ちます。');};
  f.append(el('label',{},'相手',other),el('label',{},'種類',kind),eld,el('label',{},'表示名',label),el('label',{},'メモ',note),go);}

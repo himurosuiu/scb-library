@@ -167,8 +167,19 @@ def clean_content(rec, rep: Report):
     return out if ok else None
 
 
-REL_KINDS = ('sister', 'blood', 'friend', 'acquaintance', 'other')
-REL_DEFAULT = {'blood': '血縁', 'friend': '友人', 'acquaintance': '知人', 'other': '関係者'}
+# kind -> (label on A's page next to B, label on B's page next to A). sister / blood: A = the elder.
+# Directed kinds (second block): A = the one who feels / acts, B = the one it is aimed at.
+REL_LABELS = {
+    'sister': ('妹', 'お姉様'), 'blood': ('血縁', '血縁'), 'friend': ('友人', '友人'), 'acquaintance': ('知人', '知人'),
+    'clan': ('同族', '同族'), 'rival': ('ライバル', 'ライバル'), 'kusareen': ('腐れ縁', '腐れ縁'), 'gizagiza': ('ギザギザ', 'ギザギザ'),
+    'other': ('関係者', '関係者'),
+    'one_sided': ('片想いの相手', '片想いしている人'), 'tsuntsun': ('ツンツンする相手', 'ツンツンしてくる人'),
+    'honmei': ('本命の相手', '本命にしている人'), 'oshi': ('推し', '推してくれている人'),
+    'amayakashi': ('甘やかす相手', '甘やかしてくれる人'), 'amae': ('甘える相手', '甘えてくる人'),
+    'izon': ('依存先', '依存してくる人'), 'kininaru': ('気になる相手', '気にしてくれている人'),
+}
+REL_KINDS = tuple(REL_LABELS)
+REL_DIRECTED = ('one_sided', 'tsuntsun', 'honmei', 'oshi', 'amayakashi', 'amae', 'izon', 'kininaru')
 
 
 def fetch_relations(url, key):
@@ -195,11 +206,12 @@ def clean_relations(rows, ids, rep: Report):
         label, note = (r.get('label') or '').strip(), (r.get('note') or '').strip()
         if a not in ids or b not in ids or a == b or k not in REL_KINDS or len(label) > 40 or len(note) > 200                 or re.search(r'[<>\x00-\x08\x0b-\x1f\x7f]', label + note):
             rep.error(f'relation {a!r} - {b!r} ({k}) is invalid or points to an unknown person'); continue
-        key = (min(a, b), max(a, b), k)
+        key = (a, b, k) if k in REL_DIRECTED else (min(a, b), max(a, b), k)
         if key in seen:
             rep.warn(f'relation {a} - {b} ({k}) appears twice; second one ignored'); continue
         seen.add(key)
-        out.append({'a': a, 'b': b, 'kind': k, 'label': label, 'note': note})
+        out.append({'a': a, 'b': b, 'kind': k, 'label': label, 'note': note,
+                    'forA': label or REL_LABELS[k][0], 'forB': label or REL_LABELS[k][1]})
     return sorted(out, key=lambda x: (x['kind'], x['a'], x['b']))
 
 
@@ -210,7 +222,7 @@ def bonds_for(pid, relations):
         if pid not in (r['a'], r['b']):
             continue
         other = r['b'] if pid == r['a'] else r['a']
-        label = r['label'] or ('妹' if (r['kind'] == 'sister' and pid == r['a']) else 'お姉様' if r['kind'] == 'sister' else REL_DEFAULT[r['kind']])
+        label = r['forA'] if pid == r['a'] else r['forB']
         res.append({'characterId': other, 'kind': r['kind'], 'label': label, 'approved': True})
     return sorted(res, key=lambda x: (x['kind'], x['characterId']))
 

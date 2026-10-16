@@ -111,13 +111,12 @@ def bonds_of(pid, relations, people, fe: Path):
         other = people.get(r['b'] if pid == r['a'] else r['a'])
         if not other:
             continue
-        label = r.get('label') or ('妹' if (r['kind'] == 'sister' and pid == r['a']) else 'お姉様' if r['kind'] == 'sister'
-                                   else {'blood': '血縁', 'friend': '友人', 'acquaintance': '知人', 'other': '関係者'}[r['kind']])
+        label = r.get('forA' if pid == r['a'] else 'forB') or r.get('label') or '関係者'
         port = other.get('portrait') or other.get('image')
         out.append({'name': other['name'], 'label': label, 'portrait': port if port and (fe / port).exists() else None,
                     'kind': r['kind']})
-    order = {'sister': 0, 'blood': 1, 'friend': 2, 'acquaintance': 3, 'other': 4}
-    return sorted(out, key=lambda b: (order[b['kind']], b['name']))
+    order = {'sister': 0, 'blood': 1, 'clan': 2}
+    return sorted(out, key=lambda b: (order.get(b['kind'], 3), b['name']))
 
 
 def profile_rows(p, extra=None):

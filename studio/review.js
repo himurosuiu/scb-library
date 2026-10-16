@@ -91,14 +91,15 @@ async function load() {
   $('count').textContent = list.length ? `${list.length} 件の草稿` : '';
 }
 
-const KIND_WORDS = { sister: '姉妹（お姉様と妹）', blood: '血縁', friend: '友人', acquaintance: '知人', other: 'その他' };
+const KIND_WORDS = { sister: '姉妹（お姉様と妹）', blood: '血縁', friend: '友人', acquaintance: '知人', clan: '同族', rival: 'ライバル', kusareen: '腐れ縁', gizagiza: 'ギザギザ', other: 'その他', one_sided: '片想い', tsuntsun: 'ツンツン', honmei: '本命', oshi: '推し', amayakashi: '甘やかし', amae: '甘え', izon: '依存', kininaru: '気になる' };
+const DIRECTED = ['one_sided', 'tsuntsun', 'honmei', 'oshi', 'amayakashi', 'amae', 'izon', 'kininaru'];
 async function loadRelations() {
   const list = need(await api.rpc('scb_admin_relation_queue'));
   const box = $('relQueue'); box.replaceChildren();
   for (const r of list) {
     const removal = r.status === 'approved' && r.removal_requested;
     const row = el('div', 'cloud-box');
-    const elder = (r.kind === 'sister' || r.kind === 'blood') ? `（年長者：${r.a_name}）` : '';
+    const elder = (r.kind === 'sister' || r.kind === 'blood') ? `（年長者：${r.a_name}）` : DIRECTED.includes(r.kind) ? `（${r.a_name} → ${r.b_name}）` : '';
     row.append(el('h3', '', `${removal ? '【削除申請】' : ''}${r.a_name} ⇔ ${r.b_name}`));
     row.append(el('div', 'sub', `${KIND_WORDS[r.kind] || r.kind}${elder}${r.label ? ' ／ 表示名：' + r.label : ''}${r.note ? ' ／ メモ：' + r.note : ''}`));
     row.append(el('div', 'sub', `提案：${r.proposer_name || '（名前なし）'}${r.counterpart_name ? ' ／ 相手側の確認：' + r.counterpart_name : ''} ／ ${fmt(r.created_at)}`));
