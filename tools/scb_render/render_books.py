@@ -59,6 +59,24 @@ SLOT_RE = re.compile(r'^person-\d{3}$')
 SAFE_IMG = re.compile(r'^assets/[A-Za-z0-9_./-]+$')
 
 
+TIER_ACCENT = {'y1': '#f2a7a0', 'y2': '#c04a58', 'y3': '#8a6a3d', 'teacher': '#4a4a50'}
+SAFE_COLOR = re.compile(r'^#[0-9A-Fa-f]{6}$')
+
+
+def accent_for(theme, tier, person_color):
+    """Accent colour of a page: the person's colour, or the tier colour (theme.accentSource = 'tier')."""
+    if (theme or {}).get('accentSource') == 'tier' and tier in TIER_ACCENT:
+        c = ((theme or {}).get('tierAccent') or {}).get(tier) or TIER_ACCENT[tier]
+        return c if SAFE_COLOR.match(c) else TIER_ACCENT[tier]
+    return person_color or '#d9c3cf'
+
+
+def background_of(theme, role, tier):
+    """Background image path (assets/...) of a page role for a tier: the tier's own, else 'all', else None."""
+    b = ((theme or {}).get('backgrounds') or {}).get(role) or {}
+    return b.get(tier) or b.get('all') or None
+
+
 class Report:
     def __init__(self): self.errors, self.warnings = [], []
     def error(self, m): self.errors.append(m)
@@ -74,7 +92,7 @@ def role_line(p):
     return f'{g}　{c}' if c else g
 
 
-def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=None):
+def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=None, theme=None, tier=None):
     """Return a list of page dicts (content pages p.1..p.2N, already padded to an even count).
     p.1 title, p.2 profile, p.3 introduction (if any text), p.4 relations (if any), then the free pages:
     the member's book pages (image + caption); without them the outfit images, then the old flat gallery."""
@@ -99,12 +117,6 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
         else:
             graph = [{'role': 'graph', 'span': 1, 'half': 'S', 'bonds': bonds, 'center': center, 'color': color}]
     secs = [(k, extra[key]) for k, key in (('好きなもの', 'likes'), ('苦手なもの', 'dislikes'), ('人物紹介', 'about')) if extra.get(key)]
-    if graph and len(graph) == 2:                 # right after the profile (p.3 / p.4), so the two halves face each other
-        pages += graph
-    if secs:
-        pages.append({'role': 'about', 'sections': secs, 'color': color})
-    if graph and len(graph) == 1:
-        pages += graph
     photos = []                                            # (image, caption)
     for bp in extra.get('bookPages') or []:
         photos.append((bp.get('image'), bp.get('caption', '')))
@@ -113,11 +125,34 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
             photos += [(x, o.get('label', '')) for x in o.get('images', [])]
     if not photos:
         photos = [(g, '') for g in (p.get('gallery') or [])]
+    photo_pages = []
     for img, cap in photos:                                # one picture per page, in order
         if img and SAFE_IMG.match(img) and (fe / img).exists():
-            pages.append({'role': 'photo', 'image': img, 'caption': cap, 'color': color})
+            photo_pages.append({'role': 'photo', 'image': img, 'caption': cap, 'color': color})
         else:
             rep.warn(f'{p["id"]}: book image missing, page skipped: {img}')
+    about_page = {'role': 'about', 'sections': secs, 'color': color} if secs else None
+    order = (theme or {}).get('pages')
+    if order is None:                                      # default order (the layout used so far)
+        if graph and len(graph) == 2:                      # right after the profile (p.3 / p.4), so the two halves face each other
+            pages += graph
+        if about_page:
+            pages.append(about_page)
+        if graph and len(graph) == 1:
+            pages += graph
+        pages += photo_pages
+    else:                                                  # the theme decides which optional pages appear and in what order
+        for name in order:
+            if name == 'about' and about_page:
+                pages.append(about_page)
+            elif name == 'graph' and graph:
+                if len(graph) == 2 and len(pages) % 2 == 1:
+                    pages.append({'role': 'blank'})        # a whole-spread graph must start on a right-hand (odd) page
+                pages += graph
+            elif name == 'photos':
+                pages += photo_pages
+    for pg in pages:
+        pg['tier'] = tier
     total = spreads * 2
     if len(pages) > total:
         rep.warn(f'{p["id"]}: {len(pages)} pages but only {total} fit in {spreads} spreads; extra pages dropped')
@@ -218,14 +253,23 @@ def graph_body(pg, fe: Path):
             f'<div class="legend" style="width:{W - 140}px">{legend}{arrow_note}</div>')
 
 
-def page_html(pg, tpl, fe: Path, number: int):
+def page_html(pg, tpl, fe: Path, number: int, theme=None):
     css = (TEMPLATES / tpl['id'] / 'page.css').read_text(encoding='utf-8')
     font_css = ''.join(
         f"@font-face{{font-family:'NotoJP';font-weight:{w};src:url('{(FONT_DIR / f).as_uri()}')}}"
         for w, f in ((400, 'NotoSansJP-Regular.ttf'), (700, 'NotoSansJP-Bold.ttf')))
-    color = pg.get('color', '#d9c3cf')
+    theme = theme or {}
+    tier = pg.get('tier')
+    color = accent_for(theme, tier, pg.get('color', '#d9c3cf'))
     role = pg['role']
     body = ''
+    css_vars = ''.join(f'--{k}:{theme[k]};' for k in ('paper', 'text', 'muted', 'rule') if SAFE_COLOR.match(str(theme.get(k, ''))))
+    if isinstance(theme.get('fontScale'), (int, float)) and 0.8 <= theme['fontScale'] <= 1.3:
+        css_vars += f'--fs:{theme["fontScale"]};'
+    bg_path = background_of(theme, role, tier)
+    bg = f'<div class="bg" style="background-image:url(\'{(fe / bg_path).as_uri()}\')"></div>' if bg_path and SAFE_IMG.match(bg_path) and (fe / bg_path).is_file() else ''
+    body_cls = (f'role-{role} frame-{theme.get("frame", "thin")} shape-{theme.get("portraitShape", "arch")} pf-{theme.get("photoFrame", "border")}'
+                + (' no-bar' if theme.get('topBar') is False else ''))
     if role == 'title':
         img = f'<img class="portrait" src="{(fe / pg["portrait"]).as_uri()}">' if pg.get('portrait') else \
               '<div class="portrait empty">PORTRAIT</div>'
@@ -248,10 +292,10 @@ def page_html(pg, tpl, fe: Path, number: int):
         body = f'<div class="photo-box{" with-cap" if cap else ""}"><img src="{(fe / pg["image"]).as_uri()}"></div>{cap}'
     else:
         body = '<div class="blank-note">&nbsp;</div>'
-    num = '' if role in ('blank', 'graph') else f'<div class="pno">{number}</div>'
+    num = '' if (role in ('blank', 'graph') or theme.get('pageNumber') is False) else f'<div class="pno">{number}</div>'
     wide = f'html,body,.page{{width:{928 * pg["span"]}px}}' if role == 'graph' else ''
     return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{wide}</style>'
-            f'<body class="role-{role}" style="--accent:{esc(color)}"><div class="page">{body}{num}</div></body>')
+            f'<body class="{body_cls}" style="--accent:{esc(color)};{css_vars}"><div class="page">{bg}{body}{num}</div></body>')
 
 
 FIT_JS = """() => {
@@ -334,6 +378,8 @@ def main():
     slots = json.loads(a.slots.read_text(encoding='utf-8'))
     cc_file = a.fe / 'data' / 'character-content.json'
     content = json.loads(cc_file.read_text(encoding='utf-8')).get('characters', {}) if cc_file.exists() else {}
+    theme_file = a.fe / 'data' / 'book-theme.json'
+    theme = json.loads(theme_file.read_text(encoding='utf-8')) if theme_file.exists() else {}
     rel_file = a.fe / 'data' / 'relations.json'
     relations = json.loads(rel_file.read_text(encoding='utf-8')).get('relations', []) if rel_file.exists() else []
     bases = {}
@@ -376,10 +422,12 @@ def main():
         if not 1 <= spreads <= 6:
             rep.error(f'{slot}: person books support 1..6 spreads'); continue
         tier = 'teacher' if p['kind'] == 'teacher' else {'1年': 'y1', '2年': 'y2', '3年': 'y3'}.get(p.get('grade'), 'y1')
-        pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe))
+        pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe), theme, tier)
         imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'),
                                                       *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
-        h = input_hash(pages, tpl, base_for(tier)[1], imgs)
+        bgs = {background_of(theme, pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
+        imgs += [a.fe / x for x in sorted(bgs) if SAFE_IMG.match(x) and (a.fe / x).is_file()]
+        h = input_hash(pages, [tpl, theme], base_for(tier)[1], imgs)
         jobs.append((slot, spreads, pages, h, tier))
 
     todo = [j for j in jobs if a.force or state.get(j[0]) != j[3]
@@ -411,10 +459,10 @@ def main():
             rendered = []
             for i, pg in enumerate(pages, start=1):
                 if pg['role'] == 'graph' and pg['span'] == 2:           # right half of the wide canvas is the odd (right-hand) page
-                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}', width=1856, crop_x=928 if pg['half'] == 'R' else 0))
+                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i, theme), rep, f'{slot} p.{i}', width=1856, crop_x=928 if pg['half'] == 'R' else 0))
                     bp.set_viewport_size({'width': PAGE_W, 'height': PAGE_H})
                 else:
-                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i), rep, f'{slot} p.{i}'))
+                    rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i, theme), rep, f'{slot} p.{i}'))
             for j in range(spreads):
                 right, left = rendered[2 * j], rendered[2 * j + 1]       # right-bound: p.(2j+1) right, p.(2j+2) left
                 atlas = compose(base_for(tier)[0], left, right, paper)
