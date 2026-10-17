@@ -1,0 +1,24 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>サイトの画像 | SCB Library</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../admin/admin.css"><style>
+.cloud-wrap{max-width:1200px;margin:6rem auto 3rem;padding:1.2rem}.cloud-box{background:#fffaf5;border:1px solid #c9b8a6;border-radius:14px;padding:1.2rem 1.4rem;margin:1.2rem 0}.cloud-box button{margin:.2rem}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}.slot{border:1px solid #d6bcb9;border-radius:12px;padding:.8rem;background:#fff}.slot.changed{border-color:#c04a58;box-shadow:0 0 0 2px #c04a5822}
+.slot .pv{width:100%;aspect-ratio:16/10;object-fit:cover;background:#efe6e0;border-radius:8px;display:block;margin:.4rem 0}.slot .pv.contain{object-fit:contain}
+.slot label{display:block;font-size:.82rem;color:#6b5a4e;margin:.3rem 0}.slot input[type=range]{width:100%}.slot input[type=file]{width:100%;font-size:.8rem}
+.pos{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .8rem}.slot h3{margin:.1rem 0;font-size:1rem}.slot small{color:#8a7a6b}
+.muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.85rem;color:#8a7a6b}
+</style></head><body>
+<div class="prototype-ribbon">SITE ART ・ サイトの画像 ・ 管理者のみ</div>
+<main class="cloud-wrap">
+<p class="eyebrow">SALON CHERRY BLOSSOM · SITE ART</p>
+<h1>サイトの画像</h1>
+<p>ホームのメイン画像・入口カード・作品カード・背景や飾りの画像を差し替え、表示位置を調整します。保存すると最大 15 分でサイトに反映されます。変えていない欄は元の画像のままです。</p>
+<div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
+<div id="panel" hidden>
+ <div class="cloud-box"><h2>画像の欄</h2>
+  <p class="hint">PNG／JPG／WebP・5MB 以下。位置は「どの部分を見せるか」です（0%＝左／上、100%＝右／下）。PC とスマホで別々に調整できます。</p>
+  <div class="slots" id="slots"></div>
+  <p><button id="save" type="button">保存</button> <button id="resetAll" type="button">すべて元に戻す</button> <span id="msg" role="status" aria-live="polite"></span></p>
+ </div>
+</div>
+<p><a href="hub.html">管理センター</a> · <a href="site.html">サイト内容</a></p>
+</main>
+<script src="config.js"></script><script type="module" src="site-art.js"></script></body></html>

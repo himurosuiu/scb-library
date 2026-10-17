@@ -603,6 +603,30 @@ def main():
             else:
                 rep.warn(f'tier art {k}: image is missing in the frontend: {v}')
     td = [] if tier_new == tier_old else ['  ~ tier-art.json: ' + ', '.join(sorted(set(tier_old) | set(tier_new)))]
+    # website art slots (home hero, cards, decorations): data/site-art-base.json (original) + settings 'site.art' overrides -> data/site-art.json
+    art_file = a.fe / 'data' / 'site-art.json'
+    art_base_file = a.fe / 'data' / 'site-art-base.json'
+    art_cur = json.loads(art_file.read_text(encoding='utf-8')) if art_file.exists() else {'schemaVersion': 1, 'revision': 0, 'slots': {}}
+    art_base = json.loads(art_base_file.read_text(encoding='utf-8')) if art_base_file.exists() else art_cur
+    art_over = settings['site.art'] if 'site.art' in settings else None
+    art_new = art_cur
+    if art_over is not None:
+        art_new = json.loads(json.dumps(art_base))
+        for sid, o in art_over.items():
+            if sid not in art_new.get('slots', {}):
+                rep.warn(f'site art: unknown slot {sid} ignored')
+                continue
+            for fld in ('path', 'positionDesktop', 'positionMobile'):
+                if o.get(fld):
+                    art_new['slots'][sid][fld] = o[fld]
+            v = o.get('path')
+            if v and not (a.fe / v).exists():
+                m = UPLOAD_RE.match(v)
+                if m and m.group(1) == 'site' and url:
+                    site_fetch.append((v, f'site/{m.group(2)}'))
+                else:
+                    rep.warn(f'site art {sid}: image is missing in the frontend: {v}')
+    ad = [] if art_new == art_cur and art_base_file.exists() else ['  ~ site-art.json: ' + (', '.join(sorted(k for k, v in art_new.get('slots', {}).items() if v != art_cur.get('slots', {}).get(k))) or 'base copy')]
     # book page theme (colours, frame, page order, background images): data/book-theme.json
     theme_file = a.fe / 'data' / 'book-theme.json'
     theme_old = json.loads(theme_file.read_text(encoding='utf-8')) if theme_file.exists() else {}
@@ -667,6 +691,8 @@ def main():
     print('\n'.join(td) if td else '  (no changes)')
     print('\n== data/book-theme.json (look of the book pages) ==')
     print('\n'.join(th) if th else '  (no changes)')
+    print('\n== data/site-art.json (home page art slots) ==')
+    print('\n'.join(ad) if ad else '  (no changes)')
     print('\n== data/slots.json (book slots used by the page renderer) ==')
     print('\n'.join(sd) if sd else '  (no changes)')
     print('\n== member uploads to copy from Storage into assets/ ==')
@@ -680,7 +706,7 @@ def main():
 
     if rep.errors:
         print('\nResult: FAILED. Nothing written.'); sys.exit(2)
-    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th):
+    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad):
         print('\nResult: already up to date.'); return
     if not a.apply:
         print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
@@ -696,6 +722,8 @@ def main():
     targets.append((slots_file, slots, bool(sd)))
     targets.append((tier_file, tier_new, bool(td)))
     targets.append((theme_file, theme_new, bool(th)))
+    targets.append((art_base_file, art_base, not art_base_file.exists()))
+    targets.append((art_file, art_new, art_new != art_cur))
     for path, rel in to_fetch:                       # approved member uploads: Storage -> site assets (and the Pages repo copy)
         try:
             fetch_upload(url, rel, a.fe / path)
