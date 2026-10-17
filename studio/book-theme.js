@@ -1,4 +1,6 @@
-// Book page theme editor (administrator only) with a live preview.
+// Book page look editor with a live preview.
+// Global mode (administrator): the look of every book (setting 'book.theme').
+// Person mode (?person=<id> or ?mine=1; the administrator or an assigned editor): the look of one person's book, laid over the global one (table person_themes).
 // The preview builds the same HTML as tools/scb_render/render_books.py (port of page_html / graph_body) and the same CSS (book-page.css).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm';
 
@@ -16,8 +18,9 @@ const KIND_STYLE = { sister: ['#c04a58', ''], blood: ['#c04a58', '14 10'], clan:
 const DIRECTED = ['one_sided', 'tsuntsun', 'honmei', 'oshi', 'amayakashi', 'amae', 'izon', 'kininaru'];
 const MAX_SINGLE = 6, MAX_GRAPH = 14, PAGE_H = 1528;
 
-let api = null, theme = {}, people = [], content = {}, relations = [];
+let api = null, theme = {}, globalTheme = {}, mode = 'global', isAdmin = false, editable = [], people = [], content = {}, relations = [];
 
+const T = () => ({ ...globalTheme, ...theme });
 const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const say = (t, cls = '') => { const m = $('msg'); m.textContent = t; m.className = cls; };
@@ -62,7 +65,7 @@ function buildPages(p) {
   if (!photos.length) for (const o of x.outfits || []) for (const i of o.images || []) photos.push([i, o.label || '']);
   if (!photos.length) photos = (p.gallery || []).map(g => [g, '']);
   const photoPages = photos.filter(ph => ph[0]).map(([image, caption]) => ({ role: 'photo', image, caption, color }));
-  const order = theme.pages;
+  const order = T().pages;
   if (!order) {
     if (graph && graph.length === 2) pages.push(...graph);
     if (aboutPage) pages.push(aboutPage);
@@ -108,7 +111,7 @@ function graphBody(pg) {
 }
 
 function pageBodyHtml(pg, number) {
-  const role = pg.role; const t = theme;
+  const role = pg.role; const t = T();
   const accent = (t.accentSource === 'tier' && TIER_ACCENT[pg.tier]) ? ((t.tierAccent || {})[pg.tier] || TIER_ACCENT[pg.tier]) : (pg.color || '#d9c3cf');
   const vars = ['paper', 'text', 'muted', 'rule'].filter(k => COLOR_RE.test(t[k] || '')).map(k => `--${k}:${t[k]};`).join('') + (typeof t.fontScale === 'number' ? `--fs:${t.fontScale};` : '');
   const bgRole = role === 'photo' ? 'photos' : role, bgs = (t.backgrounds || {})[bgRole] || {}, bgPath = bgs[pg.tier] || bgs.all;
@@ -146,27 +149,27 @@ $('zoom').addEventListener('click', e => { if (e.target === $('zoom')) $('zoom')
 function buildControls() {
   const cb = $('colors'); cb.replaceChildren();
   for (const [k, label, def] of COLORS) {
-    const inp = el('input', { type: 'color', value: theme[k] || def }); const rst = el('button', { type: 'button' }, '標準');
+    const inp = el('input', { type: 'color', value: T()[k] || def }); const rst = el('button', { type: 'button' }, '標準');
     inp.oninput = () => { theme[k] = inp.value; renderPreview(); }; rst.onclick = () => { delete theme[k]; inp.value = def; renderPreview(); };
     cb.append(el('div', { className: 'col' }, inp, el('span', {}, label), rst));
   }
-  const fs = $('fontScale'); fs.value = theme.fontScale || 1; $('fsVal').textContent = Number(fs.value).toFixed(2);
+  const fs = $('fontScale'); fs.value = T().fontScale || 1; $('fsVal').textContent = Number(fs.value).toFixed(2);
   fs.oninput = () => { theme.fontScale = Number(fs.value); $('fsVal').textContent = Number(fs.value).toFixed(2); renderPreview(); };
-  const bind = (id, key, def, isBool) => { const e = $(id); if (isBool) { e.checked = theme[key] ?? def; e.onchange = () => { theme[key] = e.checked; renderPreview(); }; } else { e.value = theme[key] || def; e.onchange = () => { theme[key] = e.value; if (id === 'accentSource') buildTierAccent(); renderPreview(); }; } };
+  const bind = (id, key, def, isBool) => { const e = $(id); if (isBool) { e.checked = T()[key] ?? def; e.onchange = () => { theme[key] = e.checked; renderPreview(); }; } else { e.value = T()[key] || def; e.onchange = () => { theme[key] = e.value; if (id === 'accentSource') buildTierAccent(); renderPreview(); }; } };
   bind('frame', 'frame', 'thin'); bind('topBar', 'topBar', true, true); bind('pageNumber', 'pageNumber', true, true); bind('accentSource', 'accentSource', 'person'); bind('portraitShape', 'portraitShape', 'arch'); bind('photoFrame', 'photoFrame', 'border');
   buildTierAccent(); buildPagesList(); buildBgs();
 }
 function buildTierAccent() {
-  const box = $('tierAccent'); box.replaceChildren(); if (theme.accentSource !== 'tier') return;
+  const box = $('tierAccent'); box.replaceChildren(); if (T().accentSource !== 'tier') return;
   for (const [k, label] of TIERS) {
-    const inp = el('input', { type: 'color', value: (theme.tierAccent || {})[k] || TIER_ACCENT[k] });
-    inp.oninput = () => { theme.tierAccent = { ...(theme.tierAccent || {}), [k]: inp.value }; renderPreview(); };
+    const inp = el('input', { type: 'color', value: (T().tierAccent || {})[k] || TIER_ACCENT[k] });
+    inp.oninput = () => { theme.tierAccent = { ...(T().tierAccent || {}), [k]: inp.value }; renderPreview(); };
     box.append(el('div', { className: 'col' }, inp, el('span', {}, label + 'の色')));
   }
 }
 function buildPagesList() {
   const box = $('pages'); box.replaceChildren();
-  const order = theme.pages || ['about', 'graph', 'photos']; const rest = PAGE_BLOCKS.map(b => b[0]).filter(k => !order.includes(k));
+  const order = T().pages || ['about', 'graph', 'photos']; const rest = PAGE_BLOCKS.map(b => b[0]).filter(k => !order.includes(k));
   const rows = [...order.map(k => [k, true]), ...rest.map(k => [k, false])];
   const label = k => PAGE_BLOCKS.find(b => b[0] === k)[1];
   const commit = () => { theme.pages = rows.filter(r => r[1]).map(r => r[0]); buildPagesList(); renderPreview(); };
@@ -192,35 +195,55 @@ function buildBgs() {
   for (const [role, label] of ROLES) {
     const row = el('div', { className: 'bgrow' }, el('b', {}, label));
     for (const [tk, tl] of tiers) {
-      const cur = ((theme.backgrounds || {})[role] || {})[tk];
+      const cur = ((T().backgrounds || {})[role] || {})[tk];
       const f = el('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', title: tl });
-      f.onchange = async () => { if (!f.files[0]) return; say('アップロード中…'); try { const path = await upload(f.files[0]); theme.backgrounds = { ...(theme.backgrounds || {}), [role]: { ...((theme.backgrounds || {})[role] || {}), [tk]: path } }; say('アップロードしました。「保存」で確定します。'); } catch (e) { say(e.message, 'err'); } buildBgs(); renderPreview(); };
+      f.onchange = async () => { if (!f.files[0]) return; say('アップロード中…'); try { const path = await upload(f.files[0]); theme.backgrounds = { ...(T().backgrounds || {}), [role]: { ...((T().backgrounds || {})[role] || {}), [tk]: path } }; say('アップロードしました。「保存」で確定します。'); } catch (e) { say(e.message, 'err'); } buildBgs(); renderPreview(); };
       const cell = el('div', {}, el('small', {}, tl + (cur ? '（設定済み）' : '')), f);
-      if (cur) { const x = el('button', { type: 'button' }, '外す'); x.onclick = () => { const bgs = { ...(theme.backgrounds || {}) }; bgs[role] = { ...(bgs[role] || {}) }; delete bgs[role][tk]; if (!Object.keys(bgs[role]).length) delete bgs[role]; theme.backgrounds = bgs; if (!Object.keys(bgs).length) delete theme.backgrounds; buildBgs(); renderPreview(); }; cell.append(x); }
+      if (cur) { const x = el('button', { type: 'button' }, '外す'); x.onclick = () => { const bgs = { ...(T().backgrounds || {}) }; bgs[role] = { ...(bgs[role] || {}) }; delete bgs[role][tk]; if (!Object.keys(bgs[role]).length) delete bgs[role]; theme.backgrounds = bgs; if (!Object.keys(bgs).length) delete theme.backgrounds; buildBgs(); renderPreview(); }; cell.append(x); }
       row.append(cell);
     }
     box.append(row);
   }
 }
-$('person').onchange = renderPreview;
 $('resetAll').onclick = () => { theme = {}; buildControls(); renderPreview(); say('標準に戻しました。「保存」で確定します。'); };
 $('save').onclick = async () => {
-  try { await rpc('scb_admin_save_setting', { p_key: 'book.theme', p_value: theme }); say('保存しました。最大 15 分で書籍画像が描き直されます。', 'ok'); }
-  catch (e) { say('保存できませんでした: ' + e.message, 'err'); }
+  try {
+    if (mode === 'person') { await rpc('scb_save_person_theme', { pid: $('person').value, p_value: theme }); say('保存しました。最大 15 分で、この人物の書籍画像が描き直されます。', 'ok'); }
+    else { await rpc('scb_admin_save_setting', { p_key: 'book.theme', p_value: theme }); say('保存しました。最大 15 分で書籍画像が描き直されます。', 'ok'); }
+  } catch (e) { say('保存できませんでした: ' + e.message, 'err'); }
 };
+
+async function loadPersonTheme() {
+  const r = await api.from('person_themes_public').select('value').eq('person_id', $('person').value);
+  if (r.error && r.error.code === 'PGRST205') throw new Error('この機能はまだ使えません（SQL 17 を実行してください）');
+  if (r.error) throw r.error;
+  theme = structuredClone((r.data[0] || {}).value || {});
+}
 
 async function load() {
   const sr = await api.from('site_settings_public').select('key,value').eq('key', 'book.theme');
   if (sr.error && sr.error.code === 'PGRST205') throw new Error('設定テーブルがまだありません（SQL 13・14・15 を実行してください）');
   if (sr.error) throw sr.error;
-  theme = structuredClone((sr.data[0] || {}).value || {});
+  const stored = structuredClone((sr.data[0] || {}).value || {});
+  if (mode === 'person') { globalTheme = stored; theme = {}; } else { globalTheme = {}; theme = stored; }
   const j = async path => { try { const r = await fetch(path); return r.ok ? r.json() : null; } catch (e) { return null; } };
   people = ((await j('../data/public-people-all.json')) || {}).people || [];
   content = ((await j('../data/character-content.json')) || {}).characters || {};
   relations = ((await j('../data/relations.json')) || {}).relations || [];
   const sel = $('person'); sel.replaceChildren();
-  const prefer = ['tsukisa-yuru']; const sorted = [...people].sort((a, b) => (prefer.includes(b.id) - prefer.includes(a.id)));
+  let list = people;
+  if (mode === 'person') {
+    if (!isAdmin) { list = []; for (const p of people) { const { data: yes, error } = await api.rpc('can_edit_scb_character', { cid: p.id }); if (error) throw new Error(error.message); if (yes) list.push(p); } }
+    editable = list;
+    const want = new URLSearchParams(location.search).get('person'); if (want) list = [...list].sort((a, b) => (b.id === want) - (a.id === want));
+  }
+  const prefer = ['tsukisa-yuru']; const sorted = mode === 'person' ? list : [...list].sort((a, b) => (prefer.includes(b.id) - prefer.includes(a.id)));
   for (const p of sorted) sel.add(new Option(`${p.name}（${p.id}）`, p.id));
+  if (mode === 'person') {
+    if (!sorted.length) throw new Error('編集できる人物がありません（管理者に担当の割り当てを依頼してください）');
+    await loadPersonTheme();
+    sel.onchange = async () => { try { await loadPersonTheme(); buildControls(); renderPreview(); say(''); } catch (e) { say(e.message, 'err'); } };
+  } else sel.onchange = renderPreview;
   buildControls(); renderPreview();
 }
 
@@ -232,8 +255,13 @@ async function start() {
     $('who').textContent = user ? 'ログイン中：' + (user.email || user.id) : '未ログイン';
     if (!user) return;
     const admin = (await rpc('is_scb_super_admin')) === true;
-    $('priv').textContent = admin ? '権限：super_admin' : '権限：super_admin ではありません。この画面は使えません。';
-    if (!admin) return;
+    $('priv').textContent = admin ? '権限：super_admin' : '権限：担当している人物の見た目を編集できます';
+    isAdmin = admin; const q = new URLSearchParams(location.search);
+    mode = (q.has('person') || q.has('mine') || !admin) ? 'person' : 'global';
+    if (mode === 'person') {
+      document.querySelector('h1').textContent = '自分の本の見た目'; $('lead').textContent = 'あなたが担当している人物の個人ブックの見た目を選びます。ここで変えた項目だけが全体の設定より優先されます。変えていない項目は全体の設定のままです。保存すると最大 15 分で、その人物の書籍画像が描き直されます。';
+      $('resetAll').textContent = '全体の設定に戻す'; if (!admin) $('bgField').hidden = true;
+    }
     await load(); $('panel').hidden = false;
   } catch (e) { $('who').textContent = '初期化に失敗しました: ' + e.message; $('who').className = 'err'; }
 }

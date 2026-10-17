@@ -10,11 +10,11 @@ fieldset{border:1px solid #d6bcb9;border-radius:10px;margin:.7rem 0;padding:.5re
 .muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.8rem;color:#8a7a6b}
 dialog{border:none;border-radius:12px;padding:0}dialog::backdrop{background:#0008}
 </style></head><body>
-<div class="prototype-ribbon">BOOK THEME ・ 個人ブックの見た目 ・ 管理者のみ</div>
+<div class="prototype-ribbon">BOOK THEME ・ 個人ブックの見た目</div>
 <main class="cloud-wrap">
 <p class="eyebrow">SALON CHERRY BLOSSOM · BOOK DESIGN</p>
 <h1>個人ブックの見た目</h1>
-<p>色・文字サイズ・頁の枠・頁の並び・背景画像を調整します。右のプレビューは<b>公開済みのデータ</b>で表示されます（保存前でも確認できます）。保存すると最大 15 分で、全員の書籍画像が描き直されます。</p>
+<p id="lead">色・文字サイズ・頁の枠・頁の並び・背景画像を調整します。右のプレビューは<b>公開済みのデータ</b>で表示されます（保存前でも確認できます）。保存すると最大 15 分で、全員の書籍画像が描き直されます。</p>
 <div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
 <div id="panel" hidden>
  <div class="layout">
@@ -32,7 +32,7 @@ dialog{border:none;border-radius:12px;padding:0}dialog::backdrop{background:#000
      <label>写真の枠<select id="photoFrame"><option value="border">アクセント色の枠（標準）</option><option value="none">枠なし</option><option value="shadow">影</option></select></label>
     </fieldset>
     <fieldset class="pages-list"><legend>表紙・プロフィールの後に並べる頁</legend><div id="pages"></div><p class="hint">表紙とプロフィールは常に最初の 2 頁です。チェックを外した頁は作られません。関係図が多いときは見開きになります。</p></fieldset>
-    <fieldset><legend>背景画像（頁の種類 × 学年）</legend><p class="hint">928×1528 の縦長画像（PNG／JPG／WebP・5MB 以下）。「共通」は全学年に使われます。</p><div id="bgs"></div></fieldset>
+    <fieldset id="bgField"><legend>背景画像（頁の種類 × 学年）</legend><p class="hint">928×1528 の縦長画像（PNG／JPG／WebP・5MB 以下）。「共通」は全学年に使われます。</p><div id="bgs"></div></fieldset>
     <button id="save" type="button">保存</button> <button id="resetAll" type="button">すべて標準に戻す</button> <span id="msg" role="status" aria-live="polite"></span>
    </div>
   </div>

@@ -380,6 +380,9 @@ def main():
     content = json.loads(cc_file.read_text(encoding='utf-8')).get('characters', {}) if cc_file.exists() else {}
     theme_file = a.fe / 'data' / 'book-theme.json'
     theme = json.loads(theme_file.read_text(encoding='utf-8')) if theme_file.exists() else {}
+    theme_global = theme
+    pt_file = a.fe / 'data' / 'person-themes.json'
+    person_themes = json.loads(pt_file.read_text(encoding='utf-8')) if pt_file.exists() else {}   # each person's own look over the global theme
     rel_file = a.fe / 'data' / 'relations.json'
     relations = json.loads(rel_file.read_text(encoding='utf-8')).get('relations', []) if rel_file.exists() else []
     bases = {}
@@ -422,6 +425,7 @@ def main():
         if not 1 <= spreads <= 6:
             rep.error(f'{slot}: person books support 1..6 spreads'); continue
         tier = 'teacher' if p['kind'] == 'teacher' else {'1年': 'y1', '2年': 'y2', '3年': 'y3'}.get(p.get('grade'), 'y1')
+        theme = {**theme_global, **(person_themes.get(p['id']) or {})}
         pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe), theme, tier)
         imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'),
                                                       *[b.get('portrait') for b in pg.get('bonds', [])]) if x]

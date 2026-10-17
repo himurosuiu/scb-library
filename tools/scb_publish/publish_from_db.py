@@ -215,6 +215,23 @@ def fetch_settings(url, key):
         sys.exit(f'Cannot reach Supabase: {e.reason}')
 
 
+def fetch_person_themes(url, key):
+    """Per-person book looks {person_id: theme} from the public view. None = not installed yet (17_person_theme.sql)."""
+    req = urllib.request.Request(f'{url}/rest/v1/person_themes_public?select=person_id,value&limit=1000',
+                                 headers={'apikey': key, 'Authorization': f'Bearer {key}'})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return {x['person_id']: x['value'] for x in json.loads(r.read().decode('utf-8'))}
+    except urllib.error.HTTPError as e:
+        body = e.read()[:300]
+        if e.code == 404 and b'PGRST205' in body:
+            print('NOTE: the person_themes view does not exist yet (17_person_theme.sql not applied); person-themes.json is left as it is.')
+            return None
+        sys.exit(f'Supabase person themes request failed: HTTP {e.code} {body!r}')
+    except urllib.error.URLError as e:
+        sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
 def fetch_slots(url, key):
     """Book slots from the database (public view). None = the view does not exist yet (11_book_slots.sql not applied)."""
     req = urllib.request.Request(f'{url}/rest/v1/book_slots_public?select=slot,person_id,spreads,cover_name,spine_text&order=slot&limit=1000',
@@ -539,6 +556,10 @@ def main():
     # home page featured cards, works and texts
     site_fetch = []
     settings = json.loads(a.settings_json.read_text(encoding='utf-8')) if a.settings_json else (fetch_settings(url, key) if (url and key) else {})
+    if 'person.themes' not in settings and url and key and not a.settings_json:
+        _pt = fetch_person_themes(url, key)
+        if _pt is not None:
+            settings['person.themes'] = _pt
     demo_file = a.fe / 'data' / 'public-demo.json'
     demo_doc = json.loads(demo_file.read_text(encoding='utf-8')) if demo_file.exists() else None
     new_demo = None
@@ -627,6 +648,23 @@ def main():
                 else:
                     rep.warn(f'site art {sid}: image is missing in the frontend: {v}')
     ad = [] if art_new == art_cur and art_base_file.exists() else ['  ~ site-art.json: ' + (', '.join(sorted(k for k, v in art_new.get('slots', {}).items() if v != art_cur.get('slots', {}).get(k))) or 'base copy')]
+    # per-person look of the personal book (members' own choices over the global theme): data/person-themes.json
+    pt_file = a.fe / 'data' / 'person-themes.json'
+    pt_old = json.loads(pt_file.read_text(encoding='utf-8')) if pt_file.exists() else {}
+    pt_new = pt_old
+    if 'person.themes' in settings:
+        known = {q['id'] for q in new_people}
+        pt_new = {pid: v for pid, v in sorted(settings['person.themes'].items()) if pid in known and v}
+    for pid, tv in pt_new.items():
+        for role, per_tier in (tv.get('backgrounds') or {}).items():
+            for tier_key, v in (per_tier or {}).items():
+                if v and not (a.fe / v).exists():
+                    m = UPLOAD_RE.match(v)
+                    if m and m.group(1) == 'site' and url:
+                        site_fetch.append((v, f'site/{m.group(2)}'))
+                    else:
+                        rep.warn(f'person theme {pid} background {role}/{tier_key}: image is missing in the frontend: {v}')
+    pd_ = [] if pt_new == pt_old else ['  ~ person-themes.json: ' + ', '.join(sorted(k for k in set(pt_old) | set(pt_new) if pt_old.get(k) != pt_new.get(k)))]
     # book page theme (colours, frame, page order, background images): data/book-theme.json
     theme_file = a.fe / 'data' / 'book-theme.json'
     theme_old = json.loads(theme_file.read_text(encoding='utf-8')) if theme_file.exists() else {}
@@ -691,6 +729,8 @@ def main():
     print('\n'.join(td) if td else '  (no changes)')
     print('\n== data/book-theme.json (look of the book pages) ==')
     print('\n'.join(th) if th else '  (no changes)')
+    print('\n== data/person-themes.json (look of each personal book) ==')
+    print('\n'.join(pd_) if pd_ else '  (no changes)')
     print('\n== data/site-art.json (home page art slots) ==')
     print('\n'.join(ad) if ad else '  (no changes)')
     print('\n== data/slots.json (book slots used by the page renderer) ==')
@@ -706,7 +746,7 @@ def main():
 
     if rep.errors:
         print('\nResult: FAILED. Nothing written.'); sys.exit(2)
-    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad):
+    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_):
         print('\nResult: already up to date.'); return
     if not a.apply:
         print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
@@ -722,6 +762,7 @@ def main():
     targets.append((slots_file, slots, bool(sd)))
     targets.append((tier_file, tier_new, bool(td)))
     targets.append((theme_file, theme_new, bool(th)))
+    targets.append((pt_file, pt_new, bool(pd_)))
     targets.append((art_base_file, art_base, not art_base_file.exists()))
     targets.append((art_file, art_new, art_new != art_cur))
     for path, rel in to_fetch:                       # approved member uploads: Storage -> site assets (and the Pages repo copy)
