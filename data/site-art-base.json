@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "revision": 0,
+  "slots": {
+    "hero": {
+      "label": "首頁主視覺",
+      "path": "assets/hero-academy.jpg",
+      "positionDesktop": "50% 34%",
+      "positionMobile": "50% 36%"
+    },
+    "feature1": {
+      "label": "人物檔案館入口",
+      "path": "assets/art-system/v087/library.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "feature2": {
+      "label": "人物關係圖入口",
+      "path": "assets/art-system/v087/letters.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "feature3": {
+      "label": "二次創作入口",
+      "path": "assets/art-system/v087/books.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "archive1": {
+      "label": "典藏作品 1",
+      "path": "assets/art-system/v087/library.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "archive2": {
+      "label": "典藏作品 2",
+      "path": "assets/art-system/v087/letters.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "archive3": {
+      "label": "典藏作品 3",
+      "path": "assets/art-system/v087/books.webp",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "globalBackdrop": {
+      "label": "全站・櫻花霧背景",
+      "path": "assets/art-system/blossom-haze.png",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "chapterFlourish": {
+      "label": "共通・章節標頭紋飾",
+      "path": "assets/art-system/v088/chapter-line.svg",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "archiveCorner": {
+      "label": "共通・典藏框花藤",
+      "path": "assets/art-system/archive-corner.png",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "cardSeal": {
+      "label": "共通・卡片印章裝飾",
+      "path": "assets/art-system/wax-seal.png",
+      "positionDesktop": "50% 50%",
+      "positionMobile": "50% 50%"
+    },
+    "libraryBackdrop": {
+      "positionMobile": "50% 50%",
+      "positionDesktop": "50% 50%",
+      "label": "共通・図書館の背景",
+      "path": "assets/art-system/v087/library.webp"
+    },
+    "fanHero": {
+      "positionMobile": "75% 50%",
+      "positionDesktop": "70% 50%",
+      "label": "二次創作ライブラリ・書架の背景",
+      "path": "assets/art-system/v087/books.webp"
+    },
+    "marginLeft": {
+      "positionDesktop": "0% 0%",
+      "path": "assets/art-system/v088/corner-left.webp",
+      "label": "共通・左側の桜と典蔵書",
+      "positionMobile": "0% 0%"
+    },
+    "marginRight": {
+      "positionDesktop": "100% 0%",
+      "path": "assets/art-system/v088/corner-right.webp",
+      "label": "共通・右側の桜と手紙",
+      "positionMobile": "100% 0%"
+    },
+    "chapterEmblem": {
+      "path": "assets/art-system/v088/chapter-blossom.svg",
+      "label": "共通・章見出しの桜紋",
+      "positionMobile": "50% 50%",
+      "positionDesktop": "50% 50%"
+    },
+    "footerEmblem": {
+      "path": "assets/art-system/v088/sakura-emblem-reference.png",
+      "label": "共通・桜花の紋章",
+      "positionMobile": "50% 50%",
+      "positionDesktop": "50% 50%"
+    }
+  }
+}
