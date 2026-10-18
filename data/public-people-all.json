@@ -199,7 +199,7 @@
       "id": "takanashi-himari",
       "name": "小鳥遊 陽葵",
       "nameKana": "たかなし ひまり",
-      "romaji": "HIMARI",
+      "romaji": "HIMARI TAKANASHI",
       "kind": "student",
       "grade": "3年",
       "club": "保健委員",
@@ -318,9 +318,9 @@
       "color": "#4CAFE5",
       "status": "active",
       "group": "2年生 美術部",
-      "image": "assets/portraits/shigure-kei.jpg",
-      "portrait": "assets/portraits/shigure-kei.jpg",
-      "fullBody": null,
+      "image": "assets/uploads/shigure-kei/70c8bbe1-9ec9-46ef-953b-87be274da93f.webp",
+      "portrait": "assets/uploads/shigure-kei/70c8bbe1-9ec9-46ef-953b-87be274da93f.webp",
+      "fullBody": "assets/uploads/shigure-kei/4c762008-6632-4430-8f52-0698fe914460.webp",
       "gallery": []
     },
     {
