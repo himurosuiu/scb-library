@@ -13,6 +13,33 @@
     },
     {
       "a": "tsukisa-yuru",
+      "b": "asanagi-ushio",
+      "kind": "clan",
+      "label": "ドラゴン仲間",
+      "note": "",
+      "forA": "ドラゴン仲間",
+      "forB": "ドラゴン仲間"
+    },
+    {
+      "a": "tsukisa-yuru",
+      "b": "fujimiya-iori",
+      "kind": "friend",
+      "label": "部活の仲間",
+      "note": "",
+      "forA": "部活の仲間",
+      "forB": "部活の仲間"
+    },
+    {
+      "a": "asanagi-ushio",
+      "b": "takanashi-himari",
+      "kind": "kininaru",
+      "label": "大切な先輩",
+      "note": "いつも見守ってくれている優しい先輩",
+      "forA": "大切な先輩",
+      "forB": "大切な先輩"
+    },
+    {
+      "a": "tsukisa-yuru",
       "b": "viola",
       "kind": "other",
       "label": "お世話してもらってる",

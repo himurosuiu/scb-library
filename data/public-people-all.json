@@ -398,9 +398,9 @@
       "color": "#e1b4f5",
       "status": "active",
       "group": "2年生 文学部",
-      "image": "assets/portraits/tsukisa-yuru.jpg",
-      "portrait": "assets/portraits/tsukisa-yuru.jpg",
-      "fullBody": null,
+      "image": "assets/uploads/tsukisa-yuru/9cfe8979-6a00-4d47-92a8-b2cdae0fad08.webp",
+      "portrait": "assets/uploads/tsukisa-yuru/9cfe8979-6a00-4d47-92a8-b2cdae0fad08.webp",
+      "fullBody": "assets/uploads/tsukisa-yuru/c7919e4e-bf6c-4264-bbf5-e3fe67e07771.webp",
       "gallery": []
     },
     {
@@ -455,7 +455,7 @@
       "id": "asanagi-ushio",
       "name": "朝凪 潮",
       "nameKana": "あさなぎ うしお",
-      "romaji": "USHIO",
+      "romaji": "USHIO ASANAGI",
       "kind": "student",
       "grade": "1年",
       "club": "文学部",
@@ -464,7 +464,7 @@
       "group": "1年生 文学部",
       "image": "assets/portraits/asanagi-ushio.jpg",
       "portrait": "assets/portraits/asanagi-ushio.jpg",
-      "fullBody": null,
+      "fullBody": "assets/uploads/asanagi-ushio/d6691618-f2d0-4b97-875f-0131b864163a.webp",
       "gallery": []
     },
     {
