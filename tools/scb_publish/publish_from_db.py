@@ -27,7 +27,7 @@ UNITY_EXTRA = Path(r'D:\VRCHAT相關保存\project file\SCB Library\SCB Library\
 PERSON_KEYS = ['id', 'name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group',
                'image', 'portrait', 'fullBody', 'gallery']
 # profile fields editable by members; they go to data/character-content.json (the character page), not to public-people-all.json
-TEXT_LIMITS = {'species': 60, 'height': 50, 'likes': 250, 'dislikes': 250, 'firstPerson': 80, 'secondPerson': 80, 'about': 2000}
+TEXT_LIMITS = {'species': 60, 'height': 50, 'likes': 250, 'dislikes': 250, 'firstPerson': 80, 'secondPerson': 80, 'about': 2000, 'lore': 2400, 'loreTitle': 24}
 EXTRA_KEYS = list(TEXT_LIMITS) + ['outfits', 'bookPages']
 IMG_EXT_RE = re.compile(r'\.(jpe?g|png|webp)$', re.I)
 UPLOAD_RE = re.compile(r'^assets/uploads/([a-z0-9][a-z0-9-]{0,79})/([0-9a-f-]{36}\.(?:jpg|png|webp))$')
@@ -756,7 +756,7 @@ def main():
         for row in fan_rows:
             d = row['data']
             works.append({'id': row['id'], 'title': d['title'], 'author': d.get('author', ''), 'category': d.get('category', '小説・SS'), 'summary': d.get('summary', ''),
-                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'art': d.get('art') or {}, 'volumes': 0 if d.get('category') in MEDIA_CATEGORIES else fanbook.estimate_volumes(d)})
+                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'art': d.get('art') or {}, 'characterIds': [x for x in (d.get('characters') or []) if isinstance(x, str) and re.match(r'^[a-z0-9][a-z0-9-]{0,79}$', x)], 'volumes': 0 if d.get('category') in MEDIA_CATEGORIES else fanbook.estimate_volumes(d)})
             works[-1]['media'] = fan_media(d.get('media') or {}, url, rep, d['title'])
         slot_map = assign_story_slots(works, fan_old.get('works', []), rep)
         for w in works:

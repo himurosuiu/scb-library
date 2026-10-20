@@ -95,6 +95,9 @@ def role_line(p):
     return f'{g}　{c}' if c else g
 
 
+LORE_MAX_PAGES = 4                                         # a member's extra setting takes at most this many book pages
+
+
 def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=None, theme=None, tier=None):
     """Return a list of page dicts (content pages p.1..p.2N, already padded to an even count).
     p.1 title, p.2 profile, p.3 introduction (if any text), p.4 relations (if any), then the free pages:
@@ -136,25 +139,33 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
         else:
             rep.warn(f'{p["id"]}: book image missing, page skipped: {img}')
     about_page = {'role': 'about', 'sections': secs, 'color': color} if secs else None
+    lore_pages = []                                        # the member's own extra setting, vertical writing, right after ABOUT
+    if (extra.get('lore') or '').strip():
+        head = f'{p["name"]}　{(extra.get("loreTitle") or "").strip() or "設定"}'
+        lore_pages = [{'role': 'story_text', 'head': head, 'lines': ln, 'color': color} for ln in fanbook.paginate(extra['lore'])[:LORE_MAX_PAGES]]
     order = (theme or {}).get('pages')
     if order is None:                                      # default order (the layout used so far)
         if graph and len(graph) == 2:                      # right after the profile (p.3 / p.4), so the two halves face each other
             pages += graph
         if about_page:
             pages.append(about_page)
+        pages += lore_pages
         if graph and len(graph) == 1:
             pages += graph
         pages += photo_pages
     else:                                                  # the theme decides which optional pages appear and in what order
         for name in order:
-            if name == 'about' and about_page:
-                pages.append(about_page)
+            if name == 'about':
+                if about_page:
+                    pages.append(about_page)
+                pages += lore_pages
+                lore_pages = []
             elif name == 'graph' and graph:
                 if len(graph) == 2 and len(pages) % 2 == 1:
                     pages.append({'role': 'blank'})        # a whole-spread graph must start on a right-hand (odd) page
                 pages += graph
             elif name == 'photos':
-                pages += photo_pages
+                pages += lore_pages + photo_pages
     for pg in pages:
         pg['tier'] = tier
     total = spreads * 2

@@ -103,10 +103,10 @@ async function loadMine() {
 
 // ---------------------------------------------------------------- editor
 function openEditor(w) {
-  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })), art: { ...(w.art || {}) }, media: { images: ((w.media || {}).images || []).map(x => ({ ...x })), audio: (w.media || {}).audio || null, direction: (w.media || {}).direction || 'rtl' } } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [], art: {}, media: { images: [], audio: null, direction: 'rtl' } };
+  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })), art: { ...(w.art || {}) }, media: { images: ((w.media || {}).images || []).map(x => ({ ...x })), audio: (w.media || {}).audio || null, direction: (w.media || {}).direction || 'rtl' }, characters: [...(w.characters || [])] } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [], art: {}, media: { images: [], audio: null, direction: 'rtl' }, characters: [] };
   $('editor').hidden = false; $('edTitle').textContent = current.id ? '作品の編集' : '新しい作品';
   $('title').value = current.title; $('author').value = current.author; $('category').value = current.category; $('summary').value = current.summary; $('body').value = current.body;
-  $('coverTitle').value = current.art.coverTitle || ''; applyMode(); renderMedia(); $('del').hidden = !current.id; showCover(); showArt(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
+  $('coverTitle').value = current.art.coverTitle || ''; applyMode(); renderMedia(); renderTags(); $('del').hidden = !current.id; showCover(); showArt(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
 }
 function showCover() { const b = $('coverBox'); b.replaceChildren(); const u = imgUrl(current.cover); if (u) { const im = el('img', { src: u, alt: '' }); const x = el('button', { type: 'button' }, '表紙を外す'); x.onclick = () => { current.cover = null; showCover(); }; b.append(im, x); } }
 function refresh() {
@@ -172,6 +172,26 @@ $('coverFile').onchange = async () => {
     const { error } = await api.storage.from(BUCKET).upload(name, f, { contentType: f.type, upsert: false }); if (error) throw new Error('アップロード失敗: ' + error.message);
     current.cover = 'assets/uploads/' + name; showCover(); say('表紙をアップロードしました。保存で確定します。');
   } catch (e) { say(e.message, 'err'); }
+};
+// ---------------------------------------------------------------- character tags (people this work is about)
+let peopleList = [];
+fetch('../data/public-people-all.json').then(r => r.json()).then(d => {
+  peopleList = (d.people || []).filter(p => p && p.id && p.name); const sel = $('charPick');
+  for (const p of peopleList) { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name + (p.status === 'graduated' ? '（卒業）' : p.status === 'transferred' ? '（転校）' : ''); sel.append(o); }
+  renderTags();
+}).catch(() => {});
+function renderTags() {
+  const box = $('charTags'); if (!box || !current) return; box.replaceChildren();
+  for (const id of current.characters) {
+    const p = peopleList.find(x => x.id === id), x = el('button', { type: 'button', title: '外す' }, '×'); x.onclick = () => { current.characters = current.characters.filter(c => c !== id); renderTags(); };
+    box.append(el('span', { className: 'tag' }, p ? p.name : id, x));
+  }
+}
+$('charAdd').onclick = () => {
+  const id = $('charPick').value; if (!id || !current) return;
+  if (current.characters.includes(id)) return say('その人物はすでに選ばれています', 'err');
+  if (current.characters.length >= 8) return say('人物は 8 人までです', 'err');
+  current.characters.push(id); $('charPick').value = ''; renderTags();
 };
 // ---------------------------------------------------------------- illustration / manga / music works (files instead of text)
 const MEDIA_CATS = ['イラスト', '漫画', '音楽'], MAX_MEDIA = { 'イラスト': 20, '漫画': 60 }, MAX_AUDIO = 10 * 1024 * 1024;
@@ -265,7 +285,7 @@ async function save(submit) {
   if (Array.from(body).length > MAX_BODY) return say(`本文は ${MAX_BODY.toLocaleString()} 字までです`, 'err');
   if (!media && submit && Array.from(body).length < 200) return say('本文が短すぎます（200 字以上で審査に出せます）', 'err');
   try {
-    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: media ? [] : current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })), p_art: media ? {} : artPayload(), p_media: mediaPayload() });
+    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: media ? [] : current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })), p_art: media ? {} : artPayload(), p_media: mediaPayload(), p_chars: current.characters });
     current.id = r.id; current.status = r.status; say(submit ? '審査に出しました。承認されると本になります。' : '下書きを保存しました。', 'ok');
     await loadMine(); $('del').hidden = false;
   } catch (e) { say('保存できませんでした: ' + e.message, 'err'); }

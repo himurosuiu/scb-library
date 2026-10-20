@@ -5,7 +5,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const $ = id => document.getElementById(id);
 const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
-const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', outfits: 'ギャラリー（衣装別）', bookPages: '個人ブックのページ' };
+const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', lore: '追加の設定（本の追加ページ）', loreTitle: '追加の設定の見出し', outfits: 'ギャラリー（衣装別）', bookPages: '個人ブックのページ' };
 const ORDER = Object.keys(LABELS);
 const VALUE_WORDS = { student: '生徒', teacher: '教員', salon: 'サロン係', active: '在籍中', graduated: '卒業', transferred: '転校' };
 const SAFE_IMG = /^assets\/[A-Za-z0-9_./-]+$/;
@@ -48,7 +48,7 @@ function valueCell(key, v, cls) {
   }
   if (Array.isArray(v)) { td.textContent = v.join('\n'); td.style.whiteSpace = 'pre-line'; return td; }
   td.textContent = VALUE_WORDS[v] ? `${VALUE_WORDS[v]}（${v}）` : String(v);
-  if (key === 'about') td.style.whiteSpace = 'pre-wrap';
+  if (key === 'about' || key === 'lore') td.style.whiteSpace = 'pre-wrap';
   if ((key === 'portrait' || key === 'fullBody') && typeof v === 'string') { const t = thumbFor(v); if (t) td.append(t); }
   return td;
 }

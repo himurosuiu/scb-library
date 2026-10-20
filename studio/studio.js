@@ -60,6 +60,12 @@ function load(p){record=p;original=structuredClone(p.data);state={};$('personTit
  form.append(el('label',{},'イメージカラー',col),pick);
  // about
  state.about=typeof p.data.about==='string'?p.data.about:'';const ab=el('textarea',{id:'f_about',name:'about',value:state.about,maxLength:2000});ab.oninput=()=>{state.about=ab.value;};form.append(el('label',{},'人物紹介（2000 文字まで）',ab));
+ // own extra setting: vertical-writing pages in the personal book, after ABOUT and before the gallery pages
+ state.lore=typeof p.data.lore==='string'?p.data.lore:'';state.loreTitle=typeof p.data.loreTitle==='string'?p.data.loreTitle:'';
+ const lt=el('input',{id:'f_loreTitle',name:'loreTitle',type:'text',value:state.loreTitle,maxLength:24,placeholder:'例：設定資料（空欄なら「設定」）'});lt.oninput=()=>{state.loreTitle=lt.value;};
+ const lo=el('textarea',{id:'f_lore',name:'lore',value:state.lore,maxLength:2400});const lc=el('div',{className:'hint',id:'loreCount'});
+ const loreUpdate=()=>{const n=[...lo.value].length;lc.textContent=`${n.toLocaleString()} / 2,400 字　（本では縦書きで約 ${Math.max(1,Math.ceil(n/650))} ページ。最大 4 ページまで）`;};lo.oninput=()=>{state.lore=lo.value;loreUpdate();};loreUpdate();
+ form.append(el('fieldset',{style:'border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem'},el('legend',{},'追加の設定ページ（任意）'),el('p',{className:'hint'},'ここに書いた文章は、あなたの本の「人物紹介（ABOUT）」のあと・ギャラリーの前に、縦書きのページとして入ります。世界観・過去・口癖など自由に書けます。'),el('label',{},'見出し（24 文字まで）',lt),el('label',{},'本文（2400 文字まで。改行できます。「第一章：…」のように行頭に書くと小見出しになります）',lo),lc));
  // single images
  for(const [k,label,max] of IMAGES){state[k]=p.data[k]||null;const box=el('div',{className:'fs'});form.append(box);renderSingle(box,k,label,max);}
  // outfits
@@ -109,6 +115,9 @@ function collect(){const patch={},expected={};
  take('status',state.status);if(admin)take('kind',state.kind);
  const c=(state.color||'').trim();if(c&&!/^#[0-9A-Fa-f]{6}$/.test(c))throw new Error('カラーは #RRGGBB 形式で入力してください。');take('color',c||null);
  const about=clean(state.about,true,'人物紹介');if([...about].length>2000)throw new Error(`人物紹介が長すぎます（2000 文字まで。いまは ${[...about].length} 文字）`);take('about',about);
+ const lore=clean(state.lore,true,'追加の設定');if([...lore].length>2400)throw new Error(`追加の設定が長すぎます（2400 文字まで。いまは ${[...lore].length} 文字）`);
+ const loreTitle=clean(state.loreTitle,false,'追加の設定の見出し').trim();if([...loreTitle].length>24)throw new Error('追加の設定の見出しは 24 文字までです');
+ if(!(lore===''&&original.lore==null))take('lore',lore);if(!(loreTitle===''&&original.loreTitle==null))take('loreTitle',loreTitle);
  for(const [k] of IMAGES){if(state[k]&&!SAFE_PATH.test(state[k]))throw new Error('画像パスが不正です');take(k,state[k]||null);}
  const outfits=state.outfits.map(o=>({label:clean(o.label,false,'衣装名').trim(),images:(o.images||[]).filter(Boolean)}));
  for(const o of outfits){if(!o.label)throw new Error('衣装名を入力してください（空の衣装は削除してください）');if(o.images.some(x=>!SAFE_PATH.test(x)))throw new Error('画像パスが不正です');}
