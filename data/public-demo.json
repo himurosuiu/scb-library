@@ -12,7 +12,7 @@
       "grade": "3年",
       "club": "生徒会",
       "color": "#ffdbed",
-      "status": "active",
+      "status": "salon",
       "group": "3年生 生徒会",
       "image": "assets/portraits/shirasaki-maina.jpg",
       "featured": true
@@ -26,7 +26,7 @@
       "grade": "2年",
       "club": "文学部",
       "color": "#e1b4f5",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 文学部",
       "image": "assets/uploads/tsukisa-yuru/9cfe8979-6a00-4d47-92a8-b2cdae0fad08.webp",
       "featured": true
@@ -40,7 +40,7 @@
       "grade": "2年",
       "club": "バスケ部",
       "color": "#039442",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 バスケ部",
       "image": "assets/portraits/suzugamori-kaede.jpg",
       "featured": true
@@ -54,7 +54,7 @@
       "grade": "1年",
       "club": "写真部",
       "color": "#e6cde3",
-      "status": "active",
+      "status": "salon",
       "group": "1年生 写真部",
       "image": "assets/portraits/amane-shiina.jpg",
       "featured": true
@@ -68,7 +68,7 @@
       "grade": "2年",
       "club": "陸上部",
       "color": "#d3d3d3",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 陸上部",
       "image": "assets/portraits/abe-ginka.jpg",
       "featured": true
@@ -82,7 +82,7 @@
       "grade": "2年",
       "club": "茶道部",
       "color": "#E08166",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 茶道部",
       "image": "assets/portraits/amagi-sayaka.jpg",
       "featured": true
@@ -96,7 +96,7 @@
       "grade": "1年",
       "club": "茶道部",
       "color": "#ed6d35",
-      "status": "active",
+      "status": "salon",
       "group": "1年生 茶道部",
       "image": "assets/portraits/hokosaki-suzune.jpg",
       "featured": true
@@ -110,7 +110,7 @@
       "grade": "2年",
       "club": "ダンス部",
       "color": "#841617",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 ダンス部",
       "image": "assets/portraits/joumae-ena.jpg",
       "featured": true
@@ -124,7 +124,7 @@
       "grade": "2年",
       "club": "手芸部",
       "color": "#1f2e55",
-      "status": "active",
+      "status": "salon",
       "group": "2年生 手芸部",
       "image": "assets/portraits/joumae-ren.jpg",
       "featured": true
