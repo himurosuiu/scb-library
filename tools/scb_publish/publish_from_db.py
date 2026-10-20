@@ -110,8 +110,8 @@ def clean_person(rec, rep: Report):
         rep.error(f'{pid}: name is empty'); ok = False
     if out['kind'] not in ('student', 'teacher'):
         rep.error(f'{pid}: kind must be student/teacher, got {out["kind"]!r}'); ok = False
-    if out['status'] not in ('active', 'graduated'):
-        rep.error(f'{pid}: status must be active/graduated, got {out["status"]!r}'); ok = False
+    if out['status'] not in PERSON_STATUSES:
+        rep.error(f'{pid}: status must be one of {"/".join(PERSON_STATUSES)}, got {out["status"]!r}'); ok = False
     if out['color'] is not None and not (isinstance(out['color'], str) and COLOR_RE.match(out['color'])):
         rep.error(f'{pid}: color must be #RRGGBB or null, got {out["color"]!r}'); ok = False
     for k in ('image', 'portrait', 'fullBody'):
@@ -410,6 +410,10 @@ def spine_text(p, cover_name, grade_text):
     return f'{grade_text}　{p["name"]}' if grade_text else p['name']
 
 
+PERSON_STATUSES = ('salon', 'active', 'graduated', 'transferred')   # サロン係 / 在籍中 / 卒業 / 転校
+CURRENT_STATUSES = ('salon', 'active')                           # still at the school (shown as featured on the home page)
+
+
 def build_manifest(people_by_id, slots, rep: Report, failed=()):
     books = []
     seen = set()
@@ -446,8 +450,11 @@ def build_manifest(people_by_id, slots, rep: Report, failed=()):
         if not 1 <= spreads <= 12:
             rep.error(f'{slot}: spreads must be 1..12'); continue
         grade_txt = kanji_digits(p['grade'].replace('年', '年生')) if p.get('grade') else ''
-        books.append({'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
-                      'coverTop': top, 'coverName': name, 'spineText': s.get('spineText') or spine_text(p, name, grade_txt), 'spreads': spreads})
+        entry = {'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
+                 'coverTop': top, 'coverName': name, 'spineText': s.get('spineText') or spine_text(p, name, grade_txt), 'spreads': spreads}
+        if p['status'] != 'salon':                       # only the salon staff (サロン係) have a book in the library; everybody else goes to the forbidden archive
+            entry['zone'] = 'forbidden'
+        books.append(entry)
     return books
 
 
@@ -635,7 +642,7 @@ def main():
             for k in ('name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group'):
                 c[k] = p[k]
             c['image'] = p['portrait'] or p['image']
-            c['featured'] = c.get('featured', True) and p['status'] == 'active'
+            c['featured'] = c.get('featured', True) and p['status'] in CURRENT_STATUSES
 
         # settings edited in the admin hub win over the old demo list
         if 'home.featured' in settings:
@@ -649,7 +656,7 @@ def main():
                 for k in ('name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group'):
                     c[k] = p[k]
                 c['image'] = p['portrait'] or p['image']
-                c['featured'] = p['status'] == 'active'
+                c['featured'] = p['status'] in CURRENT_STATUSES
                 chars.append(c)
             new_demo['characters'] = chars
         if 'home.works' in settings:

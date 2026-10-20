@@ -52,7 +52,7 @@ function load(p){record=p;original=structuredClone(p.data);state={};$('personTit
  // text fields
  for(const [k,label,max] of TEXT){state[k]=typeof p.data[k]==='string'?p.data[k]:'';const i=el('input',{name:k,value:state[k],maxLength:max});i.oninput=()=>{state[k]=i.value;};form.append(el('label',{},label,i));}
  // status + kind
- state.status=p.data.status||'active';const st=el('select',{name:'status'});st.add(new Option('在籍中','active'));st.add(new Option('卒業','graduated'));st.value=state.status;st.onchange=()=>{state.status=st.value;};form.append(el('label',{},'在籍状況',st));
+ state.status=p.data.status||'salon';const st=el('select',{name:'status'});st.add(new Option('サロン係（図書館に本を置く）','salon'));st.add(new Option('在籍中（禁書庫）','active'));st.add(new Option('卒業（禁書庫）','graduated'));st.add(new Option('転校（禁書庫）','transferred'));st.value=state.status;st.onchange=()=>{state.status=st.value;};form.append(el('label',{},'在籍状況',st));
  state.kind=p.data.kind||'student';const kd=el('select',{name:'kind',disabled:!admin});kd.add(new Option('生徒','student'));kd.add(new Option('教員','teacher'));kd.value=state.kind;kd.onchange=()=>{state.kind=kd.value;};form.append(el('label',{},'区分'+(admin?'':'（管理者のみ変更可）'),kd));
  // colour
  state.color=p.data.color||'';const col=el('input',{name:'color',value:state.color,placeholder:'#RRGGBB',maxLength:7});const pick=el('input',{type:'color',value:/^#[0-9a-f]{6}$/i.test(state.color)?state.color:'#d9c3cf'});

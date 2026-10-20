@@ -7,7 +7,7 @@ const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
 const LABELS = { name: '名前', nameKana: 'よみがな', romaji: 'ローマ字', kind: '区分', grade: '学年', club: '所属', status: '在籍状況', group: '副題', color: '代表色', portrait: '肖像画像', fullBody: '全身画像', gallery: 'ギャラリー', species: '種族', height: '身長', likes: '好きなもの', dislikes: '苦手なもの', firstPerson: '一人称', secondPerson: '二人称', about: '人物紹介', outfits: 'ギャラリー（衣装別）', bookPages: '個人ブックのページ' };
 const ORDER = Object.keys(LABELS);
-const VALUE_WORDS = { student: '生徒', teacher: '教員', active: '在籍中', graduated: '卒業' };
+const VALUE_WORDS = { student: '生徒', teacher: '教員', salon: 'サロン係', active: '在籍中', graduated: '卒業', transferred: '転校' };
 const SAFE_IMG = /^assets\/[A-Za-z0-9_./-]+$/;
 let api = null;
 

@@ -6,7 +6,7 @@ const info=byId('infoDialog');
 function notice(title,body){byId('infoTitle').textContent=title;byId('infoBody').textContent=body;info.showModal();}
 const imgPath=c=>c.portrait||c.image||'';
 const personSubtitle=c=>c.group||[c.grade,c.club].filter(Boolean).join(' ')||(c.kind==='teacher'?'教員':'所属未登録');
-function isFeatured(c){return c.featured===true && c.status==='active';}
+function isFeatured(c){return c.featured===true && (c.status==='active'||c.status==='salon');}
 function normalizeJapanese(s){return String(s||'').normalize('NFKC').toLocaleLowerCase('ja').replace(/[\s\u3000・･_-]+/g,'').replace(/[\u30a1-\u30f6]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));}
 function renderCharacters(characters){
  const root=byId('characterCards');root.replaceChildren();
@@ -35,7 +35,7 @@ function renderSearch(query){
  for(const c of matches){const b=document.createElement('button');b.className='search-item';b.type='button';
   if(c.image){const img=document.createElement('img');img.src=imgPath(c);img.alt='';b.append(img);}
   else {const icon=document.createElement('span');icon.className='search-placeholder';icon.textContent='✿';icon.setAttribute('aria-hidden','true');b.append(icon);}
-  const span=document.createElement('span');span.textContent=c.name;const small=document.createElement('small');small.textContent=`${personSubtitle(c)}${c.status==='graduated'?' · 卒業':''}`;span.append(small);b.append(span);
+  const span=document.createElement('span');span.textContent=c.name;const small=document.createElement('small');small.textContent=`${personSubtitle(c)}${c.status==='graduated'?' · 卒業':c.status==='transferred'?' · 転校':''}`;span.append(small);b.append(span);
   b.addEventListener('click',()=>{byId('searchDialog').close();location.href='characters/?id='+encodeURIComponent(c.id);});root.append(b);}
 }
 byId('menuToggle').addEventListener('click',()=>{const n=byId('siteNav');const open=n.classList.toggle('open');byId('menuToggle').setAttribute('aria-expanded',String(open));});

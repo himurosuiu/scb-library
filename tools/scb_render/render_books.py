@@ -188,7 +188,7 @@ def profile_rows(p, extra=None):
     rows = [('名前', p['name']), ('よみがな', p['nameKana']), ('ローマ字', p['romaji']),
             ('区分', '教員' if p['kind'] == 'teacher' else '生徒'),
             ('学年', p['grade']), ('所属', p['club']),
-            ('在籍状況', '卒業' if p['status'] == 'graduated' else '在籍中')]
+            ('在籍状況', {'salon': 'サロン係', 'graduated': '卒業', 'transferred': '転校'}.get(p['status'], '在籍中'))]
     if p.get('group'):
         rows.append(('副題', p['group']))
     for label, key in (('種族', 'species'), ('身長', 'height'), ('一人称', 'firstPerson'), ('二人称', 'secondPerson')):
