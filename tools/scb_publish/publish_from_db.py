@@ -17,6 +17,8 @@ import argparse, datetime, json, re, shutil, sys, urllib.request, urllib.error
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / 'scb_render'))
+import fanbook                                          # long text -> pages -> volumes (shared with the renderer)
 ROOT = HERE.parents[1]                                   # .../SCB
 DEFAULT_FE = ROOT / 'WEBPage' / 'SCB_Library_Home_Prototype'
 DEFAULT_REPO = ROOT / 'scb-library-repo'
@@ -230,6 +232,46 @@ def fetch_person_themes(url, key):
         sys.exit(f'Supabase person themes request failed: HTTP {e.code} {body!r}')
     except urllib.error.URLError as e:
         sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
+STORY_CAPACITY = 26          # story-001 .. story-026 are the books on the shelf prepared in the world
+STORY_TIER = 'y2'            # cover / back / page-edge art of the fan books (one of y1 y2 y3 teacher)
+
+
+def fetch_fan_works(url, key):
+    """Approved fan works [{id, data:{title,author,category,summary,cover,body}, approved_at}] from the public view. None = not installed yet (21_fan_works.sql)."""
+    req = urllib.request.Request(f'{url}/rest/v1/fan_works_public?select=id,data,approved_at&order=approved_at,id&limit=200',
+                                 headers={'apikey': key, 'Authorization': f'Bearer {key}'})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        body = e.read()[:300]
+        if e.code == 404 and b'PGRST205' in body:
+            print('NOTE: the fan_works view does not exist yet (21_fan_works.sql not applied); fanworks.json is left as it is.')
+            return None
+        sys.exit(f'Supabase fan works request failed: HTTP {e.code} {body!r}')
+    except urllib.error.URLError as e:
+        sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
+def assign_story_slots(works, old_works, rep):
+    """Stable slot numbers: a work keeps its slots while its volume count is unchanged; new works take the lowest free numbers."""
+    old = {w['id']: list(w.get('slots', [])) for w in old_works}
+    used, result = set(), {}
+    for w in works:                                      # first pass: keep what still fits
+        keep = old.get(w['id'], [])[:w['volumes']]
+        result[w['id']] = keep
+        used.update(keep)
+    free = [f'story-{n:03d}' for n in range(1, STORY_CAPACITY + 1) if f'story-{n:03d}' not in used]
+    for w in works:
+        mine = result[w['id']]
+        while len(mine) < w['volumes']:
+            if not free:
+                rep.warn(f'fan work {w["title"]!r}: no free story slot left (capacity {STORY_CAPACITY}); the remaining volumes are not published')
+                break
+            mine.append(free.pop(0))
+    return result
 
 
 def fetch_slots(url, key):
@@ -460,6 +502,7 @@ def main():
     ap.add_argument('--slots', type=Path, default=HERE / 'slots.json')
     ap.add_argument('--source-json', type=Path, help='use a local JSON file of records instead of Supabase (testing)')
     ap.add_argument('--settings-json', type=Path, help='testing: a local JSON object {key: value} of home page settings')
+    ap.add_argument('--fanworks-json', type=Path, help='testing: a local JSON list [{id, data, approved_at}] of approved fan works')
     ap.add_argument('--relations-json', type=Path, help='with --source-json: a local JSON list of approved relations (a_id,b_id,kind,label,note)')
     a = ap.parse_args()
 
@@ -678,6 +721,29 @@ def main():
                 else:
                     rep.warn(f'book theme background {role}/{tier_key}: image is missing in the frontend: {v}')
     th = [] if theme_new == theme_old else ['  ~ book-theme.json: ' + ', '.join(sorted(k for k in set(theme_old) | set(theme_new) if theme_old.get(k) != theme_new.get(k)))]
+    # fan works (二次創作): approved snapshots -> data/fanworks.json (text, volumes, stable story slots); covers are fetched like the other uploads
+    fan_file = a.fe / 'data' / 'fanworks.json'
+    fan_old = json.loads(fan_file.read_text(encoding='utf-8')) if fan_file.exists() else {'works': []}
+    fan_rows = (json.loads(a.fanworks_json.read_text(encoding='utf-8')) if a.fanworks_json else (fetch_fan_works(url, key) if (url and key) else None))
+    fan_new = fan_old
+    if fan_rows is not None:
+        works = []
+        for row in fan_rows:
+            d = row['data']
+            works.append({'id': row['id'], 'title': d['title'], 'author': d.get('author', ''), 'category': d.get('category', '小説・SS'), 'summary': d.get('summary', ''),
+                          'cover': d.get('cover'), 'body': d.get('body', ''), 'volumes': fanbook.estimate_volumes(d)})
+        slot_map = assign_story_slots(works, fan_old.get('works', []), rep)
+        for w in works:
+            w['slots'] = slot_map[w['id']]
+            c = w['cover']
+            if c and not (a.fe / c).exists():
+                m = UPLOAD_RE.match(c)
+                if m and url:
+                    site_fetch.append((c, f'{m.group(1)}/{m.group(2)}'))
+                else:
+                    rep.warn(f'fan work {w["title"]!r}: cover image is missing in the frontend: {c}')
+        fan_new = {'version': 1, 'works': works}
+    fd = [] if fan_new == fan_old else ['  ~ fanworks.json: ' + ', '.join(sorted(w['title'] for w in fan_new['works'] if w not in fan_old.get('works', []))) + (f' ({sum(len(w["slots"]) for w in fan_new["works"])} story books)')]
     to_fetch = to_fetch + [x for x in site_fetch if x not in to_fetch]   # images of the home works and the tier art (folder "site")
 
     # world manifest
@@ -692,6 +758,12 @@ def main():
     old_slots = json.loads(slots_file.read_text(encoding='utf-8')) if slots_file.exists() else None
     sd = [] if (old_slots == slots) else ['  ~ slots.json: ' + str(len(slots)) + ' slots']
     books = build_manifest(by_id, slots, rep, failed_ids)
+    for w in fan_new.get('works', []):                   # one book per volume of every approved fan work
+        for vi, slot in enumerate(w.get('slots', [])):
+            label = fanbook.volume_label(vi, w['volumes'])
+            books.append({'slot': slot, 'type': 'story', 'tier': STORY_TIER, 'color': DEFAULT_COLOR,
+                          'coverTop': f'二次創作　{w["category"]}'.replace('・', '・'), 'coverName': (f'{w["title"]}　{label}' if label else w['title'])[:60],
+                          'spineText': (f'{w["title"]}{label}' if label else w['title'])[:40], 'spreads': 6})
     idx_file = a.repo / 'books' / 'index.json'
     old_idx = json.loads(idx_file.read_text(encoding='utf-8')) if idx_file.exists() else {'books': [], 'updated': ''}
     new_idx = {'version': 1, 'updated': old_idx.get('updated') or datetime.date.today().isoformat(), 'books': books}
@@ -731,6 +803,8 @@ def main():
     print('\n'.join(th) if th else '  (no changes)')
     print('\n== data/person-themes.json (look of each personal book) ==')
     print('\n'.join(pd_) if pd_ else '  (no changes)')
+    print('\n== data/fanworks.json (fan works / story books) ==')
+    print('\n'.join(fd) if fd else '  (no changes)')
     print('\n== data/site-art.json (home page art slots) ==')
     print('\n'.join(ad) if ad else '  (no changes)')
     print('\n== data/slots.json (book slots used by the page renderer) ==')
@@ -746,7 +820,7 @@ def main():
 
     if rep.errors:
         print('\nResult: FAILED. Nothing written.'); sys.exit(2)
-    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_):
+    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_ or fd):
         print('\nResult: already up to date.'); return
     if not a.apply:
         print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
@@ -762,6 +836,7 @@ def main():
     targets.append((slots_file, slots, bool(sd)))
     targets.append((tier_file, tier_new, bool(td)))
     targets.append((theme_file, theme_new, bool(th)))
+    targets.append((fan_file, fan_new, bool(fd)))
     targets.append((pt_file, pt_new, bool(pd_)))
     targets.append((art_base_file, art_base, not art_base_file.exists()))
     targets.append((art_file, art_new, art_new != art_cur))

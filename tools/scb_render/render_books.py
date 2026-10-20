@@ -24,6 +24,8 @@ import argparse, datetime, hashlib, io, json, re, sys, tempfile
 from pathlib import Path
 
 from PIL import Image
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fanbook
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]                                    # .../SCB
@@ -56,6 +58,7 @@ RIGHT_POS = (953, 28)
 MAX_BYTES = 1_000_000                                     # warn above this (target ~740 KB)
 JPEG_QUALITY = 88
 SLOT_RE = re.compile(r'^person-\d{3}$')
+STORY_TIER = 'y2'                                          # same value as publish_from_db.STORY_TIER
 SAFE_IMG = re.compile(r'^assets/[A-Za-z0-9_./-]+$')
 
 
@@ -294,11 +297,23 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
     elif role == 'photo':
         cap = f'<div class="caption">{esc(pg["caption"])}</div>' if pg.get('caption') else ''
         body = f'<div class="photo-box{" with-cap" if cap else ""}"><img src="{(fe / pg["image"]).as_uri()}"></div>{cap}'
+    elif role == 'story_title':
+        n = len(pg['title'])
+        size = 84 if n <= 8 else 64 if n <= 14 else 50 if n <= 22 else 42
+        cover = pg.get('cover') and SAFE_IMG.match(pg['cover']) and (fe / pg['cover']).is_file()
+        body = (f'<div class="story-title{"" if cover else " nocover"}"><div class="st-cat">{esc(pg["category"])}</div>'
+                f'<div class="st-name" style="font-size:{size}px;height:260px">{esc(pg["title"])}</div>'
+                f'<div class="st-vol">{esc(pg["label"])}</div><div class="st-rule"></div><div class="st-author">{esc(pg["author"])}</div>'
+                + (f'<img class="st-cover" src="{(fe / pg["cover"]).as_uri()}">' if cover else '')
+                + f'<div class="st-sum">{esc(pg["summary"]).replace(chr(10), "<br>")}</div></div>')
+    elif role == 'story_text':
+        lines = ''.join(f'<div class="ln {k}">{esc(t) if t else "&nbsp;"}</div>' for k, t in pg['lines'])
+        body = f'<div class="story-text"><div class="st-head">{esc(pg["head"])}</div><div class="st-body">{lines}</div></div>'
     else:
         body = '<div class="blank-note">&nbsp;</div>'
-    num = '' if (role in ('blank', 'graph') or theme.get('pageNumber') is False) else f'<div class="pno">{number}</div>'
+    num = '' if (role in ('blank', 'graph', 'story_title') or theme.get('pageNumber') is False) else f'<div class="pno">{number}</div>'
     wide = f'html,body,.page{{width:{928 * pg["span"]}px}}' if role == 'graph' else ''
-    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{wide}</style>'
+    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{fanbook.CSS}{wide}</style>'
             f'<body class="{body_cls}" style="--accent:{esc(color)};{css_vars}"><div class="page">{bg}{body}{num}</div></body>')
 
 
@@ -436,7 +451,30 @@ def main():
         bgs = {background_of(theme, pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
         imgs += [a.fe / x for x in sorted(bgs) if SAFE_IMG.match(x) and (a.fe / x).is_file()]
         h = input_hash(pages, [tpl, theme], base_for(tier)[1], imgs)
-        jobs.append((slot, spreads, pages, h, tier))
+        jobs.append((slot, spreads, pages, h, tier, theme))
+
+    # fan works (二次創作): data/fanworks.json -> one 12-page book per volume
+    fan_file = a.fe / 'data' / 'fanworks.json'
+    for w in (json.loads(fan_file.read_text(encoding='utf-8')).get('works', []) if fan_file.exists() else []):
+        vols = fanbook.split_volumes(w)
+        for vi, slot in enumerate(w.get('slots', [])):
+            if a.only and slot != a.only:
+                continue
+            if vi >= len(vols):
+                break
+            v = vols[vi]
+            pages = [{'role': 'story_title', 'title': w['title'], 'author': w.get('author', ''), 'label': v['label'], 'summary': w.get('summary', ''),
+                      'cover': w.get('cover'), 'category': w.get('category', '小説・SS'), 'color': '#d9c3cf', 'tier': STORY_TIER}]
+            head = w['title'] + (('　' + v['label']) if v['label'] else '')
+            for tp in v['pages']:
+                pages.append({'role': 'story_text', 'head': head, 'lines': tp, 'tier': STORY_TIER})
+            if v['index'] == v['of'] and pages[-1]['role'] == 'story_text':
+                pages[-1]['lines'] = list(pages[-1]['lines']) + [('b', ''), ('t', '（完）')] if len(pages[-1]['lines']) < fanbook.PAGE_LINES - 1 else pages[-1]['lines']
+            while len(pages) < 12:
+                pages.append({'role': 'blank', 'tier': STORY_TIER})
+            imgs = [a.fe / w['cover']] if w.get('cover') and SAFE_IMG.match(w['cover']) and (a.fe / w['cover']).is_file() else []
+            h = input_hash(pages, [tpl, theme_global], base_for(STORY_TIER)[1], imgs)
+            jobs.append((slot, 6, pages, h, STORY_TIER, theme_global))
 
     todo = [j for j in jobs if a.force or state.get(j[0]) != j[3]
             or not all((a.out / 'books' / j[0] / f'spread-{n + 1}.jpg').exists() for n in range(j[1]))]
@@ -461,7 +499,7 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         bp = browser.new_page(viewport={'width': PAGE_W, 'height': PAGE_H})
-        for slot, spreads, pages, h, tier in todo:
+        for slot, spreads, pages, h, tier, theme in todo:
             outdir = a.out / 'books' / slot
             outdir.mkdir(parents=True, exist_ok=True)
             rendered = []
