@@ -242,5 +242,17 @@
     "slot": "person-048",
     "person": "hedera",
     "spreads": 6
+  },
+  {
+    "slot": "person-049",
+    "person": "tsuyugi-fuyo",
+    "spreads": 6
+  },
+  {
+    "slot": "person-050",
+    "person": "nocturia-mistil",
+    "spreads": 6,
+    "coverName": "ミスティル",
+    "spineText": "教師　ミスティル"
   }
 ]

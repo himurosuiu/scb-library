@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-16",
+  "updated": "2026-10-20",
   "books": [
     {
       "slot": "person-001",
@@ -480,6 +480,26 @@
       "coverTop": "",
       "coverName": "ヘデラ神父",
       "spineText": "神父　ヘデラ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-049",
+      "type": "person",
+      "tier": "y3",
+      "color": "#d9c3cf",
+      "coverTop": "三年生　風紀委員長",
+      "coverName": "露木 芙蓉",
+      "spineText": "三年生　露木 芙蓉",
+      "spreads": 6
+    },
+    {
+      "slot": "person-050",
+      "type": "person",
+      "tier": "teacher",
+      "color": "#d9c3cf",
+      "coverTop": "",
+      "coverName": "ミスティル",
+      "spineText": "教師　ミスティル",
       "spreads": 6
     }
   ]
