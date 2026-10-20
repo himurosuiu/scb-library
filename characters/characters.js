@@ -14,6 +14,7 @@ const extra=supplemental[c.id]||{};
 const showDevPlaceholders = new URLSearchParams(location.search).get('preview') !== 'off';
 for(const [key,label] of [['species','種族'],['height','身長'],['likes','好きなもの'],['dislikes','苦手なもの'],['firstPerson','一人称'],['secondPerson','二人称']]){const value=extra[key];if(value!==undefined&&value!==null&&String(value).trim()!=='')field(facts,label,value);else if(showDevPlaceholders)field(facts,label,'未登録');}
 const about=$('personAbout');about.textContent=extra.about||'ご本人の紹介文は未登録です。';
+const loreBox=$('personLore'),loreText=typeof extra.lore==='string'?extra.lore.trim():'';loreBox.replaceChildren();$('loreSection').hidden=!loreText;if(loreText){$('loreHeading').textContent=(typeof extra.loreTitle==='string'&&extra.loreTitle.trim())||'設定';const hd=/^(第[一二三四五六七八九十百〇0-9０-９]+[章話節部巻]|プロローグ|エピローグ|序章|終章|幕間|あとがき)/;for(const ln of loreText.split(/\r?\n/)){if(!ln.trim()){loreBox.append(node('p','lore-gap',' '));continue;}loreBox.append(node(hd.test(ln.trim())&&ln.trim().length<=36?'h3':'p','',ln));}}
 const gallery=$('personGallery'),tabs=$('galleryTabs');gallery.replaceChildren();tabs.replaceChildren();
 let outfits=Array.isArray(extra.outfits)?extra.outfits.filter(o=>o&&Array.isArray(o.images)):[];
 if(!outfits.length){const images=(Array.isArray(c.gallery)?c.gallery:[]).filter(Boolean);if(images.length)outfits=[{id:'default',label:'すべて',images}];}
