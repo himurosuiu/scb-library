@@ -501,6 +501,46 @@
       "coverName": "シスター・ミスティル",
       "spineText": "シスター　ミスティル",
       "spreads": 6
+    },
+    {
+      "slot": "story-001",
+      "type": "story",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "二次創作　小説・SS",
+      "coverName": "夢見草と裏庭の白き翼　第一巻",
+      "spineText": "夢見草と裏庭の白き翼第一巻",
+      "spreads": 6
+    },
+    {
+      "slot": "story-002",
+      "type": "story",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "二次創作　小説・SS",
+      "coverName": "夢見草と裏庭の白き翼　第二巻",
+      "spineText": "夢見草と裏庭の白き翼第二巻",
+      "spreads": 6
+    },
+    {
+      "slot": "story-003",
+      "type": "story",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "二次創作　小説・SS",
+      "coverName": "夢見草と裏庭の白き翼　第三巻",
+      "spineText": "夢見草と裏庭の白き翼第三巻",
+      "spreads": 6
+    },
+    {
+      "slot": "story-004",
+      "type": "story",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "二次創作　小説・SS",
+      "coverName": "夢見草と裏庭の白き翼　第四巻",
+      "spineText": "夢見草と裏庭の白き翼第四巻",
+      "spreads": 6
     }
   ]
 }
