@@ -515,8 +515,8 @@
       "coverName": "",
       "customCover": true,
       "customBack": true,
-      "spineText": "夢見草と裏庭の白き翼第一巻",
-      "spreads": 6
+      "spineText": "夢見草と裏庭の白き翼上",
+      "spreads": 8
     },
     {
       "slot": "story-002",
@@ -527,8 +527,8 @@
       "coverName": "",
       "customCover": true,
       "customBack": true,
-      "spineText": "夢見草と裏庭の白き翼第二巻",
-      "spreads": 6
+      "spineText": "夢見草と裏庭の白き翼中",
+      "spreads": 8
     },
     {
       "slot": "story-003",
@@ -539,20 +539,8 @@
       "coverName": "",
       "customCover": true,
       "customBack": true,
-      "spineText": "夢見草と裏庭の白き翼第三巻",
-      "spreads": 6
-    },
-    {
-      "slot": "story-004",
-      "type": "story",
-      "tier": "y2",
-      "color": "#d9c3cf",
-      "coverTop": "",
-      "coverName": "",
-      "customCover": true,
-      "customBack": true,
-      "spineText": "夢見草と裏庭の白き翼第四巻",
-      "spreads": 6
+      "spineText": "夢見草と裏庭の白き翼下",
+      "spreads": 8
     }
   ]
 }
