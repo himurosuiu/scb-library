@@ -209,7 +209,7 @@
     "slot": "person-042",
     "person": "luminous",
     "spreads": 6,
-    "coverName": "unknown Luminous シスター"
+    "coverName": "シスター・ルミナス"
   },
   {
     "slot": "person-043",
@@ -236,7 +236,7 @@
     "slot": "person-047",
     "person": "william",
     "spreads": 6,
-    "coverName": "William Kirk 神父"
+    "coverName": "ウィリアム神父"
   },
   {
     "slot": "person-048",
@@ -252,7 +252,6 @@
     "slot": "person-050",
     "person": "nocturia-mistil",
     "spreads": 6,
-    "coverName": "ミスティル",
-    "spineText": "教師　ミスティル"
+    "coverName": "シスター・ミスティル"
   }
 ]

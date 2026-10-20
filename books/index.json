@@ -418,8 +418,8 @@
       "tier": "teacher",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "unknown Luminous シスター",
-      "spineText": "シスター　unknown Luminous",
+      "coverName": "シスター・ルミナス",
+      "spineText": "シスター　ルミナス",
       "spreads": 6
     },
     {
@@ -468,8 +468,8 @@
       "tier": "teacher",
       "color": "#004225",
       "coverTop": "",
-      "coverName": "William Kirk 神父",
-      "spineText": "神父　William Kirk",
+      "coverName": "ウィリアム神父",
+      "spineText": "神父　ウィリアム",
       "spreads": 6
     },
     {
@@ -498,8 +498,8 @@
       "tier": "teacher",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "ミスティル",
-      "spineText": "教師　ミスティル",
+      "coverName": "シスター・ミスティル",
+      "spineText": "シスター　ミスティル",
       "spreads": 6
     }
   ]

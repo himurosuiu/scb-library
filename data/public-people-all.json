@@ -661,7 +661,7 @@
     },
     {
       "id": "luminous",
-      "name": "unknown Luminous",
+      "name": "シスター・ルミナス",
       "nameKana": "シスター・ルミナス",
       "romaji": "LUMINOUS",
       "kind": "teacher",
@@ -741,7 +741,7 @@
     },
     {
       "id": "william",
-      "name": "William Kirk",
+      "name": "ウィリアム神父",
       "nameKana": "ウィリアム神父",
       "romaji": "WILLIAM",
       "kind": "teacher",
@@ -773,7 +773,7 @@
     },
     {
       "id": "nocturia-mistil",
-      "name": "ノクティア・ミスティル",
+      "name": "シスター・ミスティル",
       "nameKana": "のくてぃあ・みすてぃる",
       "romaji": "Nocturia Mistil",
       "kind": "teacher",
