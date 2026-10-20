@@ -171,10 +171,10 @@ CSS = """
 .story-title .st-sum{position:absolute;left:90px;top:1170px;width:748px;height:240px;overflow:hidden;font-size:calc(26px*var(--fs));line-height:1.7;color:var(--muted);text-align:left}
 .story-title.nocover .st-sum{top:760px;height:640px;font-size:calc(30px*var(--fs))}
 .story-text .st-head{position:absolute;left:70px;top:72px;width:788px;font-size:calc(20px*var(--fs));letter-spacing:.2em;color:var(--muted);white-space:nowrap;overflow:hidden}
-.story-text .st-body{position:absolute;left:86px;top:130px;width:756px;height:1100px;writing-mode:vertical-rl;text-orientation:mixed;font-feature-settings:"vert" 1,"palt" 0;font-size:27px;color:var(--text)}
-.story-text .ln{white-space:pre;width:42px;height:1100px;line-height:42px;overflow:visible}
-.story-text .ln.h{width:84px;font-size:34px;font-weight:700;line-height:84px;color:var(--accent);filter:brightness(.7)}
-.story-text .ln.b{width:42px}
+.story-text .st-body{position:absolute;left:68px;top:200px;width:792px;height:1170px;writing-mode:vertical-rl;text-orientation:mixed;font-feature-settings:"vert" 1,"palt" 0;font-size:29px;color:var(--text)}
+.story-text .ln{white-space:pre;width:44px;height:1170px;line-height:44px;overflow:visible}
+.story-text .ln.h{width:88px;font-size:36px;font-weight:700;line-height:88px;color:var(--accent);filter:brightness(.7)}
+.story-text .ln.b{width:44px}
 .story-text .rot{display:inline-block;width:1em;height:1em;line-height:1;text-align:center;transform:rotate(90deg)}
-.story-text .st-colophon{position:absolute;left:70px;top:1330px;width:788px;text-align:center;font-size:calc(22px*var(--fs));line-height:1.8;color:var(--muted);letter-spacing:.08em}
+.story-text .st-colophon{position:absolute;left:70px;top:1384px;width:788px;text-align:center;font-size:calc(19px*var(--fs));line-height:1.45;color:var(--muted);letter-spacing:.08em}
 """

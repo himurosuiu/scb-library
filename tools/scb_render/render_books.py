@@ -233,26 +233,29 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
             pages += graph
         if about_page:
             pages.append(about_page)
-        pages += lore_pages
         if graph and len(graph) == 1:
             pages += graph
         pages += photo_pages
     else:                                                  # the theme decides which optional pages appear and in what order
         for name in order:
-            if name == 'about':
-                if about_page:
-                    pages.append(about_page)
-                pages += lore_pages
-                lore_pages = []
+            if name == 'about' and about_page:
+                pages.append(about_page)
             elif name == 'graph' and graph:
                 if len(graph) == 2 and len(pages) % 2 == 1:
                     pages.append({'role': 'blank'})        # a whole-spread graph must start on a right-hand (odd) page
                 pages += graph
             elif name == 'photos':
-                pages += lore_pages + photo_pages
+                pages += photo_pages
+    total = spreads * 2
+    while lore_pages and len(pages) + len(lore_pages) > total:         # the own setting is the last pages of the book; when the book is full the outfit pages make room
+        k = max((i for i, pg in enumerate(pages) if pg['role'] in ('photo', 'collage')), default=None)
+        if k is None:
+            break
+        rep.warn(f'{p["id"]}: not enough pages; a gallery page was dropped to make room for the own setting')
+        pages.pop(k)
+    pages += lore_pages
     for pg in pages:
         pg['tier'] = tier
-    total = spreads * 2
     if len(pages) > total:
         rep.warn(f'{p["id"]}: {len(pages)} pages but only {total} fit in {spreads} spreads; extra pages dropped' + (f' (set spreads to {-(-len(pages) // 2)} in the slot list)' if len(pages) <= MAX_SPREADS * 2 else f' (a book has at most {MAX_SPREADS} spreads)'))
         pages = pages[:total]
@@ -639,7 +642,7 @@ def main():
             if v['index'] == v['of']:                                      # the last page of the work carries a colophon (奥付)
                 for pg in reversed(pages):
                     if pg['role'] == 'story_text':
-                        pg['colophon'] = f'{w["title"]}　（完）\n作：{w.get("author") or "—"}\n聖桜花女学園アーカイブ　二次創作'
+                        pg['colophon'] = f'{w["title"]}　（完）　作：{w.get("author") or "—"}\n聖桜花女学園アーカイブ　二次創作'
                         break
             while len(pages) < STORY_PAGES:
                 pages.append({'role': 'blank', 'tier': STORY_TIER})
