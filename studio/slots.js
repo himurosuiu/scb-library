@@ -4,7 +4,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const $ = id => document.getElementById(id);
 const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
-const WORLD_BOOKS = 48;           // person-001 ... person-048 exist in the World. Raise this when more books are added in Unity.
+const WORLD_BOOKS = 50;           // person-001 ... person-050 exist in the World. Raise this when more books are added in Unity.
 let api = null, people = [], slots = [];
 
 const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
