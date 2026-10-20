@@ -66,6 +66,9 @@ function load(p){record=p;original=structuredClone(p.data);state={};$('personTit
  const lo=el('textarea',{id:'f_lore',name:'lore',value:state.lore,maxLength:2400});const lc=el('div',{className:'hint',id:'loreCount'});
  const loreUpdate=()=>{const n=[...lo.value].length;lc.textContent=`${n.toLocaleString()} / 2,400 字　（本では縦書きで約 ${Math.max(1,Math.ceil(n/650))} ページ。最大 4 ページまで）`;};lo.oninput=()=>{state.lore=lo.value;loreUpdate();};loreUpdate();
  form.append(el('fieldset',{style:'border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem'},el('legend',{},'追加の設定ページ（任意）'),el('p',{className:'hint'},'ここに書いた文章は、あなたの本の「人物紹介（ABOUT）」のあと・ギャラリーの前に、縦書きのページとして入ります。世界観・過去・口癖など自由に書けます。'),el('label',{},'見出し（24 文字まで）',lt),el('label',{},'本文（2400 文字まで。改行できます。「第一章：…」のように行頭に書くと小見出しになります）',lo),lc));
+ // the message that appears in the world when this person's bookmark (栞) is touched
+ state.bookmarkMessage=typeof p.data.bookmarkMessage==='string'?p.data.bookmarkMessage:'';const bmI=el('textarea',{id:'f_bookmarkMessage',name:'bookmarkMessage',value:state.bookmarkMessage,maxLength:200,style:'min-height:5rem',placeholder:'空欄のままなら、いまのメッセージ（ワールドの標準）が表示されます'});bmI.oninput=()=>{state.bookmarkMessage=bmI.value;};
+ form.append(el('fieldset',{style:'border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem'},el('legend',{},'栞メッセージ（任意）'),el('p',{className:'hint'},'World の栞に触れたときに表示される、あなた（この人物）のひとことです。200 文字まで・改行できます。**空欄のままなら、いまの標準メッセージのまま**です。反映は承認と公開作業のあと（最大 15 分）です。'),bmI));
  // single images
  for(const [k,label,max] of IMAGES){state[k]=p.data[k]||null;const box=el('div',{className:'fs'});form.append(box);renderSingle(box,k,label,max);}
  // outfits
@@ -115,6 +118,7 @@ function collect(){const patch={},expected={};
  take('status',state.status);if(admin)take('kind',state.kind);
  const c=(state.color||'').trim();if(c&&!/^#[0-9A-Fa-f]{6}$/.test(c))throw new Error('カラーは #RRGGBB 形式で入力してください。');take('color',c||null);
  const about=clean(state.about,true,'人物紹介');if([...about].length>2000)throw new Error(`人物紹介が長すぎます（2000 文字まで。いまは ${[...about].length} 文字）`);take('about',about);
+ const bm=clean(state.bookmarkMessage,true,'栞メッセージ');if([...bm].length>200)throw new Error(`栞メッセージが長すぎます（200 文字まで。いまは ${[...bm].length} 文字）`);if(!(bm===''&&original.bookmarkMessage==null))take('bookmarkMessage',bm);
  const lore=clean(state.lore,true,'追加の設定');if([...lore].length>2400)throw new Error(`追加の設定が長すぎます（2400 文字まで。いまは ${[...lore].length} 文字）`);
  const loreTitle=clean(state.loreTitle,false,'追加の設定の見出し').trim();if([...loreTitle].length>24)throw new Error('追加の設定の見出しは 24 文字までです');
  if(!(lore===''&&original.lore==null))take('lore',lore);if(!(loreTitle===''&&original.loreTitle==null))take('loreTitle',loreTitle);

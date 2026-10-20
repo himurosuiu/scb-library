@@ -27,7 +27,7 @@ UNITY_EXTRA = Path(r'D:\VRCHAT相關保存\project file\SCB Library\SCB Library\
 PERSON_KEYS = ['id', 'name', 'nameKana', 'romaji', 'kind', 'grade', 'club', 'color', 'status', 'group',
                'image', 'portrait', 'fullBody', 'gallery']
 # profile fields editable by members; they go to data/character-content.json (the character page), not to public-people-all.json
-TEXT_LIMITS = {'species': 60, 'height': 50, 'likes': 250, 'dislikes': 250, 'firstPerson': 80, 'secondPerson': 80, 'about': 2000, 'lore': 2400, 'loreTitle': 24}
+TEXT_LIMITS = {'species': 60, 'height': 50, 'likes': 250, 'dislikes': 250, 'firstPerson': 80, 'secondPerson': 80, 'about': 2000, 'lore': 2400, 'loreTitle': 24, 'bookmarkMessage': 200}
 EXTRA_KEYS = list(TEXT_LIMITS) + ['outfits', 'bookPages']
 IMG_EXT_RE = re.compile(r'\.(jpe?g|png|webp)$', re.I)
 UPLOAD_RE = re.compile(r'^assets/uploads/([a-z0-9][a-z0-9-]{0,79})/([0-9a-f-]{36}\.(?:jpg|png|webp))$')
@@ -811,6 +811,18 @@ def main():
     if changed_books:
         new_idx['updated'] = datetime.date.today().isoformat()
     font_gaps([s for b in books for s in (b['coverTop'], b['coverName'], b['spineText'])], rep)
+    # bookmark messages (the text shown when a bookmark is touched in the world): only the people who wrote their own; the rest keep the world's default
+    bm_file = a.repo / 'books' / 'bookmarks.json'
+    bm_msgs = {}
+    for s_ in slots:
+        msg = ((content_doc.get('characters') or {}).get(s_.get('person')) or {}).get('bookmarkMessage')
+        if msg and SLOT_RE.match(s_.get('slot', '')):
+            bm_msgs[s_['slot']] = msg
+    old_bm = json.loads(bm_file.read_text(encoding='utf-8')) if bm_file.exists() else {'version': 1, 'messages': {}}
+    bm_new = {'version': 1, 'messages': dict(sorted(bm_msgs.items()))}
+    bm_changed = (old_bm.get('messages') != bm_new['messages'] or not bm_file.exists()) and not failed_ids
+    if not bm_changed:
+        bm_new = old_bm
 
     # ---------- report ----------
     pd = diff_people(old_people, new_people, failed_ids)
@@ -851,6 +863,8 @@ def main():
     print('\n'.join(sd) if sd else '  (no changes)')
     print('\n== member uploads to copy from Storage into assets/ ==')
     print('\n'.join(f'  + {p}' for p, _ in to_fetch) if to_fetch else '  (none)')
+    print('\n== world: books/bookmarks.json (bookmark messages) ==')
+    print('  ~ ' + str(len(bm_new['messages'])) + ' message(s): ' + ', '.join(sorted(bm_new['messages']))) if bm_changed else print('  (no changes)')
     print('\n== world: books/index.json ==')
     print('\n'.join(changed_books) if changed_books else '  (no changes)')
     for w in rep.warnings:
@@ -860,7 +874,7 @@ def main():
 
     if rep.errors:
         print('\nResult: FAILED. Nothing written.'); sys.exit(2)
-    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_ or fd):
+    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_ or fd or bm_changed):
         print('\nResult: already up to date.'); return
     if not a.apply:
         print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
@@ -871,6 +885,7 @@ def main():
     if new_demo:
         targets.append((demo_file, new_demo, bool(dd)))
     targets.append((idx_file, new_idx, bool(changed_books)))
+    targets.append((bm_file, bm_new, bm_changed))
     targets.append((content_file, content_doc, bool(cd)))
     targets.append((rel_file, rel_doc, bool(rd)))
     targets.append((slots_file, slots, bool(sd)))
