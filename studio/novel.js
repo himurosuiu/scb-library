@@ -117,11 +117,13 @@ function refresh() {
   $('volInfo').textContent = n ? `本文 ${pages.length} ページ` + (nill ? ` ＋ 挿絵 ${nill} ページ` : '') + ` → 本 ${vols} 冊（1 冊に最大 ${ITEMS_PER_BOOK} ページ）` + (items.length > ITEMS_PER_BOOK * MAX_VOLUMES ? '。長すぎるため後半は本になりません' : '') : '';
   if (pageIdx >= items.length) pageIdx = items.length - 1; if (pageIdx < 0) pageIdx = 0; drawPage();
 }
+const ROT = '\u2026\u2025\u2015\u2014\u2500';
+function fillCol(div, t) { for (const ch of Array.from(t === '' ? ' ' : t)) { if (ROT.includes(ch)) div.append(el('span', { className: 'rot' }, ch)); else div.append(document.createTextNode(ch)); } }
 function drawPage() {
   const pg = $('pg'); pg.replaceChildren(); const it = items[pageIdx];
   if (it && it.kind === 'image') {
     const box = el('div', { className: 'ill' }); const u = imgUrl(it.image); if (u) box.append(el('img', { src: u, alt: '' })); box.append(el('div', {}, it.caption || '（挿絵）')); pg.append(box);
-  } else if (it) { for (const [k, t] of it.lines) pg.append(el('div', { className: 'ln ' + (k === 'h' ? 'h' : '') }, t === '' ? ' ' : t)); }
+  } else if (it) { for (const [k, t] of it.lines) { const d = el('div', { className: 'ln ' + (k === 'h' ? 'h' : '') }); fillCol(d, t); pg.append(d); } }
   $('pgNo').textContent = `${pageIdx + 1} / ${items.length}`;
 }
 // ---------------------------------------------------------------- illustrations

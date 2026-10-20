@@ -762,8 +762,8 @@ def main():
         for vi, slot in enumerate(w.get('slots', [])):
             label = fanbook.volume_label(vi, w['volumes'])
             books.append({'slot': slot, 'type': 'story', 'tier': STORY_TIER, 'color': DEFAULT_COLOR,
-                          'coverTop': f'二次創作　{w["category"]}'.replace('・', '・'), 'coverName': (f'{w["title"]}　{label}' if label else w['title'])[:60],
-                          'spineText': (f'{w["title"]}{label}' if label else w['title'])[:40], 'spreads': 6})
+                          'coverTop': f'二次創作　{label}' if label else f'二次創作　{w["category"]}',      # the volume goes on the small top line, the title stays alone (max two lines) below
+                          'coverName': w['title'][:60], 'spineText': (f'{w["title"]}{label}' if label else w['title'])[:40], 'spreads': 6})
     idx_file = a.repo / 'books' / 'index.json'
     old_idx = json.loads(idx_file.read_text(encoding='utf-8')) if idx_file.exists() else {'books': [], 'updated': ''}
     new_idx = {'version': 1, 'updated': old_idx.get('updated') or datetime.date.today().isoformat(), 'books': books}

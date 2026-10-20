@@ -257,6 +257,11 @@ def graph_body(pg, fe: Path):
             f'<div class="legend" style="width:{W - 140}px">{legend}{arrow_note}</div>')
 
 
+def rot_chars(html_text):
+    """In vertical columns the horizontal ellipsis and dashes must stand up: wrap them in a 90-degree turned box."""
+    return re.sub('([\u2026\u2025\u2015\u2014\u2500])', r'<span class="rot">\1</span>', html_text)
+
+
 def page_html(pg, tpl, fe: Path, number: int, theme=None):
     css = (TEMPLATES / tpl['id'] / 'page.css').read_text(encoding='utf-8')
     font_css = ''.join(
@@ -307,7 +312,7 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
                 + (f'<img class="st-cover" src="{(fe / pg["cover"]).as_uri()}">' if cover else '')
                 + f'<div class="st-sum">{esc(pg["summary"]).replace(chr(10), "<br>")}</div></div>')
     elif role == 'story_text':
-        lines = ''.join(f'<div class="ln {k}">{esc(t) if t else "&nbsp;"}</div>' for k, t in pg['lines'])
+        lines = ''.join(f'<div class="ln {k}">{rot_chars(esc(t)) if t else "&nbsp;"}</div>' for k, t in pg['lines'])
         colo = f'<div class="st-colophon">{esc(pg["colophon"]).replace(chr(10), "<br>")}</div>' if pg.get('colophon') else ''
         body = f'<div class="story-text"><div class="st-head">{esc(pg["head"])}</div><div class="st-body">{lines}</div>{colo}</div>'
     else:

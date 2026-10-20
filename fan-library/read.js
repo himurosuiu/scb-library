@@ -71,13 +71,15 @@ const volumesOf = items => Math.min(MAX_VOLUMES, Math.max(1, Math.ceil(items.len
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
 const safeImg = p => typeof p === 'string' && /^assets\/[A-Za-z0-9_./-]+\.(jpg|jpeg|png|webp)$/i.test(p) && !p.includes('..') && !p.includes('//');
+const ROT = '\u2026\u2025\u2015\u2014\u2500';
+function fillCol(div, t) { for (const ch of Array.from(t === '' ? ' ' : t)) { if (ROT.includes(ch)) div.append(el('span', { className: 'rot' }, ch)); else div.append(document.createTextNode(ch)); } }
 let items = [], idx = 0, work = null;
 function draw() {
   const pg = $('page'); pg.replaceChildren(); const it = items[idx]; $('colo').textContent = '';
   if (it.kind === 'image') {
     const box = el('div', { className: 'ill' }); if (safeImg(it.image)) box.append(el('img', { src: '../' + it.image, alt: '' })); if (it.caption) box.append(el('div', {}, it.caption)); pg.append(box);
   } else {
-    for (const [k, t] of it.lines) pg.append(el('div', { className: 'ln ' + (k === 'h' ? 'h' : '') }, t === '' ? ' ' : t));
+    for (const [k, t] of it.lines) { const d = el('div', { className: 'ln ' + (k === 'h' ? 'h' : '') }); fillCol(d, t); pg.append(d); }
     if (idx === items.length - 1) $('colo').textContent = `${work.title}　（完）\n作：${work.author || '—'}\n聖桜花女学園アーカイブ　二次創作`;
   }
   $('no').textContent = `${idx + 1} / ${items.length}`; $('prev').disabled = idx === 0; $('next').disabled = idx === items.length - 1;

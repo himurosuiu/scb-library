@@ -174,5 +174,6 @@ CSS = """
 .story-text .ln{white-space:pre;width:42px;height:1100px;line-height:42px;overflow:visible}
 .story-text .ln.h{width:84px;font-size:34px;font-weight:700;line-height:84px;color:var(--accent);filter:brightness(.7)}
 .story-text .ln.b{width:42px}
+.story-text .rot{display:inline-block;width:1em;height:1em;line-height:1;text-align:center;transform:rotate(90deg)}
 .story-text .st-colophon{position:absolute;left:70px;top:1330px;width:788px;text-align:center;font-size:calc(22px*var(--fs));line-height:1.8;color:var(--muted);letter-spacing:.08em}
 """
