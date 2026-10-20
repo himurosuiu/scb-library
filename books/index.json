@@ -145,11 +145,11 @@
     {
       "slot": "person-015",
       "type": "person",
-      "tier": "y3",
+      "tier": "teacher",
       "color": "#383c57",
-      "coverTop": "三年生　天文部",
+      "coverTop": "",
       "coverName": "小夜崎 透",
-      "spineText": "三年生　小夜崎 透",
+      "spineText": "小夜崎 透",
       "spreads": 6
     },
     {
@@ -220,7 +220,8 @@
       "coverTop": "二年生　弓道部",
       "coverName": "近衛 和香奈",
       "spineText": "二年生　近衛 和香奈",
-      "spreads": 6
+      "spreads": 6,
+      "zone": "forbidden"
     },
     {
       "slot": "person-023",
@@ -300,7 +301,8 @@
       "coverTop": "二年生　吹奏楽部",
       "coverName": "鳳院 澄桂",
       "spineText": "二年生　鳳院 澄桂",
-      "spreads": 6
+      "spreads": 6,
+      "zone": "forbidden"
     },
     {
       "slot": "person-031",
@@ -501,7 +503,8 @@
       "coverTop": "",
       "coverName": "シスター・ミスティル",
       "spineText": "シスター　ミスティル",
-      "spreads": 6
+      "spreads": 6,
+      "zone": "forbidden"
     },
     {
       "slot": "story-001",
