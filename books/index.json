@@ -508,7 +508,9 @@
       "tier": "y2",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "夢見草と裏庭の白き翼\n<size=65%>第一巻</size>",
+      "coverName": "",
+      "customCover": true,
+      "customBack": true,
       "spineText": "夢見草と裏庭の白き翼第一巻",
       "spreads": 6
     },
@@ -518,7 +520,9 @@
       "tier": "y2",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "夢見草と裏庭の白き翼\n<size=65%>第二巻</size>",
+      "coverName": "",
+      "customCover": true,
+      "customBack": true,
       "spineText": "夢見草と裏庭の白き翼第二巻",
       "spreads": 6
     },
@@ -528,7 +532,9 @@
       "tier": "y2",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "夢見草と裏庭の白き翼\n<size=65%>第三巻</size>",
+      "coverName": "",
+      "customCover": true,
+      "customBack": true,
       "spineText": "夢見草と裏庭の白き翼第三巻",
       "spreads": 6
     },
@@ -538,7 +544,9 @@
       "tier": "y2",
       "color": "#d9c3cf",
       "coverTop": "",
-      "coverName": "夢見草と裏庭の白き翼\n<size=65%>第四巻</size>",
+      "coverName": "",
+      "customCover": true,
+      "customBack": true,
       "spineText": "夢見草と裏庭の白き翼第四巻",
       "spreads": 6
     }
