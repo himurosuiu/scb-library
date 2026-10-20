@@ -30,6 +30,7 @@ dialog{border:none;border-radius:12px;padding:0}dialog::backdrop{background:#000
      <div id="tierAccent"></div>
      <label>表紙頁の肖像の形<select id="portraitShape"><option value="arch">アーチ（標準）</option><option value="circle">円</option><option value="rect">四角</option></select></label>
      <label>写真の枠<select id="photoFrame"><option value="border">アクセント色の枠（標準）</option><option value="none">枠なし</option><option value="shadow">影</option></select></label>
+     <label>ギャラリーの写真の並べ方<select id="galleryLayout"><option value="single">1 頁に 1 枚（標準）</option><option value="outfit">衣装ごとに 1 頁にまとめる（複数枚は自動で縮小して並べる）</option></select></label><p class="hint">「衣装ごと」にすると、同じ衣装の写真が 1 頁に入り、トリミングなしで頁いっぱいに並びます（1 頁に最大 6 枚。それ以上は複数頁に等分）。「個人ブックのページ」を自分で並べている人物は、その並べ方が優先されます。プレビューは 1 枚ずつの表示です。</p>
     </fieldset>
     <fieldset class="pages-list"><legend>表紙・プロフィールの後に並べる頁</legend><div id="pages"></div><p class="hint">表紙とプロフィールは常に最初の 2 頁です。チェックを外した頁は作られません。関係図が多いときは見開きになります。</p></fieldset>
     <fieldset id="bgField"><legend>背景画像（頁の種類 × 学年）</legend><p class="hint">928×1528 の縦長画像（PNG／JPG／WebP・5MB 以下）。「共通」は全学年に使われます。</p><div id="bgs"></div></fieldset>

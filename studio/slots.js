@@ -45,7 +45,7 @@ function render() {
   for (const s of slots) {
     const tr = el('tr', { className: num(s.slot) > WORLD_BOOKS ? 'warn' : '' });
     const sel = personSelect(s.person_id, s.slot);
-    const sp = el('input', { type: 'number', min: 1, max: 12, value: s.spreads });
+    const sp = el('input', { type: 'number', min: 1, max: 8, value: s.spreads });
     const cv = el('input', { value: s.cover_name || '', maxLength: 60, placeholder: nameOf(s.person_id) });
     const spn = el('input', { value: s.spine_text || '', maxLength: 40, placeholder: '自動' });
     const save = el('button', { type: 'button' }, '保存'), del = el('button', { type: 'button' }, '削除');

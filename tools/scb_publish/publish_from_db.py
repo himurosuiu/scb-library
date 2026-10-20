@@ -447,8 +447,8 @@ def build_manifest(people_by_id, slots, rep: Report, failed=()):
             name = s.get('coverName') or p['name']
         color = p['color'] or DEFAULT_COLOR
         spreads = int(s.get('spreads', 6))
-        if not 1 <= spreads <= 12:
-            rep.error(f'{slot}: spreads must be 1..12'); continue
+        if not 1 <= spreads <= 8:
+            rep.error(f'{slot}: spreads must be 1..8'); continue
         grade_txt = kanji_digits(p['grade'].replace('年', '年生')) if p.get('grade') else ''
         entry = {'slot': slot, 'type': 'person', 'tier': tier, 'color': color,
                  'coverTop': top, 'coverName': name, 'spineText': s.get('spineText') or spine_text(p, name, grade_txt), 'spreads': spreads}
@@ -802,7 +802,7 @@ def main():
                 entry['customSpine'] = True
             else:
                 entry['spineText'] = (f'{w["title"]}{label}' if label else w['title'])[:40]
-            entry['spreads'] = 6
+            entry['spreads'] = 8
             books.append(entry)
     idx_file = a.repo / 'books' / 'index.json'
     old_idx = json.loads(idx_file.read_text(encoding='utf-8')) if idx_file.exists() else {'books': [], 'updated': ''}

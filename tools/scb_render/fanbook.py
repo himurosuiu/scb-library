@@ -13,7 +13,7 @@ import re
 
 LINE_UNITS = 40           # characters per column
 PAGE_LINES = 18           # columns per text page
-ITEMS_PER_BOOK = 11       # content pages (p.2 .. p.12)
+ITEMS_PER_BOOK = 15       # content pages (p.2 .. p.16; a book has 8 spreads = 16 pages)
 PAGES_PER_BOOK = 12
 MAX_VOLUMES = 8
 

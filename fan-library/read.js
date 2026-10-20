@@ -1,5 +1,5 @@
 // Reader for fan works (縦書き). The page layout is the same code as the world books (see studio/novel.js and tools/scb_render/fanbook.py).
-const LINE_UNITS = 40, PAGE_LINES = 18, ITEMS_PER_BOOK = 11, MAX_VOLUMES = 8, MAX_ILL = 12;
+const LINE_UNITS = 40, PAGE_LINES = 18, ITEMS_PER_BOOK = 15, MAX_VOLUMES = 8, MAX_ILL = 12;
 const NO_START = new Set('、。，．,.）」』】〕］｝〉》！？!?…‥ー～々ゝゞヽヾぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ・：；');
 const HANG = new Set('、。，．,.');
 const NO_END = new Set('（「『【〔［｛〈《');

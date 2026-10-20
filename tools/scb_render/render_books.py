@@ -95,6 +95,77 @@ def role_line(p):
     return f'{g}　{c}' if c else g
 
 
+MAX_SPREADS = 8                                           # a book has at most 8 spreads = 16 pages (Unity: spreadCount of the book)
+STORY_PAGES = 16                                          # a fan-work book always has 8 spreads
+COLLAGE_MAX = 6                                           # pictures of one outfit on one page (more are spread evenly over several pages)
+COLLAGE_GAP = 22                                          # space between the pictures (the frame sits outside the picture, inside this gap)
+COLLAGE_AREA = (788, 1310, 1200)                          # width, height without / with caption of the picture area (same box as a photo page)
+COLLAGE_INSET = 8
+
+
+def _rows_layout(aspects, W, H, gap):
+    """Pictures in order, split into rows; every row is as wide as the area (then the whole stack is shrunk to the height if needed).
+    Returns (total picture area, [(x, y, w, h)]) for the best split, or None."""
+    n = len(aspects)
+    best = None
+    for mask in range(1 << (n - 1)):
+        rows, cur = [], [0]
+        for i in range(1, n):
+            if mask >> (i - 1) & 1:
+                rows.append(cur); cur = [i]
+            else:
+                cur.append(i)
+        rows.append(cur)
+        heights = [(W - gap * (len(r) - 1)) / sum(aspects[i] for i in r) for r in rows]
+        stack = sum(heights) + gap * (len(rows) - 1)
+        k = min(1.0, (H - gap * (len(rows) - 1)) / sum(heights)) if stack > H else 1.0
+        if k <= 0:
+            continue
+        rects, y = [], 0.0
+        total_h = sum(h * k for h in heights) + gap * (len(rows) - 1)
+        y = (H - total_h) / 2
+        area = 0.0
+        for r, h in zip(rows, heights):
+            hh = h * k
+            row_w = sum(aspects[i] * hh for i in r) + gap * (len(r) - 1)
+            x = (W - row_w) / 2
+            for i in r:
+                w = aspects[i] * hh
+                rects.append((i, x, y, w, hh)); area += w * hh; x += w + gap
+            y += hh + gap
+        rects.sort()
+        if best is None or area > best[0] + 1e-6:
+            best = (area, [r[1:] for r in rects])
+    return best
+
+
+def collage_layout(aspects, W, H, gap=COLLAGE_GAP):
+    """Best no-crop arrangement of pictures (width / height ratios, keeping their order) in a W x H area: tries 'rows' and 'columns'
+    (the same thing turned by 90 degrees) with every way of splitting the pictures, and keeps the one that fills the most area."""
+    if len(aspects) == 1:
+        a = aspects[0]; w = min(W, H * a); h = w / a
+        return [((W - w) / 2, (H - h) / 2, w, h)]
+    by_rows = _rows_layout(aspects, W, H, gap)
+    by_cols = _rows_layout([1 / a for a in aspects], H, W, gap)
+    cand = [by_rows]
+    if by_cols:
+        cand.append((by_cols[0], [(y, x, h, w) for (x, y, w, h) in by_cols[1]]))
+    return max(cand, key=lambda c: c[0])[1]
+
+
+def collage_page(images, label, color, fe: Path):
+    from PIL import Image as _Im
+    aspects = []
+    for im in images:
+        with _Im.open(fe / im) as f:
+            aspects.append(f.size[0] / f.size[1])
+    cap = bool(label)
+    W, H = COLLAGE_AREA[0] - 2 * COLLAGE_INSET, (COLLAGE_AREA[2] if cap else COLLAGE_AREA[1]) - 2 * COLLAGE_INSET
+    rects = collage_layout(aspects, W, H)
+    items = [{'image': im, 'x': round(x + COLLAGE_INSET, 1), 'y': round(y + COLLAGE_INSET, 1), 'w': round(w, 1), 'h': round(h, 1)} for im, (x, y, w, h) in zip(images, rects)]
+    return {'role': 'collage', 'items': items, 'images': list(images), 'caption': label, 'color': color}
+
+
 LORE_MAX_PAGES = 4                                         # a member's extra setting takes at most this many book pages
 
 
@@ -133,6 +204,19 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     if not photos:
         photos = [(g, '') for g in (p.get('gallery') or [])]
     photo_pages = []
+    if (theme or {}).get('galleryLayout') == 'outfit' and not extra.get('bookPages') and any(o.get('images') for o in (extra.get('outfits') or [])):
+        for o in extra.get('outfits') or []:               # one page per outfit: all its pictures together, scaled to fit without cropping
+            imgs = [x for x in o.get('images', []) if x and SAFE_IMG.match(x) and (fe / x).exists()]
+            for x in o.get('images', []):
+                if x and x not in imgs:
+                    rep.warn(f'{p["id"]}: book image missing, skipped: {x}')
+            if not imgs:
+                continue
+            pieces = -(-len(imgs) // COLLAGE_MAX)
+            size = -(-len(imgs) // pieces)
+            for k in range(0, len(imgs), size):
+                photo_pages.append(collage_page(imgs[k:k + size], o.get('label', ''), color, fe))
+        photos = []
     for img, cap in photos:                                # one picture per page, in order
         if img and SAFE_IMG.match(img) and (fe / img).exists():
             photo_pages.append({'role': 'photo', 'image': img, 'caption': cap, 'color': color})
@@ -170,7 +254,7 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
         pg['tier'] = tier
     total = spreads * 2
     if len(pages) > total:
-        rep.warn(f'{p["id"]}: {len(pages)} pages but only {total} fit in {spreads} spreads; extra pages dropped')
+        rep.warn(f'{p["id"]}: {len(pages)} pages but only {total} fit in {spreads} spreads; extra pages dropped' + (f' (set spreads to {-(-len(pages) // 2)} in the slot list)' if len(pages) <= MAX_SPREADS * 2 else f' (a book has at most {MAX_SPREADS} spreads)'))
         pages = pages[:total]
     while len(pages) < total:
         pages.append({'role': 'blank'})
@@ -286,7 +370,7 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
     css_vars = ''.join(f'--{k}:{theme[k]};' for k in ('paper', 'text', 'muted', 'rule') if SAFE_COLOR.match(str(theme.get(k, ''))))
     if isinstance(theme.get('fontScale'), (int, float)) and 0.8 <= theme['fontScale'] <= 1.3:
         css_vars += f'--fs:{theme["fontScale"]};'
-    bg_path = background_of(theme, role, tier)
+    bg_path = background_of(theme, 'photo' if role == 'collage' else role, tier)
     bg = f'<div class="bg" style="background-image:url(\'{(fe / bg_path).as_uri()}\')"></div>' if bg_path and SAFE_IMG.match(bg_path) and (fe / bg_path).is_file() else ''
     body_cls = (f'role-{role} frame-{theme.get("frame", "thin")} shape-{theme.get("portraitShape", "arch")} pf-{theme.get("photoFrame", "border")}'
                 + (' no-bar' if theme.get('topBar') is False else ''))
@@ -310,6 +394,10 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
         body = f'<h2>ABOUT</h2><div class="secs">{secs}</div>'
     elif role == 'graph':
         body = graph_body(pg, fe)
+    elif role == 'collage':
+        cap = f'<div class="caption">{esc(pg["caption"])}</div>' if pg.get('caption') else ''
+        imgs = ''.join(f'<img src="{(fe / it["image"]).as_uri()}" style="left:{it["x"]}px;top:{it["y"]}px;width:{it["w"]}px;height:{it["h"]}px">' for it in pg['items'])
+        body = f'<div class="collage">{imgs}</div>{cap}'
     elif role == 'photo':
         cap = f'<div class="caption">{esc(pg["caption"])}</div>' if pg.get('caption') else ''
         body = f'<div class="photo-box{" with-cap" if cap else ""}"><img src="{(fe / pg["image"]).as_uri()}"></div>{cap}'
@@ -330,9 +418,12 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
         body = '<div class="blank-note">&nbsp;</div>'
     num = '' if (role in ('blank', 'graph', 'story_title') or theme.get('pageNumber') is False) else f'<div class="pno">{number}</div>'
     wide = f'html,body,.page{{width:{928 * pg["span"]}px}}' if role == 'graph' else ''
-    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{fanbook.CSS}{wide}</style>'
+    return (f'<!doctype html><meta charset="utf-8"><style>{font_css}{css}{fanbook.CSS}{COLLAGE_CSS}{wide}</style>'
             f'<body class="{body_cls}" style="--accent:{esc(color)};{css_vars}"><div class="page">{bg}{body}{num}</div></body>')
 
+
+COLLAGE_CSS = ('.collage{position:absolute;left:70px;top:110px;width:788px;height:1310px}.collage img{position:absolute;display:block;border-radius:6px;box-shadow:0 0 0 4px var(--accent)}'
+               'body.pf-none .collage img{box-shadow:none}body.pf-shadow .collage img{box-shadow:0 8px 22px rgba(60,30,30,.3)}')
 
 FIT_JS = """() => {
   const out = [];
@@ -506,14 +597,14 @@ def main():
         if p is None:
             rep.error(f'{slot}: person {s.get("person")!r} is not in public-people-all.json'); continue
         spreads = int(s.get('spreads', 6))
-        if not 1 <= spreads <= 6:
-            rep.error(f'{slot}: person books support 1..6 spreads'); continue
+        if not 1 <= spreads <= MAX_SPREADS:
+            rep.error(f'{slot}: person books support 1..{MAX_SPREADS} spreads'); continue
         tier = 'teacher' if p['kind'] == 'teacher' else {'1年': 'y1', '2年': 'y2', '3年': 'y3'}.get(p.get('grade'), 'y1')
         theme = {**theme_global, **(person_themes.get(p['id']) or {})}
         pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe), theme, tier)
-        imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'),
+        imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'), *pg.get('images', []),
                                                       *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
-        bgs = {background_of(theme, pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
+        bgs = {background_of(theme, 'photo' if pg['role'] == 'collage' else pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
         imgs += [a.fe / x for x in sorted(bgs) if SAFE_IMG.match(x) and (a.fe / x).is_file()]
         h = input_hash(pages, [tpl, theme], base_for(tier)[1], imgs)
         jobs.append((slot, spreads, pages, h, tier, theme, {}))
@@ -541,12 +632,12 @@ def main():
                     if pg['role'] == 'story_text':
                         pg['colophon'] = f'{w["title"]}　（完）\n作：{w.get("author") or "—"}\n聖桜花女学園アーカイブ　二次創作'
                         break
-            while len(pages) < 12:
+            while len(pages) < STORY_PAGES:
                 pages.append({'role': 'blank', 'tier': STORY_TIER})
             art = {k: a.fe / v for k, v in (w.get('art') or {}).items() if k in ('front', 'back', 'spine') and v and SAFE_IMG.match(v) and (a.fe / v).is_file()}
             imgs = [a.fe / x for x in ([w.get('cover')] + [pg.get('image') for pg in pages if pg['role'] == 'photo']) if x and SAFE_IMG.match(x) and (a.fe / x).is_file()] + sorted(art.values())
             h = input_hash(pages, [tpl, theme_global, sorted(art)], base_for(STORY_TIER)[1], imgs)
-            jobs.append((slot, 6, pages, h, STORY_TIER, theme_global, art))
+            jobs.append((slot, STORY_PAGES // 2, pages, h, STORY_TIER, theme_global, art))
 
     todo = [j for j in jobs if a.force or state.get(j[0]) != j[3]
             or not all((a.out / 'books' / j[0] / f'spread-{n + 1}.jpg').exists() for n in range(j[1]))]

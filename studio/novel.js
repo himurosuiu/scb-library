@@ -10,7 +10,7 @@ const STATUS = { draft: '下書き', pending: '審査待ち', approved: '公開�
 let api = null, user = null, admin = false, current = null, pageIdx = 0, pages = [], items = [];
 
 // ---------------------------------------------------------------- layout (port of fanbook.py)
-const LINE_UNITS = 40, PAGE_LINES = 18, ITEMS_PER_BOOK = 11, MAX_VOLUMES = 8, MAX_ILL = 12;
+const LINE_UNITS = 40, PAGE_LINES = 18, ITEMS_PER_BOOK = 15, MAX_VOLUMES = 8, MAX_ILL = 12;
 const NO_START = new Set('、。，．,.）」』】〕］｝〉》！？!?…‥ー～々ゝゞヽヾぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ・：；');
 const HANG = new Set('、。，．,.');
 const NO_END = new Set('（「『【〔［｛〈《');
