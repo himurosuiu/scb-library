@@ -53,13 +53,13 @@ function bondsOf(pid) {
 }
 function buildPages(p) {
   const x = content[p.id] || {}, tier = tierOf(p), color = p.color || '#d9c3cf', portrait = p.portrait || p.image || null;
-  const pages = [{ role: 'title', name: p.name, kana: p.nameKana || '', roleLine: roleLine(p), portrait, color }, { role: 'profile', rows: profileRows(p, x), color }];
+  const pages = [{ role: 'title', name: p.name, kana: p.nameKana || '', roleLine: roleLine(p), portrait, color }, { role: 'profile', rows: profileRows(p, x), notes: [['好きなもの', x.likes], ['苦手なもの', x.dislikes]].filter(n => n[1]), color }];
   let bonds = bondsOf(p.id), graph = null;
   if (bonds.length) {
     bonds = bonds.slice(0, MAX_GRAPH); const center = { name: p.name, portrait };
     graph = bonds.length > MAX_SINGLE ? [{ role: 'graph', span: 2, half: 'R', bonds, center, color }, { role: 'graph', span: 2, half: 'L', bonds, center, color }] : [{ role: 'graph', span: 1, half: 'S', bonds, center, color }];
   }
-  const secs = [['好きなもの', x.likes], ['苦手なもの', x.dislikes], ['人物紹介', x.about]].filter(s => s[1]);
+  const secs = [['人物紹介', x.about]].filter(s => s[1]);   // likes / dislikes live on the PROFILE page
   const aboutPage = secs.length ? { role: 'about', sections: secs, color } : null;
   let photos = (x.bookPages || []).map(b => [b.image, b.caption || '']);
   if (!photos.length) for (const o of x.outfits || []) for (const i of o.images || []) photos.push([i, o.label || '']);
@@ -118,7 +118,7 @@ function pageBodyHtml(pg, number) {
   const bg = bgPath ? `<div class="bg" style="background-image:url('${esc(imgSrc(bgPath))}')"></div>` : '';
   let body = '';
   if (role === 'title') body = `<div class="kana">${esc(pg.kana)}</div><div class="name">${esc(pg.name)}</div><div class="roleline">${esc(pg.roleLine)}</div><div class="portrait-box">${pg.portrait ? `<img class="portrait" src="${esc(imgSrc(pg.portrait))}">` : '<div class="portrait empty">PORTRAIT</div>'}</div>`;
-  else if (role === 'profile') body = `<h2>PROFILE</h2><div class="rows${pg.rows.length > 9 ? ' dense' : ''}">${pg.rows.map(([k, v]) => `<div class="row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')}</div><div class="swatch"></div>`;
+  else if (role === 'profile') { const notes = (pg.notes || []).map(([k, v]) => `<div class="note"><h3>${esc(k)}</h3><p>${esc(v).replace(/\n/g, '<br>')}</p></div>`).join(''); body = `<h2>PROFILE</h2><div class="pbody"><div class="rows${(pg.rows.length > 9 || pg.notes?.length) ? ' dense' : ''}">${pg.rows.map(([k, v]) => `<div class="row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('')}</div>${notes ? `<div class="notes">${notes}</div>` : ''}</div><div class="swatch"></div>`; }
   else if (role === 'about') body = `<h2>ABOUT</h2><div class="secs">${pg.sections.map(([k, v]) => `<div class="sec"><h3>${esc(k)}</h3><p>${esc(v).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>`;
   else if (role === 'graph') body = graphBody(pg);
   else if (role === 'photo') { const cap = pg.caption ? `<div class="caption">${esc(pg.caption)}</div>` : ''; body = `<div class="photo-box${cap ? ' with-cap' : ''}"><img src="${esc(imgSrc(pg.image))}"></div>${cap}`; }
