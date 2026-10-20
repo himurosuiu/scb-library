@@ -7,6 +7,7 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
 .preview{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}.pg{width:450px;height:640px;max-width:100%;background:#fbf6f1;border:1px solid #d6bcb9;padding:30px 28px;box-sizing:content-box;font-family:'Noto Sans JP',sans-serif;writing-mode:vertical-rl;text-orientation:mixed;font-size:15px;position:relative;overflow:hidden}.pg .ln{white-space:pre;width:23px;height:640px;line-height:23px}.rot{display:inline-block;width:1em;height:1em;line-height:1;text-align:center;transform:rotate(90deg)}.pg .ln.h{width:46px;font-weight:700;font-size:19px;line-height:46px}.pg .ill{writing-mode:horizontal-tb;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;font-size:.8rem;color:#8a7a6b}.pg .ill img{max-width:100%;max-height:560px;object-fit:contain;border:2px solid #d9c3cf}
 .ills{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.6rem}.ill-card{border:1px solid #d6bcb9;border-radius:10px;padding:.5rem .7rem;background:#fff}.ill-card img{width:100%;max-height:150px;object-fit:contain;background:#f3ebe6;border-radius:6px}.ill-card .pos{font-size:.85rem;margin:.3rem 0}.ill-card input[type=text]{width:100%;padding:.3rem;box-sizing:border-box}
 .cover img{max-width:220px;border-radius:8px;border:1px solid #d6bcb9;display:block}
+[hidden]{display:none!important}.mimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}.mimg{border:1px solid #d6bcb9;border-radius:8px;padding:.4rem;background:#fff;font-size:.8rem}.mimg img{width:100%;height:120px;object-fit:contain;background:#f3ebe6;border-radius:4px}.mimg input[type=text]{width:100%;box-sizing:border-box}
 .muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.82rem;color:#8a7a6b}
 .pend{border:1px solid #d6bcb9;border-radius:10px;padding:.6rem .9rem;margin:.6rem 0;background:#fff}.pend pre{white-space:pre-wrap;max-height:14rem;overflow:auto;background:#fbf6f1;padding:.5rem;font-family:inherit}
 </style></head><body>
@@ -23,21 +24,26 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
  <div class="cloud-box" id="editor" hidden>
   <h2 id="edTitle">作品の編集</h2>
   <div class="row2"><div><label>タイトル（60字まで）<input id="title" type="text" maxlength="60"></label></div><div><label>作者名（40字まで）<input id="author" type="text" maxlength="40"></label></div></div>
-  <div class="row2"><div><label>分類<select id="category"><option>小説・SS</option><option>イベント記録</option><option>学園資料</option><option>詩</option></select></label></div>
+  <div class="row2"><div><label>分類<select id="category"><option>小説・SS</option><option>学園資料</option><option>詩</option><option>イラスト</option><option>漫画</option><option>音楽</option></select></label></div>
    <div class="cover"><label>作品カード・扉ページの画像（任意・PNG／JPG／WebP・5MB 以下）<input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="coverBox"></div></div></div>
-  <fieldset style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>本の外側（任意）</legend>
+  <fieldset class="txtonly" style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>本の外側（任意）</legend>
    <label>表紙の書名（改行できます・60字まで。空なら上のタイトルを使います）<textarea id="coverTitle" maxlength="64" style="min-height:4.5rem"></textarea></label>
    <p class="hint">自分の絵を使う場合は下の 3 枚を選んでください（PNG／JPG／WebP・5MB 以下）。<b>絵を入れた面には、自動の文字（書名・巻数）は出ません</b>。入れない面は、これまでどおりの自動デザインになります。</p>
    <div class="row2"><div class="cover"><label>表紙（縦長・目安 3:5）<input id="artFront" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artFrontBox"></div></div>
    <div class="cover"><label>裏表紙（縦長・目安 3:5）<input id="artBack" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artBackBox"></div></div></div>
    <div class="cover"><label>背表紙（細長い縦長・目安 1:6）<input id="artSpine" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artSpineBox"></div></div>
   </fieldset>
-  <fieldset style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>挿絵（任意・最大12枚）</legend><p class="hint">PNG／JPG／WebP・5MB 以下。1 枚が 1 ページになります。「↑／↓」で入れる場所を本文のページ単位で動かせます。使わない場合は何も追加しなくて大丈夫です。</p><div class="ills" id="ills"></div><p><input id="illFile" type="file" accept="image/png,image/jpeg,image/webp" multiple></p></fieldset>
+  <fieldset class="txtonly" style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>挿絵（任意・最大12枚）</legend><p class="hint">PNG／JPG／WebP・5MB 以下。1 枚が 1 ページになります。「↑／↓」で入れる場所を本文のページ単位で動かせます。使わない場合は何も追加しなくて大丈夫です。</p><div class="ills" id="ills"></div><p><input id="illFile" type="file" accept="image/png,image/jpeg,image/webp" multiple></p></fieldset>
+<fieldset id="mediaBox" hidden style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend id="mediaLegend">作品ファイル</legend>
+   <div id="mImgRow"><p class="hint" id="mImgHint">PNG／JPG／WebP・1 枚 5MB 以下。「↑／↓」で順番を変えられます。</p><div class="mimgs" id="mImgs"></div><p><input id="mFile" type="file" accept="image/png,image/jpeg,image/webp" multiple></p></div>
+   <div id="mDirRow"><label>ページの開き方<select id="mDir"><option value="rtl">右開き（日本の漫画・右から左へ読む）</option><option value="ltr">左開き（左から右へ読む）</option></select></label></div>
+   <div id="mAudioRow"><p class="hint">mp3 ファイル（10MB 以下）。作品カードの画像は上の「作品カード・扉ページの画像」で設定できます。</p><p><input id="mAudio" type="file" accept="audio/mpeg,.mp3"></p><div id="mAudioBox"></div></div>
+  </fieldset>
   <label>あらすじ（200字まで）<textarea id="summary" maxlength="200" style="min-height:5rem"></textarea></label>
-  <label>本文（60,000 字まで。Word などからそのまま貼り付けできます）<textarea id="body"></textarea></label>
-  <p class="hint">章の見出しは「第一章：…」のように行頭に書くと見出しになります。段落の先頭の字下げは自動です。空行は段落の区切りになります。<input id="txtFile" type="file" accept=".txt,text/plain"> （.txt を読み込む）</p>
-  <p><b id="counter"></b></p>
-  <div class="preview"><div><div class="pg" id="pg"></div><p><button id="prev" type="button">←</button> <span id="pgNo"></span> <button id="next" type="button">→</button></p></div>
+  <label class="txtonly">本文（60,000 字まで。Word などからそのまま貼り付けできます）<textarea id="body"></textarea></label>
+  <p class="hint txtonly">章の見出しは「第一章：…」のように行頭に書くと見出しになります。段落の先頭の字下げは自動です。空行は段落の区切りになります。<input id="txtFile" type="file" accept=".txt,text/plain"> （.txt を読み込む）</p>
+  <p class="txtonly"><b id="counter"></b></p>
+  <div class="preview txtonly"><div><div class="pg" id="pg"></div><p><button id="prev" type="button">←</button> <span id="pgNo"></span> <button id="next" type="button">→</button></p></div>
    <div><p class="hint">プレビューは本のページと同じ文字数・行数で組んでいます（本の実際の見た目は、公開後に World で確認してください）。</p><div id="volInfo"></div></div></div>
   <p><button id="saveDraft" type="button">下書き保存</button> <button id="submit" type="button">審査に出す</button> <button id="del" type="button">削除</button> <span id="msg" role="status" aria-live="polite"></span></p>
   <p class="hint">「審査に出す」と管理者に届きます。承認されると最大 15 分で本とサイトに反映されます。公開後に直したときも、もう一度審査になります（承認されるまで前の内容のままです）。</p>

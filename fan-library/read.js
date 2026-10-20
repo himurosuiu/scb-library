@@ -88,11 +88,37 @@ function draw() {
 const go = d => { const n = idx + d; if (n >= 0 && n < items.length) { idx = n; draw(); } };
 $('next').onclick = () => go(1); $('prev').onclick = () => go(-1);
 document.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(1); else if (e.key === 'ArrowRight') go(-1); });
+// ---------------------------------------------------------------- illustration / manga / music works
+const okAudio = u => typeof u === 'string' && u.startsWith('https://') && u.includes('/storage/v1/object/public/scb-uploads/fan-') && u.endsWith('.mp3') && !u.includes('..') && !u.includes('?');
+function showMedia() {
+  const m = work.media || {}, imgs = (m.images || []).filter(x => safeImg(x.image));
+  document.querySelector('.sheet').hidden = true; $('colo').hidden = true; document.querySelector('.hint').hidden = true;
+  const box = el('div', { className: 'media' }); $('colo').after(box);
+  if (work.summary) box.append(el('p', { className: 'hint' }, work.summary));
+  if (work.category === '音楽') {
+    if (safeImg(work.cover)) box.append(el('img', { src: '../' + work.cover, alt: '', className: 'mcover' }));
+    if (okAudio(m.audioUrl)) { const a = el('audio', { controls: true, preload: 'none', src: m.audioUrl }); box.append(el('div', {}, a)); } else box.append(el('p', { className: 'err' }, '音源を読み込めませんでした。'));
+    document.querySelector('.nav').hidden = true; return;
+  }
+  if (work.category === '漫画' && imgs.length) {
+    const rtl = m.direction !== 'ltr'; const im = el('img', { alt: '', className: 'mpage' }); box.append(im); let i = 0;
+    const show = () => { im.src = '../' + imgs[i].image; $('no').textContent = `${i + 1} / ${imgs.length}`; $('next').disabled = i === imgs.length - 1; $('prev').disabled = i === 0; history.replaceState(null, '', location.pathname + location.search + '#' + (i + 1)); };
+    const step = d => { const n = i + d; if (n >= 0 && n < imgs.length) { i = n; show(); } };
+    $('next').textContent = rtl ? '次のページ ←' : '次のページ →'; $('prev').textContent = rtl ? '→ 前のページ' : '← 前のページ';
+    $('next').onclick = () => step(1); $('prev').onclick = () => step(-1);
+    document.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') step(rtl ? 1 : -1); else if (e.key === 'ArrowRight') step(rtl ? -1 : 1); });
+    im.onclick = () => step(1); const h = parseInt((location.hash || '').slice(1), 10); if (h >= 1 && h <= imgs.length) i = h - 1; show(); return;
+  }
+  document.querySelector('.nav').hidden = true;
+  const grid = el('div', { className: 'gal' }); box.append(grid);
+  for (const x of imgs) { const a = el('a', { href: '../' + x.image, target: '_blank', rel: 'noopener' }, el('img', { src: '../' + x.image, alt: x.caption || '', loading: 'lazy' })); grid.append(el('figure', {}, a, x.caption ? el('figcaption', {}, x.caption) : '')); }
+}
 fetch('../data/fanworks.json').then(r => r.json()).then(d => {
   const id = new URLSearchParams(location.search).get('id'); work = (d.works || []).find(w => w.id === id);
   if (!work) { $('title').textContent = '作品が見つかりません'; $('msg').textContent = '公開されていない、または削除された作品です。'; return; }
   document.title = work.title + ' | 二次創作ライブラリ | SALON CHERRY BLOSSOM';
   $('title').textContent = work.title; $('meta').textContent = [work.author, work.category, work.volumes > 1 ? `全${work.volumes}巻` : ''].filter(Boolean).join(' ・ ');
+  if (['イラスト', '漫画', '音楽'].includes(work.category)) { showMedia(); return; }
   items = buildItems(paginate(work.body || ''), work.illustrations || []);
   const h = parseInt((location.hash || '').slice(1), 10); idx = h >= 1 && h <= items.length ? h - 1 : 0; draw();
 }).catch(() => { $('title').textContent = '読み込めませんでした'; });

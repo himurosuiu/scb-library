@@ -235,6 +235,8 @@ def fetch_person_themes(url, key):
 
 
 STORY_CAPACITY = 26          # story-001 .. story-026 are the books on the shelf prepared in the world
+MEDIA_CATEGORIES = ('イラスト', '漫画', '音楽')   # picture / manga / music works are shown on the website only (no world book)
+AUDIO_RE = re.compile(r'^assets/uploads/(fan-[0-9a-f]{32})/([0-9a-f-]{36}\.mp3)$')
 STORY_TIER = 'y2'            # cover / back / page-edge art of the fan books (one of y1 y2 y3 teacher)
 
 
@@ -253,6 +255,22 @@ def fetch_fan_works(url, key):
         sys.exit(f'Supabase fan works request failed: HTTP {e.code} {body!r}')
     except urllib.error.URLError as e:
         sys.exit(f'Cannot reach Supabase: {e.reason}')
+
+
+def fan_media(m, url, rep, title):
+    """Media of an illustration / manga / music work: images are fetched like the covers, the mp3 stays in Storage and is played from its public URL."""
+    out = {}
+    imgs = [{'image': x['image'], **({'caption': x['caption']} if x.get('caption') else {})} for x in m.get('images') or [] if isinstance(x, dict) and UPLOAD_RE.match(str(x.get('image', ''))) or (isinstance(x, dict) and str(x.get('image', '')).startswith('assets/') and '..' not in str(x.get('image', '')))]
+    if imgs:
+        out['images'] = imgs
+    if m.get('direction') in ('rtl', 'ltr'):
+        out['direction'] = m['direction']
+    au = AUDIO_RE.match(str(m.get('audio') or ''))
+    if au and url:
+        out['audioUrl'] = f'{url}/storage/v1/object/public/scb-uploads/{au.group(1)}/{au.group(2)}'
+    elif m.get('audio'):
+        rep.warn(f'fan work {title!r}: the audio path is not a member upload and is skipped')
+    return out
 
 
 def assign_story_slots(works, old_works, rep):
@@ -731,11 +749,12 @@ def main():
         for row in fan_rows:
             d = row['data']
             works.append({'id': row['id'], 'title': d['title'], 'author': d.get('author', ''), 'category': d.get('category', '小説・SS'), 'summary': d.get('summary', ''),
-                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'art': d.get('art') or {}, 'volumes': fanbook.estimate_volumes(d)})
+                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'art': d.get('art') or {}, 'volumes': 0 if d.get('category') in MEDIA_CATEGORIES else fanbook.estimate_volumes(d)})
+            works[-1]['media'] = fan_media(d.get('media') or {}, url, rep, d['title'])
         slot_map = assign_story_slots(works, fan_old.get('works', []), rep)
         for w in works:
             w['slots'] = slot_map[w['id']]
-            for c in [w['cover']] + [x['image'] for x in w['illustrations']] + [v for k, v in w['art'].items() if k in ('front', 'back', 'spine')]:
+            for c in [w['cover']] + [x['image'] for x in w['illustrations']] + [v for k, v in w['art'].items() if k in ('front', 'back', 'spine')] + [x['image'] for x in w['media'].get('images', [])]:
                 if c and not (a.fe / c).exists():
                     m = UPLOAD_RE.match(c)
                     if m and url:

@@ -95,7 +95,7 @@ async function loadMine() {
   if (!rows.length) box.append(el('p', { className: 'muted' }, 'まだ作品がありません。「新しい作品」から始めましょう。'));
   for (const w of rows) {
     const b = el('button', { type: 'button' }, '開く'); b.onclick = () => openEditor(w);
-    const card = el('div', { className: 'work' }, el('span', { className: 'st ' + w.status }, STATUS[w.status] || w.status), el('h3', {}, w.title || '（無題）'), el('div', { className: 'muted' }, `${(w.body || '').length.toLocaleString()} 字`));
+    const card = el('div', { className: 'work' }, el('span', { className: 'st ' + w.status }, STATUS[w.status] || w.status), el('h3', {}, w.title || '（無題）'), el('div', { className: 'muted' }, MEDIA_CATS.includes(w.category) ? w.category : `${(w.body || '').length.toLocaleString()} 字`));
     if (w.status === 'rejected' && w.admin_note) card.append(el('div', { className: 'err' }, '差し戻し：' + w.admin_note));
     card.append(b); box.append(card);
   }
@@ -103,10 +103,10 @@ async function loadMine() {
 
 // ---------------------------------------------------------------- editor
 function openEditor(w) {
-  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })), art: { ...(w.art || {}) } } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [], art: {} };
+  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })), art: { ...(w.art || {}) }, media: { images: ((w.media || {}).images || []).map(x => ({ ...x })), audio: (w.media || {}).audio || null, direction: (w.media || {}).direction || 'rtl' } } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [], art: {}, media: { images: [], audio: null, direction: 'rtl' } };
   $('editor').hidden = false; $('edTitle').textContent = current.id ? '作品の編集' : '新しい作品';
   $('title').value = current.title; $('author').value = current.author; $('category').value = current.category; $('summary').value = current.summary; $('body').value = current.body;
-  $('coverTitle').value = current.art.coverTitle || ''; $('del').hidden = !current.id; showCover(); showArt(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
+  $('coverTitle').value = current.art.coverTitle || ''; applyMode(); renderMedia(); $('del').hidden = !current.id; showCover(); showArt(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
 }
 function showCover() { const b = $('coverBox'); b.replaceChildren(); const u = imgUrl(current.cover); if (u) { const im = el('img', { src: u, alt: '' }); const x = el('button', { type: 'button' }, '表紙を外す'); x.onclick = () => { current.cover = null; showCover(); }; b.append(im, x); } }
 function refresh() {
@@ -173,6 +173,65 @@ $('coverFile').onchange = async () => {
     current.cover = 'assets/uploads/' + name; showCover(); say('表紙をアップロードしました。保存で確定します。');
   } catch (e) { say(e.message, 'err'); }
 };
+// ---------------------------------------------------------------- illustration / manga / music works (files instead of text)
+const MEDIA_CATS = ['イラスト', '漫画', '音楽'], MAX_MEDIA = { 'イラスト': 20, '漫画': 60 }, MAX_AUDIO = 10 * 1024 * 1024;
+const isMedia = () => MEDIA_CATS.includes($('category').value);
+function applyMode() {
+  const c = $('category').value, m = MEDIA_CATS.includes(c);
+  document.querySelectorAll('.txtonly').forEach(x => { x.hidden = m; });
+  $('mediaBox').hidden = !m; $('mImgRow').hidden = c === '音楽'; $('mDirRow').hidden = c !== '漫画'; $('mAudioRow').hidden = c !== '音楽';
+  $('mediaLegend').textContent = c === '音楽' ? '音源（mp3）' : c === '漫画' ? 'マンガのページ（順番どおりに）' : 'イラスト（最大20枚）';
+  if (current) $('mDir').value = current.media.direction || 'rtl';
+}
+function renderMedia() {
+  if (!current) return; const box = $('mImgs'); box.replaceChildren(); const list = current.media.images;
+  list.forEach((x, i) => {
+    const up = el('button', { type: 'button' }, '↑'), dn = el('button', { type: 'button' }, '↓'), del = el('button', { type: 'button' }, '外す');
+    up.disabled = i === 0; dn.disabled = i === list.length - 1;
+    up.onclick = () => { [list[i - 1], list[i]] = [list[i], list[i - 1]]; renderMedia(); }; dn.onclick = () => { [list[i + 1], list[i]] = [list[i], list[i + 1]]; renderMedia(); }; del.onclick = () => { list.splice(i, 1); renderMedia(); };
+    const cap = el('input', { type: 'text', placeholder: 'キャプション（任意）', maxLength: 60, value: x.caption || '' }); cap.oninput = () => { x.caption = cleanText(cap.value); };
+    box.append(el('div', { className: 'mimg' }, el('img', { src: imgUrl(x.image), alt: '' }), el('div', {}, `${i + 1} 枚目 `), cap, up, dn, del));
+  });
+  const ab = $('mAudioBox'); ab.replaceChildren();
+  if (current.media.audio) { const x = el('button', { type: 'button' }, 'mp3 を外す'); x.onclick = () => { current.media.audio = null; renderMedia(); }; ab.append(el('audio', { controls: true, preload: 'none', src: imgUrl(current.media.audio) }), x); }
+}
+async function uploadFile(f, ext, type) {
+  const name = `fan-${user.id.replace(/-/g, '')}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await api.storage.from(BUCKET).upload(name, f, { contentType: type, upsert: false }); if (error) throw new Error('アップロード失敗: ' + error.message);
+  return 'assets/uploads/' + name;
+}
+$('category').onchange = () => { applyMode(); renderMedia(); };
+$('mDir').onchange = () => { current.media.direction = $('mDir').value; };
+$('mFile').onchange = async () => {
+  const files = Array.from($('mFile').files || []); if (!files.length) return; const max = MAX_MEDIA[$('category').value] || 20;
+  try {
+    for (const f of files) {
+      if (current.media.images.length >= max) throw new Error(`画像は ${max} 枚までです`);
+      const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[f.type]; if (!ext) throw new Error('PNG / JPG / WebP の画像を選んでください');
+      if (f.size > MAX_BYTES) throw new Error('1 枚 5MB 以下の画像を選んでください');
+      current.media.images.push({ image: await uploadFile(f, ext, f.type) });
+    }
+    say('アップロードしました。保存で確定します。');
+  } catch (e) { say(e.message, 'err'); }
+  $('mFile').value = ''; renderMedia();
+};
+$('mAudio').onchange = async () => {
+  const f = $('mAudio').files[0]; if (!f) return;
+  try {
+    if (!(f.type === 'audio/mpeg' || /\.mp3$/i.test(f.name))) throw new Error('mp3 ファイルを選んでください');
+    if (f.size > MAX_AUDIO) throw new Error('10MB 以下の mp3 を選んでください');
+    current.media.audio = await uploadFile(f, 'mp3', 'audio/mpeg'); say('mp3 をアップロードしました。保存で確定します。');
+  } catch (e) { say(e.message, 'err'); }
+  $('mAudio').value = ''; renderMedia();
+};
+function mediaPayload() {
+  if (!isMedia()) return {};
+  const c = $('category').value, m = {};
+  if (c !== '音楽') m.images = current.media.images.map(x => ({ image: x.image, ...(cleanText(x.caption || '') ? { caption: cleanText(x.caption) } : {}) }));
+  if (c === '音楽' && current.media.audio) m.audio = current.media.audio;
+  if (c === '漫画') m.direction = current.media.direction === 'ltr' ? 'ltr' : 'rtl';
+  return m;
+}
 // own front cover / back cover / spine pictures (they replace the automatic cover design)
 const ART = [['front', 'artFront', 'artFrontBox', '表紙'], ['back', 'artBack', 'artBackBox', '裏表紙'], ['spine', 'artSpine', 'artSpineBox', '背表紙']];
 function showArt() {
@@ -200,12 +259,13 @@ function artPayload() {
   return a;
 }
 async function save(submit) {
-  const body = cleanText($('body').value), title = cleanText($('title').value).trim();
+  const media = isMedia(), body = media ? '' : cleanText($('body').value), title = cleanText($('title').value).trim();
   if (!title) return say('タイトルを入力してください', 'err');
+  if (media && submit) { const c = $('category').value; if (c === '音楽' ? !current.media.audio : !current.media.images.length) return say(c === '音楽' ? 'mp3 を追加してください' : '画像を 1 枚以上追加してください', 'err'); }
   if (Array.from(body).length > MAX_BODY) return say(`本文は ${MAX_BODY.toLocaleString()} 字までです`, 'err');
-  if (submit && Array.from(body).length < 200) return say('本文が短すぎます（200 字以上で審査に出せます）', 'err');
+  if (!media && submit && Array.from(body).length < 200) return say('本文が短すぎます（200 字以上で審査に出せます）', 'err');
   try {
-    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })), p_art: artPayload() });
+    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: media ? [] : current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })), p_art: media ? {} : artPayload(), p_media: mediaPayload() });
     current.id = r.id; current.status = r.status; say(submit ? '審査に出しました。承認されると本になります。' : '下書きを保存しました。', 'ok');
     await loadMine(); $('del').hidden = false;
   } catch (e) { say('保存できませんでした: ' + e.message, 'err'); }
@@ -227,7 +287,7 @@ async function loadPending() {
     const decide = async yes => { try { await rpc('scb_fan_decide', { p_id: w.id, p_ok: yes, p_note: yes ? '' : cleanText(note.value) }); await loadPending(); await loadMine(); } catch (e) { alert('処理できませんでした: ' + e.message); } };
     ok.onclick = () => decide(true); ng.onclick = () => decide(false);
     const its = buildItems(paginate(w.body || ''), w.illustrations || []); const n = its.length;
-    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（${n} ページ → ${volumesOf(its)} 冊、挿絵 ${(w.illustrations || []).length} 枚${Object.keys(w.art || {}).length ? '、本の外側：' + Object.keys(w.art).join('/') : ''}）`),
+    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（${n} ページ → ${volumesOf(its)} 冊、挿絵 ${(w.illustrations || []).length} 枚${(w.media && w.media.images && w.media.images.length) ? '、画像 ' + w.media.images.length + ' 枚' : ''}${(w.media && w.media.audio) ? '、mp3 あり' : ''}${Object.keys(w.art || {}).length ? '、本の外側：' + Object.keys(w.art).join('/') : ''}）`),
       el('p', {}, w.summary || ''), el('details', {}, el('summary', {}, '本文を読む'), el('pre', {}, w.body || '')), note, ok, ng));
   }
 }
