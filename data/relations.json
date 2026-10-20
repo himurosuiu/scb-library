@@ -39,6 +39,15 @@
       "forB": "部活の仲間"
     },
     {
+      "a": "tsukisa-yuru",
+      "b": "shigure-kei",
+      "kind": "friend",
+      "label": "創作同好",
+      "note": "",
+      "forA": "創作同好",
+      "forB": "創作同好"
+    },
+    {
       "a": "asanagi-ushio",
       "b": "takanashi-himari",
       "kind": "kininaru",
