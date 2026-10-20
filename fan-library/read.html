@@ -1,0 +1,21 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>読む | 二次創作ライブラリ | SALON CHERRY BLOSSOM</title><link href="../style.css" rel="stylesheet"><style>
+body{background:#f7efec}
+.reader{max-width:900px;margin:5.5rem auto 3rem;padding:0 1rem;text-align:center}
+.reader h1{font-size:1.5rem;margin:.2rem 0}.reader .meta{color:#8a7a6b;font-size:.9rem;margin-bottom:.8rem}
+.sheet{display:inline-block;max-width:100%;overflow:auto;background:#fbf6f1;border:1px solid #d6bcb9;border-radius:8px;box-shadow:0 6px 24px rgba(120,70,80,.15);padding:34px 30px}
+.page{writing-mode:vertical-rl;text-orientation:mixed;font-feature-settings:"vert" 1;font-family:'Noto Serif JP','Yu Mincho','Hiragino Mincho ProN',serif;font-size:22px;color:#3a2f33;width:684px;height:900px;text-align:left}
+.page .ln{white-space:pre;width:38px;height:900px;line-height:38px}.page .ln.h{width:76px;font-weight:700;font-size:28px;line-height:76px;color:#8a4a58}
+.page .ill{writing-mode:horizontal-tb;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;color:#8a7a6b;font-size:.9rem}.page .ill img{max-width:100%;max-height:820px;object-fit:contain;border:3px solid #d9c3cf}
+.colo{writing-mode:horizontal-tb;margin-top:.6rem;text-align:center;font-size:.8rem;color:#8a7a6b;line-height:1.8;white-space:pre-line}
+.nav{margin:1rem 0;display:flex;justify-content:center;gap:1rem;align-items:center}.nav button{padding:.5rem 1.2rem;border-radius:999px;border:1px solid #c9a9ae;background:#fff;cursor:pointer;font:inherit}.nav button:disabled{opacity:.4;cursor:default}
+.err{color:#a0343a}.hint{color:#8a7a6b;font-size:.8rem}
+@media(max-width:760px){.page{font-size:18px;width:560px;height:740px}.page .ln{width:31px;height:740px;line-height:31px}.page .ln.h{width:62px;font-size:23px;line-height:62px}}
+</style></head><body>
+<main class="reader"><p><a href="./">← 二次創作ライブラリへ</a></p>
+<h1 id="title">読み込み中…</h1><div class="meta" id="meta"></div>
+<div class="sheet"><div class="page" id="page"></div></div>
+<div id="colo" class="colo"></div>
+<div class="nav"><button id="next" type="button">次のページ ←</button><span id="no"></span><button id="prev" type="button">→ 前のページ</button></div>
+<p class="hint">縦書きです。左右の矢印キー（←＝次、→＝前）でもページをめくれます。</p>
+<p id="msg" class="err"></p></main>
+<script src="read.js"></script></body></html>
