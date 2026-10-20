@@ -166,7 +166,7 @@ def collage_page(images, label, color, fe: Path):
     return {'role': 'collage', 'items': items, 'images': list(images), 'caption': label, 'color': color}
 
 
-LORE_MAX_PAGES = 4                                         # a member's extra setting takes at most this many book pages
+LORE_MAX_PAGES = 8                                         # a member's extra setting takes at most this many book pages
 
 
 def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=None, theme=None, tier=None):
@@ -226,7 +226,10 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     lore_pages = []                                        # the member's own extra setting, vertical writing, right after ABOUT
     if (extra.get('lore') or '').strip():
         head = f'{p["name"]}　{(extra.get("loreTitle") or "").strip() or "設定"}'
-        lore_pages = [{'role': 'story_text', 'head': head, 'lines': ln, 'color': color} for ln in fanbook.paginate(extra['lore'], colon_heading=True)[:LORE_MAX_PAGES]]
+        lp = fanbook.paginate(extra['lore'], colon_heading=True)
+        if len(lp) > LORE_MAX_PAGES:
+            rep.warn(f'{p["id"]}: the own setting needs {len(lp)} pages; only the first {LORE_MAX_PAGES} fit')
+        lore_pages = [{'role': 'story_text', 'head': head, 'lines': ln, 'color': color} for ln in lp[:LORE_MAX_PAGES]]
     order = (theme or {}).get('pages')
     if order is None:                                      # default order (the layout used so far)
         if graph and len(graph) == 2:                      # right after the profile (p.3 / p.4), so the two halves face each other
