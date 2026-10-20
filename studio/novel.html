@@ -4,7 +4,8 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}@media(max-width:800px){.row2{grid-template-columns:1fr}}
 .works{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.8rem}.work{border:1px solid #d6bcb9;border-radius:12px;padding:.7rem .9rem;background:#fff}.work h3{margin:.1rem 0;font-size:1rem}.work .st{display:inline-block;font-size:.75rem;padding:.05rem .5rem;border-radius:999px;background:#eee}
 .st.draft{background:#eee}.st.pending{background:#ffe9b8}.st.approved{background:#cfeedd}.st.rejected{background:#f6cfd2}
-.preview{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}.pg{width:30ch;max-width:100%;background:#fbf6f1;border:1px solid #d6bcb9;padding:1.2rem 1rem;font-size:.9rem;line-height:1.7;white-space:pre-wrap;min-height:26.5em;box-sizing:content-box;font-family:'Noto Sans JP',sans-serif}.pg .h{font-weight:700;font-size:1.25em}
+.preview{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}.pg{width:450px;height:640px;max-width:100%;background:#fbf6f1;border:1px solid #d6bcb9;padding:30px 28px;box-sizing:content-box;font-family:'Noto Sans JP',sans-serif;writing-mode:vertical-rl;text-orientation:mixed;font-size:15px;position:relative;overflow:hidden}.pg .ln{white-space:pre;width:23px;height:640px;line-height:23px}.pg .ln.h{width:46px;font-weight:700;font-size:19px;line-height:46px}.pg .ill{writing-mode:horizontal-tb;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;font-size:.8rem;color:#8a7a6b}.pg .ill img{max-width:100%;max-height:560px;object-fit:contain;border:2px solid #d9c3cf}
+.ills{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.6rem}.ill-card{border:1px solid #d6bcb9;border-radius:10px;padding:.5rem .7rem;background:#fff}.ill-card img{width:100%;max-height:150px;object-fit:contain;background:#f3ebe6;border-radius:6px}.ill-card .pos{font-size:.85rem;margin:.3rem 0}.ill-card input[type=text]{width:100%;padding:.3rem;box-sizing:border-box}
 .cover img{max-width:220px;border-radius:8px;border:1px solid #d6bcb9;display:block}
 .muted{color:#8a7a6b}.err{color:#a0343a}.ok{color:#2d6a4f}.hint{font-size:.82rem;color:#8a7a6b}
 .pend{border:1px solid #d6bcb9;border-radius:10px;padding:.6rem .9rem;margin:.6rem 0;background:#fff}.pend pre{white-space:pre-wrap;max-height:14rem;overflow:auto;background:#fbf6f1;padding:.5rem;font-family:inherit}
@@ -13,7 +14,7 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
 <main class="cloud-wrap">
 <p class="eyebrow">SALON CHERRY BLOSSOM · FAN WORKS</p>
 <h1>二次創作の投稿（小説）</h1>
-<p>小説を貼り付けて送ると、管理者の承認後に<b>World の本棚の「本」</b>と<b>サイトの作品カード</b>になります。本文は自動でページに組まれ、長い作品は「第一巻・第二巻…」のように何冊かに分かれます（1 冊＝12 ページ、約 7,000〜8,000 字）。</p>
+<p>小説を貼り付けて送ると、管理者の承認後に<b>World の本棚の「本」</b>と<b>サイトの作品カード</b>になります。本文は自動で<b>縦書き</b>のページに組まれ、挿絵も入れられます。長い作品は「第一巻・第二巻…」のように何冊かに分かれます（1 冊＝12 ページ、約 7,000〜8,000 字）。</p>
 <div class="cloud-box"><h2>認証</h2><p id="who" role="status">設定確認中…</p><button id="login" type="button">Discord でログイン</button><button id="logout" type="button" hidden>ログアウト</button><p id="priv"></p></div>
 
 <div id="panel" hidden>
@@ -24,6 +25,7 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
   <div class="row2"><div><label>タイトル（60字まで）<input id="title" type="text" maxlength="60"></label></div><div><label>作者名（40字まで）<input id="author" type="text" maxlength="40"></label></div></div>
   <div class="row2"><div><label>分類<select id="category"><option>小説・SS</option><option>イベント記録</option><option>学園資料</option><option>詩</option></select></label></div>
    <div class="cover"><label>表紙の画像（任意・PNG／JPG／WebP・5MB 以下）<input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="coverBox"></div></div></div>
+  <fieldset style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>挿絵（任意・最大12枚）</legend><p class="hint">PNG／JPG／WebP・5MB 以下。1 枚が 1 ページになります。「↑／↓」で入れる場所を本文のページ単位で動かせます。使わない場合は何も追加しなくて大丈夫です。</p><div class="ills" id="ills"></div><p><input id="illFile" type="file" accept="image/png,image/jpeg,image/webp" multiple></p></fieldset>
   <label>あらすじ（200字まで）<textarea id="summary" maxlength="200" style="min-height:5rem"></textarea></label>
   <label>本文（60,000 字まで。Word などからそのまま貼り付けできます）<textarea id="body"></textarea></label>
   <p class="hint">章の見出しは「第一章：…」のように行頭に書くと見出しになります。段落の先頭の字下げは自動です。空行は段落の区切りになります。<input id="txtFile" type="file" accept=".txt,text/plain"> （.txt を読み込む）</p>

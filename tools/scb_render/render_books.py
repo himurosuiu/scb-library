@@ -308,7 +308,8 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
                 + f'<div class="st-sum">{esc(pg["summary"]).replace(chr(10), "<br>")}</div></div>')
     elif role == 'story_text':
         lines = ''.join(f'<div class="ln {k}">{esc(t) if t else "&nbsp;"}</div>' for k, t in pg['lines'])
-        body = f'<div class="story-text"><div class="st-head">{esc(pg["head"])}</div><div class="st-body">{lines}</div></div>'
+        colo = f'<div class="st-colophon">{esc(pg["colophon"]).replace(chr(10), "<br>")}</div>' if pg.get('colophon') else ''
+        body = f'<div class="story-text"><div class="st-head">{esc(pg["head"])}</div><div class="st-body">{lines}</div>{colo}</div>'
     else:
         body = '<div class="blank-note">&nbsp;</div>'
     num = '' if (role in ('blank', 'graph', 'story_title') or theme.get('pageNumber') is False) else f'<div class="pno">{number}</div>'
@@ -466,13 +467,19 @@ def main():
             pages = [{'role': 'story_title', 'title': w['title'], 'author': w.get('author', ''), 'label': v['label'], 'summary': w.get('summary', ''),
                       'cover': w.get('cover'), 'category': w.get('category', '小説・SS'), 'color': '#d9c3cf', 'tier': STORY_TIER}]
             head = w['title'] + (('　' + v['label']) if v['label'] else '')
-            for tp in v['pages']:
-                pages.append({'role': 'story_text', 'head': head, 'lines': tp, 'tier': STORY_TIER})
-            if v['index'] == v['of'] and pages[-1]['role'] == 'story_text':
-                pages[-1]['lines'] = list(pages[-1]['lines']) + [('b', ''), ('t', '（完）')] if len(pages[-1]['lines']) < fanbook.PAGE_LINES - 1 else pages[-1]['lines']
+            for it in v['items']:
+                if it['kind'] == 'image':                                   # an illustration page = the same page as a photo page of a personal book
+                    pages.append({'role': 'photo', 'image': it['image'], 'caption': it.get('caption', ''), 'color': '#d9c3cf', 'tier': STORY_TIER})
+                else:
+                    pages.append({'role': 'story_text', 'head': head, 'lines': it['lines'], 'tier': STORY_TIER})
+            if v['index'] == v['of']:                                      # the last page of the work carries a colophon (奥付)
+                for pg in reversed(pages):
+                    if pg['role'] == 'story_text':
+                        pg['colophon'] = f'{w["title"]}　（完）\n作：{w.get("author") or "—"}\n聖桜花女学園アーカイブ　二次創作'
+                        break
             while len(pages) < 12:
                 pages.append({'role': 'blank', 'tier': STORY_TIER})
-            imgs = [a.fe / w['cover']] if w.get('cover') and SAFE_IMG.match(w['cover']) and (a.fe / w['cover']).is_file() else []
+            imgs = [a.fe / x for x in ([w.get('cover')] + [pg.get('image') for pg in pages if pg['role'] == 'photo']) if x and SAFE_IMG.match(x) and (a.fe / x).is_file()]
             h = input_hash(pages, [tpl, theme_global], base_for(STORY_TIER)[1], imgs)
             jobs.append((slot, 6, pages, h, STORY_TIER, theme_global))
 

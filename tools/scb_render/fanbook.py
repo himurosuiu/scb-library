@@ -1,31 +1,34 @@
-"""Fan-work (二次創作) books: long text -> pages -> volumes.  Pure Python (no browser), so the publisher (how many books / slots?)
+"""Fan-work (二次創作) books: long text (+ illustrations) -> pages -> volumes.  Pure Python (no browser), so the publisher (how many books / slots?)
 and the renderer (what is on each page?) always agree.
 
-Page geometry (928 x 1528 px page, text area 788 px wide): 28 px type -> 28 full-width characters per line, 26 lines per page.
-A book has 12 pages: p.1 = title page (title / author / summary / volume), p.2..p.12 = text.  A work longer than one book is split into
-volumes (上 / 中 / 下 ... or 1, 2, 3 ...), each volume is one book slot  story-NNN.
-Lines are laid out here (kinsoku: no closing punctuation at the start of a line, no opening bracket at the end) and drawn one <div> per line,
-so what is measured is exactly what is drawn.
+VERTICAL writing (縦書き, right-bound book).  Page geometry (928 x 1528 px page): 27 px type, columns 42 px apart,
+40 characters per column, 18 columns per page.  A column is a "line" in the code below.
+A book has 12 pages: p.1 = title page (title / author / summary / volume), p.2..p.12 = 11 content pages (text pages and illustration pages).
+A work longer than one book is split evenly into volumes (第一巻, 第二巻 ...); each volume is one book slot  story-NNN.
+Columns are laid out here (kinsoku: no closing punctuation at the top of a column, no opening bracket at the bottom) and drawn one <div> per column,
+so what is measured is exactly what is drawn.  Illustrations: [{'image': 'assets/...', 'caption': '', 'after': N}] = full-page picture placed after
+the N-th text page (0 = before the first text page).
 """
 import re
 
-LINE_UNITS = 28           # full-width characters per line
-PAGE_LINES = 26           # lines per text page
-TEXT_PAGES = 11           # p.2 .. p.12
+LINE_UNITS = 40           # characters per column
+PAGE_LINES = 18           # columns per text page
+ITEMS_PER_BOOK = 11       # content pages (p.2 .. p.12)
 PAGES_PER_BOOK = 12
 MAX_VOLUMES = 8
 
 NO_START = set('、。，．,.）」』】〕］｝〉》！？!?…‥ー～々ゝゞヽヾぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ・：；')
-HANG = set('、。，．,.')                 # may hang over the right edge when the line is full
+HANG = set('、。，．,.')                 # may hang below the column when it is full
 NO_END = set('（「『【〔［｛〈《')
 HEADING = re.compile(r'^(第[一二三四五六七八九十百〇0-9０-９]+[章話節部巻]|プロローグ|エピローグ|序章|終章|幕間|あとがき)')
+FULLWIDTH = str.maketrans({**{chr(0x30 + i): chr(0xFF10 + i) for i in range(10)}, '!': '！', '?': '？', '(': '（', ')': '）'})
 
 
 def width(ch):
     o = ord(ch)
     if ch == '　':
         return 1.0
-    if o < 0x80 or 0xFF61 <= o <= 0xFF9F:      # ASCII / half-width kana
+    if o < 0x80 or 0xFF61 <= o <= 0xFF9F:      # remaining ASCII (letters) / half-width kana: rotated, narrower
         return 0.5
     return 1.0
 
@@ -34,11 +37,12 @@ def normalize(text):
     t = text.replace('\r\n', '\n').replace('\r', '\n').replace(' ', ' ').replace('\t', ' ')
     t = re.sub(r'[ ]+\n', '\n', t)
     t = re.sub(r'(?<=[^\x00-\x7f]) +(?=[^\x00-\x7f])', '', t)      # stray spaces between Japanese characters
+    t = t.translate(FULLWIDTH)                                      # digits and ! ? ( ) stand upright in vertical text
     return t.strip('\n')
 
 
 def layout_paragraph(text, indent):
-    """One paragraph -> list of line strings."""
+    """One paragraph -> list of column strings."""
     lines, cur, w = [], '', 0.0
     chars = list(('　' if indent else '') + text)
     i = 0
@@ -46,7 +50,7 @@ def layout_paragraph(text, indent):
         ch = chars[i]
         cw = width(ch)
         if w + cw > LINE_UNITS + 1e-6:
-            if ch in HANG and w <= LINE_UNITS + 1e-6:                       # hang 、。 over the edge
+            if ch in HANG and w <= LINE_UNITS + 1e-6:                       # hang 、。 below the column
                 cur += ch; i += 1
                 lines.append(cur); cur, w = '', 0.0
                 continue
@@ -54,7 +58,7 @@ def layout_paragraph(text, indent):
                 last = cur[-1]; cur = cur[:-1]
                 lines.append(cur); cur, w = last, width(last)
                 continue
-            if cur and cur[-1] in NO_END:                                   # never end a line with an opening bracket
+            if cur and cur[-1] in NO_END:                                   # never end a column with an opening bracket
                 last = cur[-1]; cur = cur[:-1]
                 lines.append(cur); cur, w = last, width(last)
                 continue
@@ -67,7 +71,7 @@ def layout_paragraph(text, indent):
 
 
 def to_lines(body):
-    """Whole text -> list of (kind, text): kind 'h' heading line, 't' text line, 'b' blank."""
+    """Whole text -> list of (kind, text): kind 'h' heading column (double width), 't' text column, 'b' blank column."""
     out = []
     for raw in normalize(body).split('\n'):
         para = raw.strip(' ')
@@ -75,7 +79,7 @@ def to_lines(body):
             if out and out[-1][0] != 'b':
                 out.append(('b', ''))
             continue
-        if HEADING.match(para) and len(para) <= 40:
+        if HEADING.match(para) and len(para) <= 36:
             if out and out[-1][0] != 'b':
                 out.append(('b', ''))
             out.append(('h', para))
@@ -87,7 +91,7 @@ def to_lines(body):
 
 
 def paginate(body):
-    """Lines -> list of pages (each a list of (kind, text)); a heading never ends a page, no blank line starts or ends one."""
+    """Columns -> list of text pages (each a list of (kind, text)); a heading never ends a page, no blank column starts or ends one."""
     lines = to_lines(body)
     pages, cur = [], []
 
@@ -121,17 +125,34 @@ def volume_label(i, n):
         return ('上', '下')[i]
     if n == 3:
         return ('上', '中', '下')[i]
-    return '第' + '一二三四五六七八' [i] + '巻'
+    return '第' + '一二三四五六七八'[i] + '巻'
+
+
+def build_items(work):
+    """Text pages and illustration pages in reading order: [{'kind': 'text', 'lines': [...]} | {'kind': 'image', 'image', 'caption'}]."""
+    pages = paginate(work.get('body', ''))
+    ill = []
+    for k, x in enumerate(work.get('illustrations') or []):
+        ill.append((max(0, min(int(x.get('after', 0)), len(pages))), k, x))
+    ill.sort(key=lambda t: (t[0], t[1]))
+    items, j = [], 0
+    for n in range(len(pages) + 1):
+        while j < len(ill) and ill[j][0] == n:
+            items.append({'kind': 'image', 'image': ill[j][2]['image'], 'caption': ill[j][2].get('caption', '')})
+            j += 1
+        if n < len(pages):
+            items.append({'kind': 'text', 'lines': pages[n]})
+    return items
 
 
 def split_volumes(work):
-    """work = {'title','author','summary','category','body'} -> list of volumes: {'label','pages':[text pages], 'index','of'}."""
-    pages = paginate(work.get('body', ''))
-    n = min(MAX_VOLUMES, max(1, -(-len(pages) // TEXT_PAGES)))
-    size = -(-len(pages) // n)                                      # spread the pages evenly over the volumes
-    chunks = [pages[i:i + size] for i in range(0, len(pages), size)][:MAX_VOLUMES] or [[]]
+    """work = {'title','author','summary','category','body','illustrations'} -> list of volumes: {'label','items','index','of'}."""
+    items = build_items(work)
+    n = min(MAX_VOLUMES, max(1, -(-len(items) // ITEMS_PER_BOOK)))
+    size = -(-len(items) // n)                                      # spread the pages evenly over the volumes
+    chunks = [items[i:i + size] for i in range(0, len(items), size)][:MAX_VOLUMES] or [[]]
     n = len(chunks)
-    return [{'label': volume_label(i, n), 'pages': c, 'index': i + 1, 'of': n} for i, c in enumerate(chunks)]
+    return [{'label': volume_label(i, n), 'items': c, 'index': i + 1, 'of': n} for i, c in enumerate(chunks)]
 
 
 def estimate_volumes(work):
@@ -149,8 +170,9 @@ CSS = """
 .story-title .st-sum{position:absolute;left:90px;top:1170px;width:748px;height:240px;overflow:hidden;font-size:calc(26px*var(--fs));line-height:1.7;color:var(--muted);text-align:left}
 .story-title.nocover .st-sum{top:760px;height:640px;font-size:calc(30px*var(--fs))}
 .story-text .st-head{position:absolute;left:70px;top:72px;width:788px;font-size:calc(20px*var(--fs));letter-spacing:.2em;color:var(--muted);white-space:nowrap;overflow:hidden}
-.story-text .st-body{position:absolute;left:70px;top:130px;width:788px;font-size:28px;line-height:47.6px;color:var(--text)}
-.story-text .ln{white-space:pre;height:47.6px;overflow:visible}
-.story-text .ln.h{font-size:36px;font-weight:700;height:95px;line-height:95px;color:var(--accent);filter:brightness(.7)}
-.story-text .ln.b{height:47.6px}
+.story-text .st-body{position:absolute;left:86px;top:130px;width:756px;height:1100px;writing-mode:vertical-rl;text-orientation:mixed;font-feature-settings:"vert" 1,"palt" 0;font-size:27px;color:var(--text)}
+.story-text .ln{white-space:pre;width:42px;height:1100px;line-height:42px;overflow:visible}
+.story-text .ln.h{width:84px;font-size:34px;font-weight:700;line-height:84px;color:var(--accent);filter:brightness(.7)}
+.story-text .ln.b{width:42px}
+.story-text .st-colophon{position:absolute;left:70px;top:1330px;width:788px;text-align:center;font-size:calc(22px*var(--fs));line-height:1.8;color:var(--muted);letter-spacing:.08em}
 """

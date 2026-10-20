@@ -731,17 +731,17 @@ def main():
         for row in fan_rows:
             d = row['data']
             works.append({'id': row['id'], 'title': d['title'], 'author': d.get('author', ''), 'category': d.get('category', '小説・SS'), 'summary': d.get('summary', ''),
-                          'cover': d.get('cover'), 'body': d.get('body', ''), 'volumes': fanbook.estimate_volumes(d)})
+                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'volumes': fanbook.estimate_volumes(d)})
         slot_map = assign_story_slots(works, fan_old.get('works', []), rep)
         for w in works:
             w['slots'] = slot_map[w['id']]
-            c = w['cover']
-            if c and not (a.fe / c).exists():
-                m = UPLOAD_RE.match(c)
-                if m and url:
-                    site_fetch.append((c, f'{m.group(1)}/{m.group(2)}'))
-                else:
-                    rep.warn(f'fan work {w["title"]!r}: cover image is missing in the frontend: {c}')
+            for c in [w['cover']] + [x['image'] for x in w['illustrations']]:
+                if c and not (a.fe / c).exists():
+                    m = UPLOAD_RE.match(c)
+                    if m and url:
+                        site_fetch.append((c, f'{m.group(1)}/{m.group(2)}'))
+                    else:
+                        rep.warn(f'fan work {w["title"]!r}: image is missing in the frontend: {c}')
         fan_new = {'version': 1, 'works': works}
     fd = [] if fan_new == fan_old else ['  ~ fanworks.json: ' + ', '.join(sorted(w['title'] for w in fan_new['works'] if w not in fan_old.get('works', []))) + (f' ({sum(len(w["slots"]) for w in fan_new["works"])} story books)')]
     to_fetch = to_fetch + [x for x in site_fetch if x not in to_fetch]   # images of the home works and the tier art (folder "site")

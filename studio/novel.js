@@ -1,5 +1,5 @@
 // Fan works (二次創作の小説): members write / paste a novel, the administrator approves it, the publisher turns it into book volumes.
-// The page layout below is a port of tools/scb_render/fanbook.py (28 full-width characters per line, 26 lines per page, 11 text pages per book).
+// The page layout below is a port of tools/scb_render/fanbook.py (VERTICAL writing: 40 characters per column, 18 columns per page, 11 content pages per book).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm';
 
 const $ = id => document.getElementById(id);
@@ -7,10 +7,10 @@ const cfg = window.SCB_SUPABASE_CONFIG || {};
 const ready = /^https:\/\/[\w-]+\.supabase\.co$/.test(cfg.url) && !!cfg.anonKey;
 const BUCKET = 'scb-uploads', MAX_BYTES = 5 * 1024 * 1024, MAX_BODY = 60000;
 const STATUS = { draft: '下書き', pending: '審査待ち', approved: '公開中', rejected: '差し戻し' };
-let api = null, user = null, admin = false, current = null, pageIdx = 0, pages = [];
+let api = null, user = null, admin = false, current = null, pageIdx = 0, pages = [], items = [];
 
 // ---------------------------------------------------------------- layout (port of fanbook.py)
-const LINE_UNITS = 28, PAGE_LINES = 26, TEXT_PAGES = 11, MAX_VOLUMES = 8;
+const LINE_UNITS = 40, PAGE_LINES = 18, ITEMS_PER_BOOK = 11, MAX_VOLUMES = 8, MAX_ILL = 12;
 const NO_START = new Set('、。，．,.）」』】〕］｝〉》！？!?…‥ー～々ゝゞヽヾぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ・：；');
 const HANG = new Set('、。，．,.');
 const NO_END = new Set('（「『【〔［｛〈《');
@@ -19,6 +19,7 @@ const width = ch => { const o = ch.codePointAt(0); if (ch === '　') return 1; i
 function normalize(t) {
   t = t.replace(/\r\n?/g, '\n').replace(/\u00a0/g, ' ').replace(/\t/g, ' ').replace(/ +\n/g, '\n');
   t = t.replace(/(?<=[^\x00-\x7f]) +(?=[^\x00-\x7f])/g, '');
+  t = t.replace(/[0-9]/g, c => String.fromCharCode(c.charCodeAt(0) + 0xFEE0)).replace(/!/g, '！').replace(/\?/g, '？').replace(/\(/g, '（').replace(/\)/g, '）');
   return t.replace(/^\n+|\n+$/g, '');
 }
 function layoutParagraph(text, indent) {
@@ -41,7 +42,7 @@ function toLines(body) {
   for (const raw of normalize(body).split('\n')) {
     const para = raw.replace(/^ +| +$/g, '');
     if (para === '') { if (out.length && out[out.length - 1][0] !== 'b') out.push(['b', '']); continue; }
-    if (HEADING.test(para) && Array.from(para).length <= 40) { if (out.length && out[out.length - 1][0] !== 'b') out.push(['b', '']); out.push(['h', para]); continue; }
+    if (HEADING.test(para) && Array.from(para).length <= 36) { if (out.length && out[out.length - 1][0] !== 'b') out.push(['b', '']); out.push(['h', para]); continue; }
     const indent = !'「『（(【〔―—'.includes(para[0]);
     for (const ln of layoutParagraph(para, indent)) out.push(['t', ln]);
   }
@@ -65,7 +66,16 @@ function paginate(body) {
   if (cur.length) res.push(cur);
   return res.length ? res : [[['t', '']]];
 }
-const volumesOf = pgs => Math.min(MAX_VOLUMES, Math.max(1, Math.ceil(pgs.length / TEXT_PAGES)));
+function buildItems(textPages, ills) {
+  const ill = (ills || []).map((x, k) => [Math.max(0, Math.min(x.after | 0, textPages.length)), k, x]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const items = []; let j = 0;
+  for (let n = 0; n <= textPages.length; n++) {
+    while (j < ill.length && ill[j][0] === n) { items.push({ kind: 'image', image: ill[j][2].image, caption: ill[j][2].caption || '' }); j++; }
+    if (n < textPages.length) items.push({ kind: 'text', lines: textPages[n] });
+  }
+  return items;
+}
+const volumesOf = items => Math.min(MAX_VOLUMES, Math.max(1, Math.ceil(items.length / ITEMS_PER_BOOK)));
 
 // ---------------------------------------------------------------- helpers
 const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
@@ -93,26 +103,61 @@ async function loadMine() {
 
 // ---------------------------------------------------------------- editor
 function openEditor(w) {
-  current = w ? { ...w } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft' };
+  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })) } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [] };
   $('editor').hidden = false; $('edTitle').textContent = current.id ? '作品の編集' : '新しい作品';
   $('title').value = current.title; $('author').value = current.author; $('category').value = current.category; $('summary').value = current.summary; $('body').value = current.body;
-  $('del').hidden = !current.id; showCover(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
+  $('del').hidden = !current.id; showCover(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
 }
 function showCover() { const b = $('coverBox'); b.replaceChildren(); const u = imgUrl(current.cover); if (u) { const im = el('img', { src: u, alt: '' }); const x = el('button', { type: 'button' }, '表紙を外す'); x.onclick = () => { current.cover = null; showCover(); }; b.append(im, x); } }
 function refresh() {
   const body = cleanText($('body').value); pages = paginate(body); const n = Array.from(body).length;
-  const vols = volumesOf(pages); $('counter').textContent = `${n.toLocaleString()} / ${MAX_BODY.toLocaleString()} 字`; $('counter').className = n > MAX_BODY ? 'err' : '';
-  $('volInfo').textContent = n ? `本文 ${pages.length} ページ → 本 ${vols} 冊（1 冊に最大 ${TEXT_PAGES} ページ）` + (pages.length > TEXT_PAGES * MAX_VOLUMES ? '。長すぎるため後半は本になりません' : '') : '';
-  if (pageIdx >= pages.length) pageIdx = pages.length - 1; if (pageIdx < 0) pageIdx = 0; drawPage();
+  items = buildItems(pages, current ? current.illustrations : []);
+  const vols = volumesOf(items); $('counter').textContent = `${n.toLocaleString()} / ${MAX_BODY.toLocaleString()} 字`; $('counter').className = n > MAX_BODY ? 'err' : '';
+  const nill = current ? current.illustrations.length : 0;
+  $('volInfo').textContent = n ? `本文 ${pages.length} ページ` + (nill ? ` ＋ 挿絵 ${nill} ページ` : '') + ` → 本 ${vols} 冊（1 冊に最大 ${ITEMS_PER_BOOK} ページ）` + (items.length > ITEMS_PER_BOOK * MAX_VOLUMES ? '。長すぎるため後半は本になりません' : '') : '';
+  if (pageIdx >= items.length) pageIdx = items.length - 1; if (pageIdx < 0) pageIdx = 0; drawPage();
 }
 function drawPage() {
-  const pg = $('pg'); pg.replaceChildren(); const p = pages[pageIdx] || [];
-  for (const [k, t] of p) pg.append(el('div', { className: k === 'h' ? 'h' : '' }, t === '' ? ' ' : t));
-  $('pgNo').textContent = `${pageIdx + 1} / ${pages.length}`;
+  const pg = $('pg'); pg.replaceChildren(); const it = items[pageIdx];
+  if (it && it.kind === 'image') {
+    const box = el('div', { className: 'ill' }); const u = imgUrl(it.image); if (u) box.append(el('img', { src: u, alt: '' })); box.append(el('div', {}, it.caption || '（挿絵）')); pg.append(box);
+  } else if (it) { for (const [k, t] of it.lines) pg.append(el('div', { className: 'ln ' + (k === 'h' ? 'h' : '') }, t === '' ? ' ' : t)); }
+  $('pgNo').textContent = `${pageIdx + 1} / ${items.length}`;
 }
+// ---------------------------------------------------------------- illustrations
+function renderIlls() {
+  const box = $('ills'); box.replaceChildren(); if (!current) return;
+  current.illustrations.forEach((x, i) => {
+    const maxAfter = pages.length;
+    const pos = el('div', { className: 'pos' }, x.after <= 0 ? '本文の前（扉絵）' : `本文 ${Math.min(x.after, maxAfter)} ページ目のあと`);
+    const up = el('button', { type: 'button' }, '↑ 前へ'), dn = el('button', { type: 'button' }, '↓ 後ろへ'), del = el('button', { type: 'button' }, '外す');
+    up.disabled = x.after <= 0; dn.disabled = x.after >= maxAfter;
+    up.onclick = () => { x.after = Math.max(0, Math.min(x.after, maxAfter) - 1); renderIlls(); refresh(); jumpToIll(i); };
+    dn.onclick = () => { x.after = Math.min(maxAfter, x.after + 1); renderIlls(); refresh(); jumpToIll(i); };
+    del.onclick = () => { current.illustrations.splice(i, 1); renderIlls(); refresh(); };
+    const cap = el('input', { type: 'text', placeholder: 'キャプション（任意・60字まで）', maxLength: 60, value: x.caption || '' }); cap.oninput = () => { x.caption = cleanText(cap.value); };
+    box.append(el('div', { className: 'ill-card' }, el('img', { src: imgUrl(x.image), alt: '' }), pos, cap, up, dn, del));
+  });
+}
+function jumpToIll(i) { const k = items.findIndex(it => it.kind === 'image' && it.image === current.illustrations[i].image); if (k >= 0) { pageIdx = k; drawPage(); } }
+$('illFile').onchange = async () => {
+  const files = Array.from($('illFile').files || []); if (!files.length) return;
+  try {
+    for (const f of files) {
+      if (current.illustrations.length >= MAX_ILL) throw new Error(`挿絵は ${MAX_ILL} 枚までです`);
+      const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[f.type]; if (!ext) throw new Error('PNG / JPG / WebP の画像を選んでください');
+      if (f.size > MAX_BYTES) throw new Error('5MB 以下の画像を選んでください');
+      const name = `fan-${user.id.replace(/-/g, '')}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await api.storage.from(BUCKET).upload(name, f, { contentType: f.type, upsert: false }); if (error) throw new Error('アップロード失敗: ' + error.message);
+      current.illustrations.push({ image: 'assets/uploads/' + name, caption: '', after: pages.length });
+    }
+    say('挿絵をアップロードしました。保存で確定します。');
+  } catch (e) { say(e.message, 'err'); }
+  $('illFile').value = ''; renderIlls(); refresh();
+};
 $('prev').onclick = () => { if (pageIdx > 0) { pageIdx--; drawPage(); } };
-$('next').onclick = () => { if (pageIdx < pages.length - 1) { pageIdx++; drawPage(); } };
-$('body').addEventListener('input', () => { pageIdx = 0; refresh(); });
+$('next').onclick = () => { if (pageIdx < items.length - 1) { pageIdx++; drawPage(); } };
+$('body').addEventListener('input', () => { pageIdx = 0; refresh(); renderIlls(); });
 $('body').addEventListener('paste', () => setTimeout(() => { const c = cleanText($('body').value); if (c !== $('body').value) { $('body').value = c; } pageIdx = 0; refresh(); }, 0));
 $('newWork').onclick = () => openEditor(null);
 $('txtFile').onchange = async () => { const f = $('txtFile').files[0]; if (!f) return; $('body').value = cleanText(await f.text()); pageIdx = 0; refresh(); };
@@ -132,7 +177,7 @@ async function save(submit) {
   if (Array.from(body).length > MAX_BODY) return say(`本文は ${MAX_BODY.toLocaleString()} 字までです`, 'err');
   if (submit && Array.from(body).length < 200) return say('本文が短すぎます（200 字以上で審査に出せます）', 'err');
   try {
-    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit });
+    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })) });
     current.id = r.id; current.status = r.status; say(submit ? '審査に出しました。承認されると本になります。' : '下書きを保存しました。', 'ok');
     await loadMine(); $('del').hidden = false;
   } catch (e) { say('保存できませんでした: ' + e.message, 'err'); }
@@ -153,8 +198,8 @@ async function loadPending() {
     const ok = el('button', { type: 'button' }, '承認する'), ng = el('button', { type: 'button' }, '差し戻す');
     const decide = async yes => { try { await rpc('scb_fan_decide', { p_id: w.id, p_ok: yes, p_note: yes ? '' : cleanText(note.value) }); await loadPending(); await loadMine(); } catch (e) { alert('処理できませんでした: ' + e.message); } };
     ok.onclick = () => decide(true); ng.onclick = () => decide(false);
-    const n = paginate(w.body || '').length;
-    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（本文 ${n} ページ → ${volumesOf(paginate(w.body || ''))} 冊）`),
+    const its = buildItems(paginate(w.body || ''), w.illustrations || []); const n = its.length;
+    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（${n} ページ → ${volumesOf(its)} 冊、挿絵 ${(w.illustrations || []).length} 枚）`),
       el('p', {}, w.summary || ''), el('details', {}, el('summary', {}, '本文を読む'), el('pre', {}, w.body || '')), note, ok, ng));
   }
 }
