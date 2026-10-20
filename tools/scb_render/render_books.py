@@ -361,8 +361,56 @@ def paper_of(tpl):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def compose(base: Image.Image, left: Image.Image, right: Image.Image, paper):
+SPINE_RECT = (64, 1812, 1088, 1984)                        # the spine band of the page atlas (1024 x 172)
+COVER_OUTER = (501, 216, 978, 1000)                        # outer side of the front cover inside the 1024 cover texture (top-left origin)
+COVER_INNER = (25, 216, 501, 1000)
+BACK_OUTER = (436, 325, 859, 1013)                         # outer side of the back cover inside the 1024 back texture
+BACK_INNER = (13, 325, 436, 1013)
+
+
+def cover_fit(img: Image.Image, w, h):
+    """Cut the picture to the ratio w:h from the centre and scale it to w x h."""
+    r = w / h
+    iw, ih = img.size
+    if iw / ih > r:
+        nw = int(ih * r); box = ((iw - nw) // 2, 0, (iw - nw) // 2 + nw, ih)
+    else:
+        nh = int(iw / r); box = (0, (ih - nh) // 2, iw, (ih - nh) // 2 + nh)
+    return img.crop(box).resize((w, h), Image.LANCZOS)
+
+
+def edge_color(img: Image.Image):
+    small = img.resize((8, 8), Image.BILINEAR)
+    px = [small.getpixel((x, y)) for x in range(8) for y in range(8) if x in (0, 7) or y in (0, 7)]
+    return tuple(sum(c[i] for c in px) // len(px) for i in range(3))
+
+
+def build_cover_texture(path, paper, back=False):
+    art = Image.open(path).convert('RGB')
+    outer, inner = (BACK_OUTER, BACK_INNER) if back else (COVER_OUTER, COVER_INNER)
+    tex = Image.new('RGB', (1024, 1024), edge_color(art))
+    for r in (inner,):
+        tex.paste(paper, r)
+    w, h = outer[2] - outer[0], outer[3] - outer[1]
+    fit = cover_fit(art, w, h)
+    if back:
+        fit = fit.rotate(180)                              # the back cover's UV is turned by 180 degrees
+    tex.paste(fit, outer[:2])
+    return tex
+
+
+def spine_picture(path):
+    art = Image.open(path).convert('RGB')
+    w, h = SPINE_RECT[2] - SPINE_RECT[0], SPINE_RECT[3] - SPINE_RECT[1]
+    if art.size[1] >= art.size[0]:                         # a tall picture is turned onto the long band
+        art = art.rotate(90, expand=True)
+    return cover_fit(art, w, h)
+
+
+def compose(base: Image.Image, left: Image.Image, right: Image.Image, paper, spine=None):
     atlas = base.copy()
+    if spine is not None:
+        atlas.paste(spine, SPINE_RECT[:2])
     for r in (LEFT_RECT, RIGHT_RECT):
         atlas.paste(paper, (r[0], r[1], r[2], r[3]))
     atlas.paste(left, LEFT_POS)
@@ -457,7 +505,7 @@ def main():
         bgs = {background_of(theme, pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
         imgs += [a.fe / x for x in sorted(bgs) if SAFE_IMG.match(x) and (a.fe / x).is_file()]
         h = input_hash(pages, [tpl, theme], base_for(tier)[1], imgs)
-        jobs.append((slot, spreads, pages, h, tier, theme))
+        jobs.append((slot, spreads, pages, h, tier, theme, {}))
 
     # fan works (二次創作): data/fanworks.json -> one 12-page book per volume
     fan_file = a.fe / 'data' / 'fanworks.json'
@@ -484,9 +532,10 @@ def main():
                         break
             while len(pages) < 12:
                 pages.append({'role': 'blank', 'tier': STORY_TIER})
-            imgs = [a.fe / x for x in ([w.get('cover')] + [pg.get('image') for pg in pages if pg['role'] == 'photo']) if x and SAFE_IMG.match(x) and (a.fe / x).is_file()]
-            h = input_hash(pages, [tpl, theme_global], base_for(STORY_TIER)[1], imgs)
-            jobs.append((slot, 6, pages, h, STORY_TIER, theme_global))
+            art = {k: a.fe / v for k, v in (w.get('art') or {}).items() if k in ('front', 'back', 'spine') and v and SAFE_IMG.match(v) and (a.fe / v).is_file()}
+            imgs = [a.fe / x for x in ([w.get('cover')] + [pg.get('image') for pg in pages if pg['role'] == 'photo']) if x and SAFE_IMG.match(x) and (a.fe / x).is_file()] + sorted(art.values())
+            h = input_hash(pages, [tpl, theme_global, sorted(art)], base_for(STORY_TIER)[1], imgs)
+            jobs.append((slot, 6, pages, h, STORY_TIER, theme_global, art))
 
     todo = [j for j in jobs if a.force or state.get(j[0]) != j[3]
             or not all((a.out / 'books' / j[0] / f'spread-{n + 1}.jpg').exists() for n in range(j[1]))]
@@ -511,7 +560,7 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         bp = browser.new_page(viewport={'width': PAGE_W, 'height': PAGE_H})
-        for slot, spreads, pages, h, tier, theme in todo:
+        for slot, spreads, pages, h, tier, theme, art in todo:
             outdir = a.out / 'books' / slot
             outdir.mkdir(parents=True, exist_ok=True)
             rendered = []
@@ -523,7 +572,7 @@ def main():
                     rendered.append(render_page(bp, page_html(pg, tpl, a.fe, i, theme), rep, f'{slot} p.{i}'))
             for j in range(spreads):
                 right, left = rendered[2 * j], rendered[2 * j + 1]       # right-bound: p.(2j+1) right, p.(2j+2) left
-                atlas = compose(base_for(tier)[0], left, right, paper)
+                atlas = compose(base_for(tier)[0], left, right, paper, spine_picture(art['spine']) if art.get('spine') else None)
                 path = outdir / f'spread-{j + 1}.jpg'
                 tmp = path.with_suffix('.tmp')
                 atlas.save(tmp, format='JPEG', quality=JPEG_QUALITY, optimize=True, subsampling=0)
@@ -533,6 +582,13 @@ def main():
                 if size > MAX_BYTES:
                     rep.warn(f'{slot} spread-{j + 1}.jpg is {size // 1024} KB (target ~740 KB)')
                 written.append(path)
+            for name, key, back in (('cover.jpg', 'front', False), ('back.jpg', 'back', True)):      # own cover / back cover textures (story books only)
+                target = outdir / name
+                if art.get(key):
+                    build_cover_texture(art[key], paper, back).save(target, format='JPEG', quality=90, optimize=True, subsampling=0)
+                    written.append(target)
+                elif target.exists():
+                    target.unlink()
             state[slot] = h
         browser.close()
     state_file.parent.mkdir(parents=True, exist_ok=True)

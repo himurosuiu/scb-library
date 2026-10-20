@@ -24,7 +24,14 @@ label{display:block;font-size:.88rem;color:#6b5a4e;margin:.6rem 0 .2rem}input[ty
   <h2 id="edTitle">作品の編集</h2>
   <div class="row2"><div><label>タイトル（60字まで）<input id="title" type="text" maxlength="60"></label></div><div><label>作者名（40字まで）<input id="author" type="text" maxlength="40"></label></div></div>
   <div class="row2"><div><label>分類<select id="category"><option>小説・SS</option><option>イベント記録</option><option>学園資料</option><option>詩</option></select></label></div>
-   <div class="cover"><label>表紙の画像（任意・PNG／JPG／WebP・5MB 以下）<input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="coverBox"></div></div></div>
+   <div class="cover"><label>作品カード・扉ページの画像（任意・PNG／JPG／WebP・5MB 以下）<input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="coverBox"></div></div></div>
+  <fieldset style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>本の外側（任意）</legend>
+   <label>表紙の書名（改行できます・60字まで。空なら上のタイトルを使います）<textarea id="coverTitle" maxlength="64" style="min-height:4.5rem"></textarea></label>
+   <p class="hint">自分の絵を使う場合は下の 3 枚を選んでください（PNG／JPG／WebP・5MB 以下）。<b>絵を入れた面には、自動の文字（書名・巻数）は出ません</b>。入れない面は、これまでどおりの自動デザインになります。</p>
+   <div class="row2"><div class="cover"><label>表紙（縦長・目安 3:5）<input id="artFront" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artFrontBox"></div></div>
+   <div class="cover"><label>裏表紙（縦長・目安 3:5）<input id="artBack" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artBackBox"></div></div></div>
+   <div class="cover"><label>背表紙（細長い縦長・目安 1:6）<input id="artSpine" type="file" accept="image/png,image/jpeg,image/webp"></label><div id="artSpineBox"></div></div>
+  </fieldset>
   <fieldset style="border:1px solid #d6bcb9;border-radius:10px;margin:.8rem 0;padding:.5rem .8rem"><legend>挿絵（任意・最大12枚）</legend><p class="hint">PNG／JPG／WebP・5MB 以下。1 枚が 1 ページになります。「↑／↓」で入れる場所を本文のページ単位で動かせます。使わない場合は何も追加しなくて大丈夫です。</p><div class="ills" id="ills"></div><p><input id="illFile" type="file" accept="image/png,image/jpeg,image/webp" multiple></p></fieldset>
   <label>あらすじ（200字まで）<textarea id="summary" maxlength="200" style="min-height:5rem"></textarea></label>
   <label>本文（60,000 字まで。Word などからそのまま貼り付けできます）<textarea id="body"></textarea></label>

@@ -731,11 +731,11 @@ def main():
         for row in fan_rows:
             d = row['data']
             works.append({'id': row['id'], 'title': d['title'], 'author': d.get('author', ''), 'category': d.get('category', '小説・SS'), 'summary': d.get('summary', ''),
-                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'volumes': fanbook.estimate_volumes(d)})
+                          'cover': d.get('cover'), 'body': d.get('body', ''), 'illustrations': d.get('illustrations') or [], 'art': d.get('art') or {}, 'volumes': fanbook.estimate_volumes(d)})
         slot_map = assign_story_slots(works, fan_old.get('works', []), rep)
         for w in works:
             w['slots'] = slot_map[w['id']]
-            for c in [w['cover']] + [x['image'] for x in w['illustrations']]:
+            for c in [w['cover']] + [x['image'] for x in w['illustrations']] + [v for k, v in w['art'].items() if k in ('front', 'back', 'spine')]:
                 if c and not (a.fe / c).exists():
                     m = UPLOAD_RE.match(c)
                     if m and url:
@@ -761,9 +761,23 @@ def main():
     for w in fan_new.get('works', []):                   # one book per volume of every approved fan work
         for vi, slot in enumerate(w.get('slots', [])):
             label = fanbook.volume_label(vi, w['volumes'])
-            books.append({'slot': slot, 'type': 'story', 'tier': STORY_TIER, 'color': DEFAULT_COLOR,
-                          'coverTop': f'二次創作　{label}' if label else f'二次創作　{w["category"]}',      # the volume goes on the small top line, the title stays alone (max two lines) below
-                          'coverName': w['title'][:60], 'spineText': (f'{w["title"]}{label}' if label else w['title'])[:40], 'spreads': 6})
+            art = w.get('art') or {}
+            title_text = (art.get('coverTitle') or w['title']).replace('\r', '')
+            entry = {'slot': slot, 'type': 'story', 'tier': STORY_TIER, 'color': DEFAULT_COLOR, 'coverTop': ''}
+            if art.get('front'):                          # the member's own cover picture replaces the text
+                entry['coverName'] = ''
+                entry['customCover'] = True
+            else:                                         # title (line breaks kept, normal size) and, at the bottom, the volume
+                entry['coverName'] = (title_text + (f'\n<size=65%>{label}</size>' if label else ''))[:100]
+            if art.get('back'):
+                entry['customBack'] = True
+            if art.get('spine'):
+                entry['spineText'] = ''
+                entry['customSpine'] = True
+            else:
+                entry['spineText'] = (f'{w["title"]}{label}' if label else w['title'])[:40]
+            entry['spreads'] = 6
+            books.append(entry)
     idx_file = a.repo / 'books' / 'index.json'
     old_idx = json.loads(idx_file.read_text(encoding='utf-8')) if idx_file.exists() else {'books': [], 'updated': ''}
     new_idx = {'version': 1, 'updated': old_idx.get('updated') or datetime.date.today().isoformat(), 'books': books}

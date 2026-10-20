@@ -103,10 +103,10 @@ async function loadMine() {
 
 // ---------------------------------------------------------------- editor
 function openEditor(w) {
-  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })) } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [] };
+  current = w ? { ...w, illustrations: (w.illustrations || []).map(x => ({ ...x })), art: { ...(w.art || {}) } } : { id: null, title: '', author: '', category: '小説・SS', summary: '', cover: null, body: '', status: 'draft', illustrations: [], art: {} };
   $('editor').hidden = false; $('edTitle').textContent = current.id ? '作品の編集' : '新しい作品';
   $('title').value = current.title; $('author').value = current.author; $('category').value = current.category; $('summary').value = current.summary; $('body').value = current.body;
-  $('del').hidden = !current.id; showCover(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
+  $('coverTitle').value = current.art.coverTitle || ''; $('del').hidden = !current.id; showCover(); showArt(); renderIlls(); refresh(); $('editor').scrollIntoView({ behavior: 'smooth' });
 }
 function showCover() { const b = $('coverBox'); b.replaceChildren(); const u = imgUrl(current.cover); if (u) { const im = el('img', { src: u, alt: '' }); const x = el('button', { type: 'button' }, '表紙を外す'); x.onclick = () => { current.cover = null; showCover(); }; b.append(im, x); } }
 function refresh() {
@@ -173,13 +173,39 @@ $('coverFile').onchange = async () => {
     current.cover = 'assets/uploads/' + name; showCover(); say('表紙をアップロードしました。保存で確定します。');
   } catch (e) { say(e.message, 'err'); }
 };
+// own front cover / back cover / spine pictures (they replace the automatic cover design)
+const ART = [['front', 'artFront', 'artFrontBox', '表紙'], ['back', 'artBack', 'artBackBox', '裏表紙'], ['spine', 'artSpine', 'artSpineBox', '背表紙']];
+function showArt() {
+  for (const [key, , boxId, label] of ART) {
+    const b = $(boxId); b.replaceChildren(); const u = imgUrl(current.art[key]);
+    if (u) { const x = el('button', { type: 'button' }, label + 'を外す'); x.onclick = () => { delete current.art[key]; showArt(); }; b.append(el('img', { src: u, alt: '' }), x); }
+  }
+}
+for (const [key, inputId, , label] of ART) {
+  $(inputId).onchange = async () => {
+    const f = $(inputId).files[0]; if (!f) return;
+    try {
+      const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[f.type]; if (!ext) throw new Error('PNG / JPG / WebP の画像を選んでください');
+      if (f.size > MAX_BYTES) throw new Error('5MB 以下の画像を選んでください');
+      const name = `fan-${user.id.replace(/-/g, '')}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await api.storage.from(BUCKET).upload(name, f, { contentType: f.type, upsert: false }); if (error) throw new Error('アップロード失敗: ' + error.message);
+      current.art[key] = 'assets/uploads/' + name; showArt(); say(label + 'をアップロードしました。保存で確定します。');
+    } catch (e) { say(e.message, 'err'); }
+    $(inputId).value = '';
+  };
+}
+function artPayload() {
+  const a = {}; for (const [key] of ART) if (current.art[key]) a[key] = current.art[key];
+  const t = cleanText($('coverTitle').value).replace(/^\n+|\n+$/g, '').slice(0, 60); if (t) a.coverTitle = t;
+  return a;
+}
 async function save(submit) {
   const body = cleanText($('body').value), title = cleanText($('title').value).trim();
   if (!title) return say('タイトルを入力してください', 'err');
   if (Array.from(body).length > MAX_BODY) return say(`本文は ${MAX_BODY.toLocaleString()} 字までです`, 'err');
   if (submit && Array.from(body).length < 200) return say('本文が短すぎます（200 字以上で審査に出せます）', 'err');
   try {
-    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })) });
+    const r = await rpc('scb_fan_save', { p_id: current.id, p_title: title, p_author: cleanText($('author').value).trim(), p_category: $('category').value, p_summary: cleanText($('summary').value), p_cover: current.cover, p_body: body, p_submit: submit, p_illust: current.illustrations.map(x => ({ image: x.image, caption: cleanText(x.caption || ''), after: Math.min(x.after, pages.length) })), p_art: artPayload() });
     current.id = r.id; current.status = r.status; say(submit ? '審査に出しました。承認されると本になります。' : '下書きを保存しました。', 'ok');
     await loadMine(); $('del').hidden = false;
   } catch (e) { say('保存できませんでした: ' + e.message, 'err'); }
@@ -201,7 +227,7 @@ async function loadPending() {
     const decide = async yes => { try { await rpc('scb_fan_decide', { p_id: w.id, p_ok: yes, p_note: yes ? '' : cleanText(note.value) }); await loadPending(); await loadMine(); } catch (e) { alert('処理できませんでした: ' + e.message); } };
     ok.onclick = () => decide(true); ng.onclick = () => decide(false);
     const its = buildItems(paginate(w.body || ''), w.illustrations || []); const n = its.length;
-    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（${n} ページ → ${volumesOf(its)} 冊、挿絵 ${(w.illustrations || []).length} 枚）`),
+    box.append(el('div', { className: 'pend' }, el('strong', {}, w.title), el('span', { className: 'muted' }, `　${w.author || '（作者名なし）'} ・ ${w.category} ・ ${(w.body || '').length.toLocaleString()} 字（${n} ページ → ${volumesOf(its)} 冊、挿絵 ${(w.illustrations || []).length} 枚${Object.keys(w.art || {}).length ? '、本の外側：' + Object.keys(w.art).join('/') : ''}）`),
       el('p', {}, w.summary || ''), el('details', {}, el('summary', {}, '本文を読む'), el('pre', {}, w.body || '')), note, ok, ng));
   }
 }
