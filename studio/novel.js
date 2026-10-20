@@ -117,7 +117,7 @@ function refresh() {
   $('volInfo').textContent = n ? `本文 ${pages.length} ページ` + (nill ? ` ＋ 挿絵 ${nill} ページ` : '') + ` → 本 ${vols} 冊（1 冊に最大 ${ITEMS_PER_BOOK} ページ）` + (items.length > ITEMS_PER_BOOK * MAX_VOLUMES ? '。長すぎるため後半は本になりません' : '') : '';
   if (pageIdx >= items.length) pageIdx = items.length - 1; if (pageIdx < 0) pageIdx = 0; drawPage();
 }
-const ROT = '\u2026\u2025\u2015\u2014\u2500';
+const ROT = '\u2026\u2025\u2015\u2500\uff1a';
 function fillCol(div, t) { for (const ch of Array.from(t === '' ? ' ' : t)) { if (ROT.includes(ch)) div.append(el('span', { className: 'rot' }, ch)); else div.append(document.createTextNode(ch)); } }
 function drawPage() {
   const pg = $('pg'); pg.replaceChildren(); const it = items[pageIdx];

@@ -70,7 +70,7 @@ def layout_paragraph(text, indent):
     return lines
 
 
-def to_lines(body):
+def to_lines(body, colon_heading=False):
     """Whole text -> list of (kind, text): kind 'h' heading column (double width), 't' text column, 'b' blank column."""
     out = []
     for raw in normalize(body).split('\n'):
@@ -79,10 +79,11 @@ def to_lines(body):
             if out and out[-1][0] != 'b':
                 out.append(('b', ''))
             continue
-        if HEADING.match(para) and len(para) <= 36:
+        by_colon = colon_heading and para[-1] in '：:' and para.strip('：: ') != ''      # (own settings) a short line that ends with a colon is a heading
+        if (HEADING.match(para) or by_colon) and len(para) <= 36:
             if out and out[-1][0] != 'b':
                 out.append(('b', ''))
-            out.append(('h', para))
+            out.append(('h', para.rstrip('：: ') if by_colon else para))
             continue
         indent = para[0] not in '「『（(【〔―—'
         for ln in layout_paragraph(para, indent):
@@ -90,9 +91,9 @@ def to_lines(body):
     return out
 
 
-def paginate(body):
+def paginate(body, colon_heading=False):
     """Columns -> list of text pages (each a list of (kind, text)); a heading never ends a page, no blank column starts or ends one."""
-    lines = to_lines(body)
+    lines = to_lines(body, colon_heading)
     pages, cur = [], []
 
     def used(page):

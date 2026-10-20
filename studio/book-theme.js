@@ -156,7 +156,7 @@ function buildControls() {
   const fs = $('fontScale'); fs.value = T().fontScale || 1; $('fsVal').textContent = Number(fs.value).toFixed(2);
   fs.oninput = () => { theme.fontScale = Number(fs.value); $('fsVal').textContent = Number(fs.value).toFixed(2); renderPreview(); };
   const bind = (id, key, def, isBool) => { const e = $(id); if (isBool) { e.checked = T()[key] ?? def; e.onchange = () => { theme[key] = e.checked; renderPreview(); }; } else { e.value = T()[key] || def; e.onchange = () => { theme[key] = e.value; if (id === 'accentSource') buildTierAccent(); renderPreview(); }; } };
-  bind('frame', 'frame', 'thin'); bind('topBar', 'topBar', true, true); bind('pageNumber', 'pageNumber', true, true); bind('accentSource', 'accentSource', 'person'); bind('portraitShape', 'portraitShape', 'arch'); bind('photoFrame', 'photoFrame', 'border'); bind('galleryLayout', 'galleryLayout', 'single');
+  bind('frame', 'frame', 'thin'); bind('topBar', 'topBar', true, true); bind('pageNumber', 'pageNumber', true, true); bind('accentSource', 'accentSource', 'person'); bind('portraitShape', 'portraitShape', 'arch'); bind('photoFrame', 'photoFrame', 'border'); bind('galleryLayout', 'galleryLayout', 'outfit');
   buildTierAccent(); buildPagesList(); buildBgs();
 }
 function buildTierAccent() {

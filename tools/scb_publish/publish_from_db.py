@@ -784,6 +784,22 @@ def main():
     old_slots = json.loads(slots_file.read_text(encoding='utf-8')) if slots_file.exists() else None
     sd = [] if (old_slots == slots) else ['  ~ slots.json: ' + str(len(slots)) + ' slots']
     books = build_manifest(by_id, slots, rep, failed_ids)
+    # the slot's "spreads" is the minimum: a person's book grows (up to 8 spreads = 16 pages) when the content needs more pages (same planner as the renderer)
+    try:
+        import render_books as RB
+    except ImportError as e_:
+        RB = None
+        rep.warn(f'render_books could not be imported ({e_}); the slot spreads are used as they are')
+    if RB is not None:
+        slot_person = {s_['slot']: s_.get('person') for s_ in slots}
+        for e_ in books:
+            if e_.get('type') != 'person':
+                continue
+            pid_ = slot_person.get(e_['slot']); p_ = by_id.get(pid_)
+            if p_ is None:
+                continue
+            th_ = {**(theme_new or {}), **((pt_new or {}).get(pid_) or {})}
+            e_['spreads'] = RB.plan_book(p_, e_['spreads'], a.fe, RB.Report(), {}, new_chars.get(pid_), RB.bonds_of(pid_, relations, by_id, a.fe), th_, e_['tier'])[0]
     for w in fan_new.get('works', []):                   # one book per volume of every approved fan work
         for vi, slot in enumerate(w.get('slots', [])):
             label = fanbook.volume_label(vi, w['volumes'])

@@ -71,7 +71,7 @@ const volumesOf = items => Math.min(MAX_VOLUMES, Math.max(1, Math.ceil(items.len
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; };
 const safeImg = p => typeof p === 'string' && /^assets\/[A-Za-z0-9_./-]+\.(jpg|jpeg|png|webp)$/i.test(p) && !p.includes('..') && !p.includes('//');
-const ROT = '\u2026\u2025\u2015\u2014\u2500';
+const ROT = '\u2026\u2025\u2015\u2500\uff1a';
 function fillCol(div, t) { for (const ch of Array.from(t === '' ? ' ' : t)) { if (ROT.includes(ch)) div.append(el('span', { className: 'rot' }, ch)); else div.append(document.createTextNode(ch)); } }
 let items = [], idx = 0, work = null;
 function draw() {

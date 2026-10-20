@@ -204,7 +204,7 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     if not photos:
         photos = [(g, '') for g in (p.get('gallery') or [])]
     photo_pages = []
-    if (theme or {}).get('galleryLayout') == 'outfit' and not extra.get('bookPages') and any(o.get('images') for o in (extra.get('outfits') or [])):
+    if (theme or {}).get('galleryLayout', 'outfit') == 'outfit' and not extra.get('bookPages') and any(o.get('images') for o in (extra.get('outfits') or [])):
         for o in extra.get('outfits') or []:               # one page per outfit: all its pictures together, scaled to fit without cropping
             imgs = [x for x in o.get('images', []) if x and SAFE_IMG.match(x) and (fe / x).exists()]
             for x in o.get('images', []):
@@ -226,7 +226,7 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     lore_pages = []                                        # the member's own extra setting, vertical writing, right after ABOUT
     if (extra.get('lore') or '').strip():
         head = f'{p["name"]}　{(extra.get("loreTitle") or "").strip() or "設定"}'
-        lore_pages = [{'role': 'story_text', 'head': head, 'lines': ln, 'color': color} for ln in fanbook.paginate(extra['lore'])[:LORE_MAX_PAGES]]
+        lore_pages = [{'role': 'story_text', 'head': head, 'lines': ln, 'color': color} for ln in fanbook.paginate(extra['lore'], colon_heading=True)[:LORE_MAX_PAGES]]
     order = (theme or {}).get('pages')
     if order is None:                                      # default order (the layout used so far)
         if graph and len(graph) == 2:                      # right after the profile (p.3 / p.4), so the two halves face each other
@@ -259,6 +259,15 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
     while len(pages) < total:
         pages.append({'role': 'blank'})
     return pages
+
+
+def plan_book(p, slot_spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=None, theme=None, tier=None):
+    """(spreads, pages) of a person book: the slot's spreads is the minimum; when the content needs more pages the book grows (up to MAX_SPREADS).
+    The publisher calls this too, so the manifest and the rendered images always agree."""
+    full = build_pages(p, MAX_SPREADS, fe, rep, tpl, extra, bonds, theme, tier)
+    used = max([i + 1 for i, pg in enumerate(full) if pg['role'] != 'blank'] or [1])
+    spreads = min(MAX_SPREADS, max(slot_spreads, -(-used // 2)))
+    return spreads, full[:spreads * 2]
 
 
 def bonds_of(pid, relations, people, fe: Path):
@@ -354,7 +363,7 @@ def graph_body(pg, fe: Path):
 
 def rot_chars(html_text):
     """In vertical columns the horizontal ellipsis and dashes must stand up: wrap them in a 90-degree turned box."""
-    return re.sub('([\u2026\u2025\u2015\u2014\u2500])', r'<span class="rot">\1</span>', html_text)
+    return re.sub('([\u2026\u2025\u2015\u2500\uff1a])', r'<span class="rot">\1</span>', html_text)
 
 
 def page_html(pg, tpl, fe: Path, number: int, theme=None):
@@ -601,7 +610,7 @@ def main():
             rep.error(f'{slot}: person books support 1..{MAX_SPREADS} spreads'); continue
         tier = 'teacher' if p['kind'] == 'teacher' else {'1年': 'y1', '2年': 'y2', '3年': 'y3'}.get(p.get('grade'), 'y1')
         theme = {**theme_global, **(person_themes.get(p['id']) or {})}
-        pages = build_pages(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe), theme, tier)
+        spreads, pages = plan_book(p, spreads, a.fe, rep, tpl, content.get(p['id']), bonds_of(p['id'], relations, people, a.fe), theme, tier)
         imgs = [a.fe / x for pg in pages for x in (pg.get('portrait'), pg.get('image'), (pg.get('center') or {}).get('portrait'), *pg.get('images', []),
                                                       *[b.get('portrait') for b in pg.get('bonds', [])]) if x]
         bgs = {background_of(theme, 'photo' if pg['role'] == 'collage' else pg['role'], tier) for pg in pages if pg['role'] != 'blank'} - {None}
