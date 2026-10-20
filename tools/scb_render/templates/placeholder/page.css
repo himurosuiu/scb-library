@@ -44,6 +44,15 @@ body.pf-shadow .photo-box{border:none;box-shadow:0 10px 30px rgba(60,30,30,.28)}
 .rows.dense .row{padding:12px 0}
 .rows.dense .v{font-size:calc(34px*var(--fs));height:44px}
 
+/* profile body: rows, then the likes / dislikes notes in the space that is left above the colour bar */
+.pbody{position:absolute;left:70px;top:200px;width:788px;bottom:184px;display:flex;flex-direction:column;overflow:hidden}
+.pbody .rows{position:static}
+.pbody .rows.dense .row{padding:8px 0}
+.notes{margin-top:26px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0}
+.note{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+.note h3{font-size:calc(26px*var(--fs));font-weight:400;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:6px;margin-bottom:8px;flex:0 0 auto}
+.note p{flex:1 1 auto;min-height:0;overflow:hidden;font-size:calc(30px*var(--fs));line-height:1.55;overflow-wrap:anywhere}
+
 /* introduction page */
 .secs{position:absolute;left:70px;top:200px;width:788px;height:1200px;overflow:hidden}
 .sec{margin-bottom:34px}

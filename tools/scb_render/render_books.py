@@ -104,7 +104,8 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
         rep.warn(f'{p["id"]}: portrait file missing: {portrait}'); portrait = None
     pages.append({'role': 'title', 'name': p['name'], 'kana': p['nameKana'], 'roleLine': role_line(p),
                   'portrait': portrait, 'color': color})
-    pages.append({'role': 'profile', 'name': p['name'], 'rows': profile_rows(p, extra), 'color': color})
+    notes = [(k, extra[key]) for k, key in (('好きなもの', 'likes'), ('苦手なもの', 'dislikes')) if extra.get(key)]
+    pages.append({'role': 'profile', 'name': p['name'], 'rows': profile_rows(p, extra), 'notes': notes, 'color': color})
     graph = None
     if bonds:
         if len(bonds) > MAX_GRAPH:
@@ -116,7 +117,7 @@ def build_pages(p, spreads, fe: Path, rep: Report, tpl: dict, extra=None, bonds=
                      {'role': 'graph', 'span': 2, 'half': 'L', 'bonds': bonds, 'center': center, 'color': color}]
         else:
             graph = [{'role': 'graph', 'span': 1, 'half': 'S', 'bonds': bonds, 'center': center, 'color': color}]
-    secs = [(k, extra[key]) for k, key in (('好きなもの', 'likes'), ('苦手なもの', 'dislikes'), ('人物紹介', 'about')) if extra.get(key)]
+    secs = [(k, extra[key]) for k, key in (('人物紹介', 'about'),) if extra.get(key)]   # likes / dislikes live on the PROFILE page
     photos = []                                            # (image, caption)
     for bp in extra.get('bookPages') or []:
         photos.append((bp.get('image'), bp.get('caption', '')))
@@ -280,8 +281,11 @@ def page_html(pg, tpl, fe: Path, number: int, theme=None):
     elif role == 'profile':
         rows = ''.join(f'<div class="row"><span class="k">{esc(k)}</span><span class="v" data-fit="1" data-min="22">{esc(v)}</span></div>'
                        for k, v in pg['rows'])
-        dense = ' dense' if len(pg['rows']) > 9 else ''
-        body = f'<h2>PROFILE</h2><div class="rows{dense}">{rows}</div><div class="swatch"></div>'
+        dense = ' dense' if len(pg['rows']) > 9 or pg.get('notes') else ''   # leave room for the likes / dislikes notes
+        notes = ''.join(f'<div class="note"><h3>{esc(k)}</h3><p data-fit="1" data-min="18">{esc(v).replace(chr(10), "<br>")}</p></div>'
+                        for k, v in pg.get('notes', []))
+        notes = f'<div class="notes">{notes}</div>' if notes else ''
+        body = f'<h2>PROFILE</h2><div class="pbody"><div class="rows{dense}">{rows}</div>{notes}</div><div class="swatch"></div>'
     elif role == 'about':
         secs = ''.join(f'<div class="sec"><h3>{esc(k)}</h3><p>{esc(v).replace(chr(10), "<br>")}</p></div>' for k, v in pg['sections'])
         body = f'<h2>ABOUT</h2><div class="secs">{secs}</div>'
