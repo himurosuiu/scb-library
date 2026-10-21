@@ -3,4 +3,4 @@
 
 .lore-text{line-height:2;color:#4a3a3d;max-width:46em}.lore-text p{margin:0}.lore-text .lore-gap{height:.8em}.lore-text h3{margin:1.2em 0 .3em;font-size:1.05em;color:#8a4a58}
 
-#personAbout{white-space:pre-line}.detail-content-grid #loreSection{grid-column:1/-1!important}.detail-content-grid #loreSection .lore-text{max-width:62em}
+#personAbout{white-space:pre-line}.detail-content-grid #loreSection{grid-column:1/-1!important}.detail-content-grid #loreSection .lore-text{max-width:none}
