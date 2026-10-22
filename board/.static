@@ -1,0 +1,1 @@
+The board images are fixed (made with tools/scb_board/make_static_board.py). The automatic publisher does not redraw the board while this file exists.

@@ -58,6 +58,7 @@ jobs:
 
       - name: Draw the relationship board
         run: |
+          if [ -f board/.static ]; then echo "board/.static exists: the board images are fixed, not redrawing"; exit 0; fi
           FORCE=""
           if [ "${{ github.event.inputs.force_render }}" = "true" ]; then FORCE="--force"; fi
           python -X utf8 tools/scb_board/render_board.py --fe . --fonts tools/fonts/NotoSansJP --out-dir "$RUNNER_TEMP/board" --if-changed board/.render-state $FORCE
