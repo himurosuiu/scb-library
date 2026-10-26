@@ -15,7 +15,11 @@ W, H = 2048, 1638
 
 
 def tile(path):
-    im = Image.open(path).convert('RGB')
+    im = Image.open(path)
+    if im.mode in ('RGBA', 'LA', 'P'):           # transparent areas become white, not black
+        rgba = im.convert('RGBA'); flat = Image.new('RGB', rgba.size, (255, 255, 255)); flat.paste(rgba, mask=rgba.split()[3]); im = flat
+    else:
+        im = im.convert('RGB')
     c = Image.new('RGB', (W, H), (255, 255, 255))
     h = round(im.height * W / im.width)
     if h > H:                                   # taller than 5:4: fit by height instead
