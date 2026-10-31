@@ -692,6 +692,19 @@ def main():
             else:
                 rep.warn(f'tier art {k}: image is missing in the frontend: {v}')
     td = [] if tier_new == tier_old else ['  ~ tier-art.json: ' + ', '.join(sorted(set(tier_old) | set(tier_new)))]
+    # World board images (uploaded in the admin hub, studio/board.html): data/board.json = {left, right}. The workflow makes the two board
+    # tiles from them (tools/scb_board/make_static_board.py); no board.json (or {}) = the board is drawn from the relationship data.
+    board_file = a.fe / 'data' / 'board.json'
+    board_old = json.loads(board_file.read_text(encoding='utf-8')) if board_file.exists() else {}
+    board_new = {k: v for k, v in (settings.get('board.images') or {}).items() if v and k in ('left', 'right')} if 'board.images' in settings else board_old
+    for k, v in board_new.items():
+        if not (a.fe / v).exists():
+            m = UPLOAD_RE.match(v)
+            if m and m.group(1) == 'site' and url:
+                site_fetch.append((v, f'site/{m.group(2)}'))
+            else:
+                rep.warn(f'board image {k}: image is missing in the frontend: {v}')
+    bd = [] if board_new == board_old else ['  ~ board.json: ' + ', '.join(sorted(set(board_old) | set(board_new)))]
     # website art slots (home hero, cards, decorations): data/site-art-base.json (original) + settings 'site.art' overrides -> data/site-art.json
     art_file = a.fe / 'data' / 'site-art.json'
     art_base_file = a.fe / 'data' / 'site-art-base.json'
@@ -877,6 +890,8 @@ def main():
     print('\n'.join(ad) if ad else '  (no changes)')
     print('\n== data/slots.json (book slots used by the page renderer) ==')
     print('\n'.join(sd) if sd else '  (no changes)')
+    print('\n== data/board.json (World board images from the hub) ==')
+    print('\n'.join(bd) if bd else '  (no changes)')
     print('\n== member uploads to copy from Storage into assets/ ==')
     print('\n'.join(f'  + {p}' for p, _ in to_fetch) if to_fetch else '  (none)')
     print('\n== world: books/bookmarks.json (bookmark messages) ==')
@@ -890,7 +905,7 @@ def main():
 
     if rep.errors:
         print('\nResult: FAILED. Nothing written.'); sys.exit(2)
-    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_ or fd or bm_changed):
+    if not (pd or dd or changed_books or cd or to_fetch or rd or sd or td or th or ad or pd_ or fd or bm_changed or bd):
         print('\nResult: already up to date.'); return
     if not a.apply:
         print('\nResult: DRY RUN. Re-run with --apply to write these files. (Nothing was pushed.)'); return
@@ -906,6 +921,7 @@ def main():
     targets.append((rel_file, rel_doc, bool(rd)))
     targets.append((slots_file, slots, bool(sd)))
     targets.append((tier_file, tier_new, bool(td)))
+    targets.append((board_file, board_new, bool(bd)))
     targets.append((theme_file, theme_new, bool(th)))
     targets.append((fan_file, fan_new, bool(fd)))
     targets.append((pt_file, pt_new, bool(pd_)))

@@ -58,6 +58,16 @@ jobs:
 
       - name: Draw the relationship board
         run: |
+          # 1) images chosen in the admin hub (data/board.json = {left, right}): fit them onto the two board tiles and stop
+          if [ -f data/board.json ] && python -X utf8 -c "import json,sys; d=json.load(open('data/board.json',encoding='utf-8')); sys.exit(0 if d.get('left') and d.get('right') else 1)"; then
+            LEFT=$(python -X utf8 -c "import json; print(json.load(open('data/board.json',encoding='utf-8'))['left'])")
+            RIGHT=$(python -X utf8 -c "import json; print(json.load(open('data/board.json',encoding='utf-8'))['right'])")
+            python -X utf8 tools/scb_board/make_static_board.py "$LEFT" "$RIGHT" board
+            rm -f board/.static     # the hub is in charge now; clearing the images there goes back to the drawn board
+            echo "board: fixed images from the admin hub"
+            exit 0
+          fi
+          # 2) images kept by hand in the repository (board/.static): do not redraw
           if [ -f board/.static ]; then echo "board/.static exists: the board images are fixed, not redrawing"; exit 0; fi
           FORCE=""
           if [ "${{ github.event.inputs.force_render }}" = "true" ]; then FORCE="--force"; fi
