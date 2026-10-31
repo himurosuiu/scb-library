@@ -253,5 +253,20 @@
     "person": "nocturia-mistil",
     "spreads": 6,
     "coverName": "シスター・ミスティル"
+  },
+  {
+    "slot": "person-051",
+    "person": "hinata-madoka",
+    "spreads": 6
+  },
+  {
+    "slot": "person-052",
+    "person": "giselle-de-burue",
+    "spreads": 6
+  },
+  {
+    "slot": "person-053",
+    "person": "kisaragi-akari",
+    "spreads": 6
   }
 ]

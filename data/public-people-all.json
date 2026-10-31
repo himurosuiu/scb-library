@@ -802,6 +802,54 @@
       "portrait": "assets/portraits/tsuyugi-fuyo.jpg",
       "fullBody": null,
       "gallery": []
+    },
+    {
+      "id": "giselle-de-burue",
+      "name": "ジゼル・ド・ブルエ",
+      "nameKana": "じぜる・ど・ぶるえ",
+      "romaji": "Giselle de Burue",
+      "kind": "student",
+      "grade": "2年",
+      "club": "帰宅部",
+      "color": null,
+      "status": "salon",
+      "group": "2年生 帰宅部",
+      "image": "assets/portraits/giselle-de-burue.jpg",
+      "portrait": "assets/portraits/giselle-de-burue.jpg",
+      "fullBody": null,
+      "gallery": []
+    },
+    {
+      "id": "hinata-madoka",
+      "name": "陽向 まどか",
+      "nameKana": "ひなた まどか",
+      "romaji": "Hinata Madoka",
+      "kind": "student",
+      "grade": "3年",
+      "club": "園芸部部長",
+      "color": null,
+      "status": "salon",
+      "group": "3年生 園芸部部長",
+      "image": "assets/portraits/hinata-madoka.jpg",
+      "portrait": "assets/portraits/hinata-madoka.jpg",
+      "fullBody": null,
+      "gallery": []
+    },
+    {
+      "id": "kisaragi-akari",
+      "name": "如月 あかり",
+      "nameKana": "きさらぎ あかり",
+      "romaji": "Kisaragi Akari",
+      "kind": "student",
+      "grade": "1年",
+      "club": "陸上部",
+      "color": null,
+      "status": "salon",
+      "group": "1年生 陸上部",
+      "image": "assets/portraits/kisaragi-akari.jpg",
+      "portrait": "assets/portraits/kisaragi-akari.jpg",
+      "fullBody": null,
+      "gallery": []
     }
   ]
 }

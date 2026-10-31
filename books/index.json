@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-20",
+  "updated": "2026-10-31",
   "books": [
     {
       "slot": "person-001",
@@ -505,6 +505,36 @@
       "spineText": "シスター　ミスティル",
       "spreads": 6,
       "zone": "forbidden"
+    },
+    {
+      "slot": "person-051",
+      "type": "person",
+      "tier": "y3",
+      "color": "#d9c3cf",
+      "coverTop": "三年生　園芸部部長",
+      "coverName": "陽向 まどか",
+      "spineText": "三年生　陽向 まどか",
+      "spreads": 6
+    },
+    {
+      "slot": "person-052",
+      "type": "person",
+      "tier": "y2",
+      "color": "#d9c3cf",
+      "coverTop": "二年生　帰宅部",
+      "coverName": "ジゼル・ド・ブルエ",
+      "spineText": "二年生　ジゼル・ド・ブルエ",
+      "spreads": 6
+    },
+    {
+      "slot": "person-053",
+      "type": "person",
+      "tier": "y1",
+      "color": "#d9c3cf",
+      "coverTop": "一年生　陸上部",
+      "coverName": "如月 あかり",
+      "spineText": "一年生　如月 あかり",
+      "spreads": 6
     },
     {
       "slot": "story-001",
